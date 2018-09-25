@@ -38,7 +38,8 @@ import * as Plugins from './plugins';
 import { indexPatternsMixin } from './index_patterns';
 import { savedObjectsMixin } from './saved_objects';
 import { sampleDataMixin } from './sample_data';
-import { kibanaIndexMappingsMixin } from './mappings';
+import { taskManagerMixin } from './task_manager';
+import { KibanaMigrator } from './saved_objects/migrations';
 import { urlShorteningMixin } from './url_shortening';
 import { serverExtensionsMixin } from './server_extensions';
 import { uiMixin } from '../ui';
@@ -88,14 +89,14 @@ export default class KbnServer {
       i18nMixin,
       indexPatternsMixin,
 
-      // setup server.getKibanaIndexMappingsDsl()
-      kibanaIndexMappingsMixin,
-
       // setup saved object routes
       savedObjectsMixin,
 
       // setup routes for installing/uninstalling sample data sets
       sampleDataMixin,
+
+      // task manager service
+      taskManagerMixin,
 
       // setup routes for short urls
       urlShorteningMixin,
@@ -142,17 +143,21 @@ export default class KbnServer {
   async listen() {
     await this.ready();
 
+    const { server, config } = this;
+
+    await new KibanaMigrator({ kbnServer: this }).migrateIndex();
+
     if (isWorker) {
       // help parent process know when we are ready
       process.send(['WORKER_LISTENING']);
     }
 
-    const { server, config } = this;
     server.log(['listening', 'info'], `Server running at ${server.info.uri}${
       config.get('server.rewriteBasePath')
         ? config.get('server.basePath')
         : ''
     }`);
+
     return server;
   }
 
@@ -177,7 +182,7 @@ export default class KbnServer {
     const loggingOptions = loggingConfiguration(config);
     const subset = {
       ops: config.get('ops'),
-      logging: config.get('logging')
+      logging: config.get('logging'),
     };
     const plain = JSON.stringify(subset, null, 2);
     this.server.log(['info', 'config'], 'New logging configuration:\n' + plain);

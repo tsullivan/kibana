@@ -24,7 +24,13 @@ export {
 
 export {
   mappings,
-} from './saved_object_mappings';
+  migrations,
+  validations,
+} from './saved_object';
+
+export {
+  taskDefinitions
+} from './task_definitions';
 
 export {
   app,
@@ -43,7 +49,7 @@ export {
   inspectorViews,
   chromeNavControls,
   navbarExtensions,
-  dashboardPanelActions,
+  contextMenuActions,
   managementSections,
   devTools,
   docViews,
@@ -54,6 +60,7 @@ export {
   visualize,
   search,
   autocompleteProviders,
+  shareContextMenuExtensions,
 } from './ui_app_extensions';
 
 export {
@@ -64,6 +71,10 @@ export {
   link,
   links,
 } from './ui_nav_links';
+
+export {
+  styleSheetPaths
+} from './style_sheet_paths';
 
 export {
   uiSettingDefaults,
