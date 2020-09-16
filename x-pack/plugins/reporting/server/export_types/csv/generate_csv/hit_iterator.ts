@@ -12,22 +12,12 @@ import { ScrollConfig } from '../../../types';
 
 export type EndpointCaller = (method: string, params: object) => Promise<SearchResponse<any>>;
 
-function parseResponse(request: SearchResponse<any>) {
-  const response = request;
-  if (!response || !response._scroll_id) {
-    throw new Error(
-      i18n.translate('xpack.reporting.exportTypes.csv.hitIterator.expectedScrollIdErrorMessage', {
-        defaultMessage: 'Expected {scrollId} in the following Elasticsearch response: {response}',
-        values: { response: JSON.stringify(response), scrollId: '_scroll_id' },
-      })
-    );
-  }
-
-  if (!response.hits) {
+function parseResponse(response: SearchResponse<any>) {
+  if (!response || !response.hits) {
     throw new Error(
       i18n.translate('xpack.reporting.exportTypes.csv.hitIterator.expectedHitsErrorMessage', {
-        defaultMessage: 'Expected {hits} in the following Elasticsearch response: {response}',
-        values: { response: JSON.stringify(response), hits: 'hits' },
+        defaultMessage: 'Expected hits in the following Elasticsearch response: {response}',
+        values: { response: JSON.stringify(response) },
       })
     );
   }
@@ -84,7 +74,7 @@ export function createHitIterator(logger: LevelLogger) {
     try {
       let { scrollId, hits } = await search(searchRequest.index, searchRequest.body);
       try {
-        while (hits && hits.length && !cancellationToken.isCancelled()) {
+        while (scrollId && hits && hits.length && !cancellationToken.isCancelled()) {
           for (const hit of hits) {
             yield hit;
           }
@@ -98,7 +88,9 @@ export function createHitIterator(logger: LevelLogger) {
           }
         }
       } finally {
-        await clearScroll(scrollId);
+        if (scrollId) {
+          await clearScroll(scrollId);
+        }
       }
     } catch (err) {
       logger.error(err);

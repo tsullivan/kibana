@@ -95,6 +95,32 @@ describe('hitIterator', function () {
     );
   });
 
+  it('stops searches when scroll_id is not returned', async () => {
+    // Setup
+    mockCallEndpoint.onCall(3).resolves({ hits: { hits: ['you found me'] } });
+
+    // Begin
+    const hitIterator = createHitIterator(mockLogger);
+    const iterator = hitIterator(
+      mockConfig,
+      mockCallEndpoint,
+      mockSearchRequest,
+      realCancellationToken
+    );
+
+    while (true) {
+      const { done: iterationDone, value: hit } = await iterator.next();
+      if (iterationDone) {
+        break;
+      }
+      expect(hit).to.be('you found me');
+    }
+
+    expect(mockCallEndpoint.callCount).to.be(4);
+    expect(warnLogStub.callCount).to.be(0);
+    expect(errorLogStub.callCount).to.be(0);
+  });
+
   it('handles time out', async () => {
     // Setup
     mockCallEndpoint.onCall(2).resolves({ status: 404 });
@@ -118,8 +144,8 @@ describe('hitIterator', function () {
         expect(hit).to.be('you found me');
       }
     } catch (err) {
-      expect(err).to.eql(
-        new Error('Expected _scroll_id in the following Elasticsearch response: {"status":404}')
+      expect(err.message).to.be(
+        'Expected hits in the following Elasticsearch response: {"status":404}'
       );
       errorThrown = true;
     }
