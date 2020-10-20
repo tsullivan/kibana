@@ -9,10 +9,9 @@ import * as Rx from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { ReportingCore } from '../../../';
 import { LevelLogger } from '../../../lib';
-import { createLayout, LayoutParams } from '../../../lib/layouts';
+import { createLayout, LayoutInstance, LayoutParams } from '../../../lib/layouts';
 import { ScreenshotResults } from '../../../lib/screenshots';
 import { ConditionalHeaders } from '../../common';
-// @ts-ignore untyped module
 import { pdf } from './pdf';
 import { getTracker } from './tracker';
 
@@ -43,7 +42,7 @@ export async function generatePdfObservableFactory(reporting: ReportingCore) {
     const tracker = getTracker();
     tracker.startLayout();
 
-    const layout = createLayout(captureConfig, layoutParams);
+    const layout: LayoutInstance = createLayout(captureConfig, layoutParams);
     tracker.endLayout();
 
     tracker.startScreenshots();
