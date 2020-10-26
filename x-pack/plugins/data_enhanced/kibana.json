@@ -7,7 +7,9 @@
   ],
   "requiredPlugins": [
     "data",
-    "features"
+    "features",
+    "licensing",
+    "management"
   ],
   "optionalPlugins": ["kibanaUtils", "usageCollection"],
   "server": true,

@@ -5,14 +5,18 @@
  */
 
 import { CoreSetup, CoreStart, Plugin } from 'src/core/public';
+import { ManagementSetup } from 'src/plugins/management/public';
 import { DataPublicPluginSetup, DataPublicPluginStart } from '../../../../src/plugins/data/public';
-import { setAutocompleteService } from './services';
-import { setupKqlQuerySuggestionProvider, KUERY_LANGUAGE_NAME } from './autocomplete';
-
+import { LicensingPluginSetup } from '../../licensing/public';
+import { KUERY_LANGUAGE_NAME, setupKqlQuerySuggestionProvider } from './autocomplete';
+import { registerBackgroundSessionsManagement } from './background_session_management';
 import { EnhancedSearchInterceptor } from './search/search_interceptor';
+import { setAutocompleteService } from './services';
 
 export interface DataEnhancedSetupDependencies {
   data: DataPublicPluginSetup;
+  licensing: LicensingPluginSetup;
+  management: ManagementSetup;
 }
 export interface DataEnhancedStartDependencies {
   data: DataPublicPluginStart;
@@ -27,7 +31,7 @@ export class DataEnhancedPlugin
 
   public setup(
     core: CoreSetup<DataEnhancedStartDependencies>,
-    { data }: DataEnhancedSetupDependencies
+    { data, licensing, management }: DataEnhancedSetupDependencies
   ) {
     data.autocomplete.addQuerySuggestionProvider(
       KUERY_LANGUAGE_NAME,
@@ -48,6 +52,8 @@ export class DataEnhancedPlugin
         searchInterceptor: this.enhancedSearchInterceptor,
       },
     });
+
+    registerBackgroundSessionsManagement(management, licensing.license$);
   }
 
   public start(core: CoreStart, plugins: DataEnhancedStartDependencies) {
