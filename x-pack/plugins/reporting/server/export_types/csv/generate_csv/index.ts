@@ -120,7 +120,7 @@ export async function generateCsv(
       }
 
       if (!builder.tryAppend(rows + '\n')) {
-        logger.warn('max Size Reached');
+        logger.warn(`Max size reached: CSV output truncated to ${builder.getSizeInBytes()} bytes`);
         maxSizeReached = true;
         if (cancellationToken) {
           cancellationToken.cancel();
@@ -132,7 +132,7 @@ export async function generateCsv(
     await iterator.return();
   }
   const size = builder.getSizeInBytes();
-  logger.debug(`finished generating, total size in bytes: ${size}`);
+  logger.info(`finished generating, total size in bytes: ${size}`);
 
   if (csvContainsFormulas && settings.escapeFormulaValues) {
     warnings.push(
