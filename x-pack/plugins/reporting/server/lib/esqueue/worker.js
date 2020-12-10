@@ -232,7 +232,16 @@ export class Worker extends events.EventEmitter {
       const cancellationToken = new CancellationToken();
       const jobSource = job._source;
 
-      Promise.resolve(this.workerFn.call(null, job, jobSource.payload, cancellationToken))
+      // what if is observable?
+      const workResult = this.workerFn.call(null, job, jobSource.payload, cancellationToken);
+      if (workResult.operator != null) {
+        // is an Observable
+        workResult.subscribe(() => {
+          throw new Error('hungryienss');
+        });
+      }
+
+      Promise.resolve(workResult)
         .then((res) => {
           // job execution was successful
           if (res && res.warnings && res.warnings.length > 0) {

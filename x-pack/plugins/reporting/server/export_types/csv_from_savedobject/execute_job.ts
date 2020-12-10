@@ -4,12 +4,13 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import { first } from 'rxjs/operators';
 import { KibanaRequest, RequestHandlerContext } from 'src/core/server';
 import { CancellationToken } from '../../../common';
 import { CONTENT_TYPE_CSV, CSV_FROM_SAVEDOBJECT_JOB_TYPE } from '../../../common/constants';
 import { TaskRunResult } from '../../lib/tasks';
 import { RunTaskFnFactory } from '../../types';
-import { generateCsv } from '../csv/generate_csv';
+import { generateCsv$ } from '../csv/generate_csv';
 import { getGenerateCsvParams } from './lib/get_csv_job';
 import { JobPayloadPanelCsv } from './types';
 
@@ -43,14 +44,17 @@ export const runTaskFnFactory: RunTaskFnFactory<ImmediateExecuteFn> = function e
     const elasticsearch = reporting.getElasticsearchService();
     const { callAsCurrentUser } = elasticsearch.legacy.client.asScoped(req);
 
-    const { content, maxSizeReached, size, csvContainsFormulas, warnings } = await generateCsv(
+    // all in one chunk
+    const { content, maxSizeReached, size, csvContainsFormulas, warnings } = await generateCsv$(
       job,
       config,
       uiSettingsClient,
       callAsCurrentUser,
       new CancellationToken(), // can not be cancelled
       logger
-    );
+    )
+      .pipe(first())
+      .toPromise();
 
     if (csvContainsFormulas) {
       logger.warn(`CSV may contain formulas whose values have been escaped`);

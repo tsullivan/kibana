@@ -5,6 +5,8 @@
  */
 
 import { i18n } from '@kbn/i18n';
+import * as Rx from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import { IUiSettingsClient } from 'src/core/server';
 import { ReportingConfig } from '../../../';
 import { CancellationToken } from '../../../../../../plugins/reporting/common';
@@ -36,7 +38,7 @@ interface SearchRequest {
     | any;
 }
 
-export interface GenerateCsvParams {
+export interface CsvJobParams {
   browserTimezone?: string;
   searchRequest: SearchRequest;
   indexPatternSavedObject: IndexPatternSavedObject;
@@ -45,108 +47,118 @@ export interface GenerateCsvParams {
   conflictedTypesFields: string[];
 }
 
-export async function generateCsv(
-  job: GenerateCsvParams,
-  config: ReportingConfig,
-  uiSettingsClient: IUiSettingsClient,
-  callEndpoint: EndpointCaller,
-  cancellationToken: CancellationToken,
-  logger: LevelLogger
-): Promise<SavedSearchGeneratorResult> {
-  const settings = await getUiSettings(job.browserTimezone, uiSettingsClient, config, logger);
-  const escapeValue = createEscapeValue(settings.quoteValues, settings.escapeFormulaValues);
-  const bom = config.get('csv', 'useByteOrderMarkEncoding') ? CSV_BOM_CHARS : '';
-  const builder = new MaxSizeStringBuilder(byteSizeValueToNumber(settings.maxSizeBytes), bom);
+type GenerateCsvParams = [
+  CsvJobParams,
+  ReportingConfig,
+  IUiSettingsClient,
+  EndpointCaller,
+  CancellationToken,
+  LevelLogger
+];
 
-  const { fields, metaFields, conflictedTypesFields } = job;
-  const header = `${fields.map(escapeValue).join(settings.separator)}\n`;
-  const warnings: string[] = [];
+export function generateCsv$(
+  ...[job, config, uiSettingsClient, callEndpoint, cancellationToken, logger]: GenerateCsvParams
+): Rx.Observable<SavedSearchGeneratorResult> {
+  return Rx.of().pipe(
+    mergeMap(async () => {
+      const settings = await getUiSettings(job.browserTimezone, uiSettingsClient, config, logger);
+      const escapeValue = createEscapeValue(settings.quoteValues, settings.escapeFormulaValues);
+      const bom = config.get('csv', 'useByteOrderMarkEncoding') ? CSV_BOM_CHARS : '';
+      const builder = new MaxSizeStringBuilder(byteSizeValueToNumber(settings.maxSizeBytes), bom);
 
-  if (!builder.tryAppend(header)) {
-    return {
-      size: 0,
-      content: '',
-      maxSizeReached: true,
-      warnings: [],
-    };
-  }
+      const { fields, metaFields, conflictedTypesFields } = job;
+      const header = `${fields.map(escapeValue).join(settings.separator)}\n`;
+      const warnings: string[] = [];
 
-  const iterator = hitIterator(
-    settings.scroll,
-    callEndpoint,
-    job.searchRequest,
-    cancellationToken,
-    logger
-  );
-  let maxSizeReached = false;
-  let csvContainsFormulas = false;
-
-  const flattenHit = createFlattenHit(fields, metaFields, conflictedTypesFields);
-  const formatsMap = await getFieldFormats()
-    .fieldFormatServiceFactory(uiSettingsClient)
-    .then((fieldFormats) =>
-      fieldFormatMapFactory(job.indexPatternSavedObject, fieldFormats, settings.timezone)
-    );
-
-  const formatCsvValues = createFormatCsvValues(
-    escapeValue,
-    settings.separator,
-    fields,
-    formatsMap
-  );
-  try {
-    while (true) {
-      const { done, value: hit } = await iterator.next();
-
-      if (!hit) {
-        break;
+      if (!builder.tryAppend(header)) {
+        return {
+          size: 0,
+          content: '',
+          maxSizeReached: true,
+          warnings: [],
+        };
       }
 
-      if (done) {
-        break;
-      }
+      const iterator = hitIterator(
+        settings.scroll,
+        callEndpoint,
+        job.searchRequest,
+        cancellationToken,
+        logger
+      );
+      let maxSizeReached = false;
+      let csvContainsFormulas = false;
 
-      if (cancellationToken.isCancelled()) {
-        break;
-      }
+      const flattenHit = createFlattenHit(fields, metaFields, conflictedTypesFields);
+      const formatsMap = await getFieldFormats()
+        .fieldFormatServiceFactory(uiSettingsClient)
+        .then((fieldFormats) =>
+          fieldFormatMapFactory(job.indexPatternSavedObject, fieldFormats, settings.timezone)
+        );
 
-      const flattened = flattenHit(hit);
-      const rows = formatCsvValues(flattened);
-      const rowsHaveFormulas =
-        settings.checkForFormulas && checkIfRowsHaveFormulas(flattened, fields);
+      const formatCsvValues = createFormatCsvValues(
+        escapeValue,
+        settings.separator,
+        fields,
+        formatsMap
+      );
+      try {
+        while (true) {
+          const { done, value: hit } = await iterator.next();
 
-      if (rowsHaveFormulas) {
-        csvContainsFormulas = true;
-      }
+          if (!hit) {
+            break;
+          }
 
-      if (!builder.tryAppend(rows + '\n')) {
-        logger.warn(`Max size reached: CSV output truncated to ${builder.getSizeInBytes()} bytes`);
-        maxSizeReached = true;
-        if (cancellationToken) {
-          cancellationToken.cancel();
+          if (done) {
+            break;
+          }
+
+          if (cancellationToken.isCancelled()) {
+            break;
+          }
+
+          const flattened = flattenHit(hit);
+          const rows = formatCsvValues(flattened);
+          const rowsHaveFormulas =
+            settings.checkForFormulas && checkIfRowsHaveFormulas(flattened, fields);
+
+          if (rowsHaveFormulas) {
+            csvContainsFormulas = true;
+          }
+
+          if (!builder.tryAppend(rows + '\n')) {
+            logger.warn(
+              `Max size reached: CSV output truncated to ${builder.getSizeInBytes()} bytes`
+            );
+            maxSizeReached = true;
+            if (cancellationToken) {
+              cancellationToken.cancel();
+            }
+            break;
+          }
         }
-        break;
+      } finally {
+        await iterator.return();
       }
-    }
-  } finally {
-    await iterator.return();
-  }
-  const size = builder.getSizeInBytes();
-  logger.info(`finished generating, total size in bytes: ${size}`);
+      const size = builder.getSizeInBytes();
+      logger.info(`finished generating, total size in bytes: ${size}`);
 
-  if (csvContainsFormulas && settings.escapeFormulaValues) {
-    warnings.push(
-      i18n.translate('xpack.reporting.exportTypes.csv.generateCsv.escapedFormulaValues', {
-        defaultMessage: 'CSV may contain formulas whose values have been escaped',
-      })
-    );
-  }
+      if (csvContainsFormulas && settings.escapeFormulaValues) {
+        warnings.push(
+          i18n.translate('xpack.reporting.exportTypes.csv.generateCsv.escapedFormulaValues', {
+            defaultMessage: 'CSV may contain formulas whose values have been escaped',
+          })
+        );
+      }
 
-  return {
-    content: builder.getString(),
-    csvContainsFormulas: csvContainsFormulas && !settings.escapeFormulaValues,
-    maxSizeReached,
-    size,
-    warnings,
-  };
+      return {
+        content: builder.getString(),
+        csvContainsFormulas: csvContainsFormulas && !settings.escapeFormulaValues,
+        maxSizeReached,
+        size,
+        warnings,
+      };
+    })
+  );
 }

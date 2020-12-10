@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import * as Rx from 'rxjs';
 import { KibanaRequest, RequestHandlerContext } from 'src/core/server';
 // eslint-disable-next-line @kbn/eslint/no-restricted-paths
 import { DataPluginStart } from 'src/plugins/data/server/plugin';
@@ -67,7 +68,7 @@ export type RunTaskFn<TaskPayloadType = BasePayload> = (
   jobId: string,
   payload: ReportTaskParams<TaskPayloadType>['payload'],
   cancellationToken: CancellationToken
-) => Promise<TaskRunResult>;
+) => Promise<TaskRunResult> | Rx.Observable<TaskRunResult>;
 
 export type CreateJobFnFactory<CreateJobFnType> = (
   reporting: ReportingCore,

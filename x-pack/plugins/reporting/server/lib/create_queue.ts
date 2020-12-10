@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import * as Rx from 'rxjs';
 import { ReportingCore } from '../core';
 import { createWorkerFactory } from './create_worker';
 // @ts-ignore
@@ -34,7 +35,7 @@ export interface ESQueueInstance {
 type GenericWorkerFn<JobParamsType> = (
   jobSource: ReportDocument,
   ...workerRestArgs: any[]
-) => void | Promise<TaskRunResult>;
+) => void | Promise<TaskRunResult> | Rx.Observable<TaskRunResult>;
 
 export async function createQueueFactory(
   reporting: ReportingCore,

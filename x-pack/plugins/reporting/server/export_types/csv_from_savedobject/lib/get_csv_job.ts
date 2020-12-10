@@ -8,7 +8,7 @@ import { IUiSettingsClient, SavedObjectsClientContract } from 'kibana/server';
 import { EsQueryConfig } from 'src/plugins/data/server';
 import { esQuery, Filter, Query } from '../../../../../../../src/plugins/data/server';
 import { TimeRangeParams } from '../../common';
-import { GenerateCsvParams } from '../../csv/generate_csv';
+import { CsvJobParams } from '../../csv/generate_csv';
 import {
   DocValueFields,
   IndexPatternField,
@@ -44,7 +44,7 @@ export const getGenerateCsvParams = async (
   panel: SearchPanel,
   savedObjectsClient: SavedObjectsClientContract,
   uiConfig: IUiSettingsClient
-): Promise<GenerateCsvParams> => {
+): Promise<CsvJobParams> => {
   let timerange: TimeRangeParams | null;
   if (jobParams.post?.timerange) {
     timerange = jobParams.post?.timerange;
