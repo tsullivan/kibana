@@ -7,7 +7,7 @@
 import { CONTENT_TYPE_CSV, CSV_JOB_TYPE } from '../../../common/constants';
 import { RunTaskFn, RunTaskFnFactory } from '../../types';
 import { decryptJobHeaders } from '../common';
-import { createGenerateCsv } from './generate_csv';
+import { generateCsv } from './generate_csv';
 import { TaskPayloadCSV } from './types';
 
 export const runTaskFnFactory: RunTaskFnFactory<
@@ -18,7 +18,6 @@ export const runTaskFnFactory: RunTaskFnFactory<
   return async function runTask(jobId, job, cancellationToken) {
     const elasticsearch = reporting.getElasticsearchService();
     const logger = parentLogger.clone([CSV_JOB_TYPE, 'execute-job', jobId]);
-    const generateCsv = createGenerateCsv(logger);
 
     const encryptionKey = config.get('encryptionKey');
     const headers = await decryptJobHeaders(encryptionKey, job.headers, logger);
@@ -34,7 +33,8 @@ export const runTaskFnFactory: RunTaskFnFactory<
       config,
       uiSettingsClient,
       callEndpoint,
-      cancellationToken
+      cancellationToken,
+      logger
     );
 
     // @TODO: Consolidate these one-off warnings into the warnings array (max-size reached and csv contains formulas)

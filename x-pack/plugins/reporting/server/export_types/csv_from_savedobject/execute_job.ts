@@ -9,7 +9,7 @@ import { CancellationToken } from '../../../common';
 import { CONTENT_TYPE_CSV, CSV_FROM_SAVEDOBJECT_JOB_TYPE } from '../../../common/constants';
 import { TaskRunResult } from '../../lib/tasks';
 import { RunTaskFnFactory } from '../../types';
-import { createGenerateCsv } from '../csv/generate_csv';
+import { generateCsv } from '../csv/generate_csv';
 import { getGenerateCsvParams } from './lib/get_csv_job';
 import { JobPayloadPanelCsv } from './types';
 
@@ -32,7 +32,6 @@ export const runTaskFnFactory: RunTaskFnFactory<ImmediateExecuteFn> = function e
   const logger = parentLogger.clone([CSV_FROM_SAVEDOBJECT_JOB_TYPE, 'execute-job']);
 
   return async function runTask(jobId, jobPayload, context, req) {
-    const generateCsv = createGenerateCsv(logger);
     const { panel, visType } = jobPayload;
 
     logger.debug(`Execute job generating [${visType}] csv`);
@@ -49,7 +48,8 @@ export const runTaskFnFactory: RunTaskFnFactory<ImmediateExecuteFn> = function e
       config,
       uiSettingsClient,
       callAsCurrentUser,
-      new CancellationToken() // can not be cancelled
+      new CancellationToken(), // can not be cancelled
+      logger
     );
 
     if (csvContainsFormulas) {

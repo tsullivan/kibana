@@ -38,71 +38,70 @@ function parseResponse(request: SearchResponse<any>) {
   };
 }
 
-export function createHitIterator(logger: LevelLogger) {
-  return async function* hitIterator(
-    scrollSettings: ScrollConfig,
-    callEndpoint: EndpointCaller,
-    searchRequest: SearchParams,
-    cancellationToken: CancellationToken
-  ) {
-    logger.debug('executing search request');
-    async function search(index: string | boolean | string[] | undefined, body: object) {
-      return parseResponse(
-        await callEndpoint('search', {
-          ignore_unavailable: true, // ignores if the index pattern contains any aliases that point to closed indices
-          index,
-          body,
-          scroll: scrollSettings.duration,
-          size: scrollSettings.size,
-        })
-      );
-    }
+export async function* hitIterator(
+  scrollSettings: ScrollConfig,
+  callEndpoint: EndpointCaller,
+  searchRequest: SearchParams,
+  cancellationToken: CancellationToken,
+  logger: LevelLogger
+) {
+  logger.debug('executing search request');
+  async function search(index: string | boolean | string[] | undefined, body: object) {
+    return parseResponse(
+      await callEndpoint('search', {
+        ignore_unavailable: true, // ignores if the index pattern contains any aliases that point to closed indices
+        index,
+        body,
+        scroll: scrollSettings.duration,
+        size: scrollSettings.size,
+      })
+    );
+  }
 
-    async function scroll(scrollId: string | undefined) {
-      logger.debug('executing scroll request');
-      return parseResponse(
-        await callEndpoint('scroll', {
-          scrollId,
-          scroll: scrollSettings.duration,
-        })
-      );
-    }
+  async function scroll(scrollId: string | undefined) {
+    logger.debug('executing scroll request');
+    return parseResponse(
+      await callEndpoint('scroll', {
+        scrollId,
+        scroll: scrollSettings.duration,
+      })
+    );
+  }
 
-    async function clearScroll(scrollId: string | undefined) {
-      logger.debug('executing clearScroll request');
-      try {
-        await callEndpoint('clearScroll', {
-          scrollId: [scrollId],
-        });
-      } catch (err) {
-        // Do not throw the error, as the job can still be completed successfully
-        logger.warn('Scroll context can not be cleared!');
-        logger.error(err);
-      }
-    }
-
+  async function clearScroll(scrollId: string | undefined) {
+    logger.debug('executing clearScroll request');
     try {
-      let { scrollId, hits } = await search(searchRequest.index, searchRequest.body);
-      try {
-        while (hits && hits.length && !cancellationToken.isCancelled()) {
-          for (const hit of hits) {
-            yield hit;
-          }
-
-          ({ scrollId, hits } = await scroll(scrollId));
-
-          if (cancellationToken.isCancelled()) {
-            logger.warn(
-              'Any remaining scrolling searches have been cancelled by the cancellation token.'
-            );
-          }
-        }
-      } finally {
-        await clearScroll(scrollId);
-      }
+      await callEndpoint('clearScroll', {
+        scrollId: [scrollId],
+      });
     } catch (err) {
+      // Do not throw the error, as the job can still be completed successfully
+      logger.warn('Scroll context can not be cleared!');
       logger.error(err);
-      throw err;
     }
-  };
+  }
+
+  try {
+    let { scrollId, hits } = await search(searchRequest.index, searchRequest.body);
+    try {
+      while (hits && hits.length && !cancellationToken.isCancelled()) {
+        for (const hit of hits) {
+          yield hit;
+        }
+
+        ({ scrollId, hits } = await scroll(scrollId));
+
+        if (cancellationToken.isCancelled()) {
+          logger.warn(
+            'Any remaining scrolling searches have been cancelled by the cancellation token.'
+          );
+        }
+      }
+    } finally {
+      await clearScroll(scrollId);
+    }
+  } catch (err) {
+    logger.error(err);
+    throw err;
+  }
 }
