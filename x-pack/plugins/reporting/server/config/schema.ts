@@ -134,9 +134,14 @@ const CsvSchema = schema.object({
   checkForFormulas: schema.boolean({ defaultValue: true }),
   escapeFormulaValues: schema.boolean({ defaultValue: false }),
   enablePanelActionDownload: schema.boolean({ defaultValue: true }),
+
+  // max size per chunk
   maxSizeBytes: schema.oneOf([schema.number(), schema.byteSize()], {
     defaultValue: ByteSizeValue.parse('10mb'),
   }),
+
+  // Max CSV Data in bytes = maxChunks * maxSizeBytes
+  maxChunks: schema.number({ defaultValue: 1 }),
   useByteOrderMarkEncoding: schema.boolean({ defaultValue: false }),
   scroll: schema.object({
     duration: schema.string({
