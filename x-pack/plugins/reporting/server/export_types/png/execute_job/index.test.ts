@@ -8,6 +8,7 @@ import * as Rx from 'rxjs';
 import { ReportingCore } from '../../../';
 import { CancellationToken } from '../../../../common';
 import { cryptoFactory, LevelLogger } from '../../../lib';
+import { TaskRunResult } from '../../../lib/tasks';
 import { createMockReportingCore } from '../../../test_helpers';
 import { generatePngObservableFactory } from '../lib/generate_png';
 import { TaskPayloadPNG } from '../types';
@@ -125,17 +126,18 @@ test(`passes browserTimezone to generatePng`, async () => {
 });
 
 test(`returns content_type of application/png`, async () => {
-  const runTask = await runTaskFnFactory(mockReporting, getMockLogger());
+  const runTask = runTaskFnFactory(mockReporting, getMockLogger());
   const encryptedHeaders = await encryptHeaders({});
 
   const generatePngObservable = await generatePngObservableFactory(mockReporting);
   (generatePngObservable as jest.Mock).mockReturnValue(Rx.of('foo'));
 
-  const { content_type: contentType } = await runTask(
+  const taskRunResult = await runTask(
     'pngJobId',
     getBasePayload({ relativeUrl: '/app/kibana#/something', headers: encryptedHeaders }),
     cancellationToken
   );
+  const { content_type: contentType } = taskRunResult as TaskRunResult;
   expect(contentType).toBe('image/png');
 });
 
@@ -144,13 +146,14 @@ test(`returns content of generatePng getBuffer base64 encoded`, async () => {
   const generatePngObservable = await generatePngObservableFactory(mockReporting);
   (generatePngObservable as jest.Mock).mockReturnValue(Rx.of({ base64: testContent }));
 
-  const runTask = await runTaskFnFactory(mockReporting, getMockLogger());
+  const runTask = runTaskFnFactory(mockReporting, getMockLogger());
   const encryptedHeaders = await encryptHeaders({});
-  const { content } = await runTask(
+  const taskRunResult = await runTask(
     'pngJobId',
     getBasePayload({ relativeUrl: '/app/kibana#/something', headers: encryptedHeaders }),
     cancellationToken
   );
+  const { content } = taskRunResult as TaskRunResult;
 
   expect(content).toEqual(testContent);
 });

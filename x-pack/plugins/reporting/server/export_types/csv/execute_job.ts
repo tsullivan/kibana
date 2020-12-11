@@ -5,7 +5,7 @@
  */
 
 import * as Rx from 'rxjs';
-import { first, map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { CONTENT_TYPE_CSV, CSV_JOB_TYPE } from '../../../common/constants';
 import { RunTaskFn, RunTaskFnFactory } from '../../types';
 import { decryptJobHeaders } from '../common';
@@ -24,6 +24,7 @@ export const runTaskFnFactory: RunTaskFnFactory<
     const encryptionKey = config.get('encryptionKey');
 
     return Rx.of().pipe(
+      // separate async
       mergeMap(async () => {
         const headers = await decryptJobHeaders(encryptionKey, job.headers, logger);
         const fakeRequest = reporting.getFakeRequest({ headers }, job.spaceId, logger);
@@ -33,30 +34,28 @@ export const runTaskFnFactory: RunTaskFnFactory<
         const callEndpoint = (endpoint: string, clientParams = {}, options = {}) =>
           callAsCurrentUser(endpoint, clientParams, options);
 
-        return await generateCsv$(
-          job,
-          config,
+        return {
           uiSettingsClient,
           callEndpoint,
-          cancellationToken,
-          logger
-        )
-          .pipe(
-            map(({ content, maxSizeReached, size, csvContainsFormulas, warnings }) => {
-              // @TODO: Consolidate these one-off warnings into the warnings array (max-size reached and csv contains formulas)
-              return {
-                content_type: CONTENT_TYPE_CSV,
-                content,
-                max_size_reached: maxSizeReached,
-                size,
-                csv_contains_formulas: csvContainsFormulas,
-                warnings,
-              };
-            }),
-            first()
-          )
-          .toPromise();
-      })
+        };
+      }),
+
+      // return observable
+
+      mergeMap(({ uiSettingsClient, callEndpoint }) =>
+        generateCsv$(job, config, uiSettingsClient, callEndpoint, cancellationToken, logger)
+      ),
+
+      // map to TaskPayloadCSV
+
+      map(({ content, maxSizeReached, size, csvContainsFormulas, warnings }) => ({
+        content_type: CONTENT_TYPE_CSV,
+        content,
+        max_size_reached: maxSizeReached,
+        size,
+        csv_contains_formulas: csvContainsFormulas,
+        warnings,
+      }))
     );
   };
 };

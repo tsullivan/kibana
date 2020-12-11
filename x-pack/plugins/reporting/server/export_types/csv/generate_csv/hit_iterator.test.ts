@@ -9,7 +9,7 @@ import sinon from 'sinon';
 import { CancellationToken } from '../../../../common';
 import { createMockLevelLogger } from '../../../test_helpers/create_mock_levellogger';
 import { ScrollConfig } from '../../../types';
-import { createHitIterator } from './hit_iterator';
+import { hitIterator } from './hit_iterator';
 
 const mockLogger = createMockLevelLogger();
 const debugLogStub = sinon.stub(mockLogger, 'debug');
@@ -41,12 +41,12 @@ describe('hitIterator', function () {
 
   it('iterates hits', async () => {
     // Begin
-    const hitIterator = createHitIterator(mockLogger);
     const iterator = hitIterator(
       mockConfig,
       mockCallEndpoint,
       mockSearchRequest,
-      realCancellationToken
+      realCancellationToken,
+      mockLogger
     );
 
     while (true) {
@@ -69,12 +69,12 @@ describe('hitIterator', function () {
     isCancelledStub.returns(true);
 
     // Begin
-    const hitIterator = createHitIterator(mockLogger);
     const iterator = hitIterator(
       mockConfig,
       mockCallEndpoint,
       mockSearchRequest,
-      realCancellationToken
+      realCancellationToken,
+      mockLogger
     );
 
     while (true) {
@@ -100,12 +100,12 @@ describe('hitIterator', function () {
     mockCallEndpoint.onCall(2).resolves({ status: 404 });
 
     // Begin
-    const hitIterator = createHitIterator(mockLogger);
     const iterator = hitIterator(
       mockConfig,
       mockCallEndpoint,
       mockSearchRequest,
-      realCancellationToken
+      realCancellationToken,
+      mockLogger
     );
 
     let errorThrown = false;
@@ -136,12 +136,12 @@ describe('hitIterator', function () {
     mockCallEndpoint.withArgs('clearScroll').rejects({ status: 404 });
 
     // Begin
-    const hitIterator = createHitIterator(mockLogger);
     const iterator = hitIterator(
       mockConfig,
       mockCallEndpoint,
       mockSearchRequest,
-      realCancellationToken
+      realCancellationToken,
+      mockLogger
     );
 
     while (true) {

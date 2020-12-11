@@ -19,6 +19,7 @@ import {
 import { CancellationToken } from '../../../common';
 import { CSV_BOM_CHARS } from '../../../common/constants';
 import { LevelLogger } from '../../lib';
+import { TaskRunResult } from '../../lib/tasks';
 import { setFieldFormats } from '../../services';
 import { createMockReportingCore } from '../../test_helpers';
 import { runTaskFnFactory } from './execute_job';
@@ -331,11 +332,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { csv_contains_formulas: csvContainsFormulas } = await runTask(
-        'job123',
-        jobParams,
-        cancellationToken
-      );
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { csv_contains_formulas: csvContainsFormulas } = trr as TaskRunResult;
 
       expect(csvContainsFormulas).toEqual(true);
     });
@@ -356,11 +354,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { csv_contains_formulas: csvContainsFormulas } = await runTask(
-        'job123',
-        jobParams,
-        cancellationToken
-      );
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { csv_contains_formulas: csvContainsFormulas } = trr as TaskRunResult;
 
       expect(csvContainsFormulas).toEqual(true);
     });
@@ -382,11 +377,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { csv_contains_formulas: csvContainsFormulas } = await runTask(
-        'job123',
-        jobParams,
-        cancellationToken
-      );
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { csv_contains_formulas: csvContainsFormulas } = trr as TaskRunResult;
 
       expect(csvContainsFormulas).toEqual(false);
     });
@@ -409,11 +401,8 @@ describe('CSV Execute Job', function () {
         searchRequest: { index: null, body: null },
       });
 
-      const { csv_contains_formulas: csvContainsFormulas } = await runTask(
-        'job123',
-        jobParams,
-        cancellationToken
-      );
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { csv_contains_formulas: csvContainsFormulas } = trr as TaskRunResult;
 
       expect(csvContainsFormulas).toEqual(false);
     });
@@ -434,11 +423,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { csv_contains_formulas: csvContainsFormulas } = await runTask(
-        'job123',
-        jobParams,
-        cancellationToken
-      );
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { csv_contains_formulas: csvContainsFormulas } = trr as TaskRunResult;
 
       expect(csvContainsFormulas).toEqual(false);
     });
@@ -461,7 +447,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
 
       expect(content).toEqual(`${CSV_BOM_CHARS}one,two\none,bar\n`);
     });
@@ -482,7 +469,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
 
       expect(content).toEqual('one,two\none,bar\n');
     });
@@ -505,7 +493,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
 
       expect(content).toEqual("one,two\n\"'=cmd|' /C calc'!A0\",bar\n");
     });
@@ -526,7 +515,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
 
       expect(content).toEqual('one,two\n"=cmd|\' /C calc\'!A0",bar\n');
     });
@@ -745,7 +735,8 @@ describe('CSV Execute Job', function () {
         fields: ['one', 'two'],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
       expect(content).toBe(`one,two\n`);
     });
 
@@ -757,7 +748,8 @@ describe('CSV Execute Job', function () {
         fields: ['one', 'two'],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
       expect(content).toBe(`one;two\n`);
     });
 
@@ -769,7 +761,8 @@ describe('CSV Execute Job', function () {
         fields: ['one and a half', 'two', 'three-and-four', 'five & six'],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
       expect(content).toBe(`"one and a half",two,"three-and-four","five & six"\n`);
     });
 
@@ -781,7 +774,8 @@ describe('CSV Execute Job', function () {
         fields: ['one and a half', 'two', 'three-and-four', 'five & six'],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
       expect(content).toBe(`one and a half,two,three-and-four,five & six\n`);
     });
 
@@ -799,7 +793,8 @@ describe('CSV Execute Job', function () {
         fields: ['one', 'two'],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
       expect(content).not.toBe(null);
       const lines = content!.split('\n');
       const headerLine = lines[0];
@@ -821,7 +816,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
       expect(content).not.toBe(null);
       const lines = content!.split('\n');
       const valuesLine = lines[1];
@@ -849,7 +845,8 @@ describe('CSV Execute Job', function () {
         conflictedTypesFields: [],
         searchRequest: { index: null, body: null },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
       expect(content).not.toBe(null);
       const lines = content!.split('\n');
 
@@ -881,7 +878,8 @@ describe('CSV Execute Job', function () {
           },
         },
       });
-      const { content } = await runTask('job123', jobParams, cancellationToken);
+      const trr = await runTask('job123', jobParams, cancellationToken);
+      const { content } = trr as TaskRunResult;
       expect(content).not.toBe(null);
       const lines = content!.split('\n');
 
@@ -908,11 +906,8 @@ describe('CSV Execute Job', function () {
           searchRequest: { index: null, body: null },
         });
 
-        ({ content, max_size_reached: maxSizeReached } = await runTask(
-          'job123',
-          jobParams,
-          cancellationToken
-        ));
+        const trr = await runTask('job123', jobParams, cancellationToken);
+        ({ content, max_size_reached: maxSizeReached } = trr as TaskRunResult);
       });
 
       it('should return max_size_reached', function () {
@@ -938,11 +933,8 @@ describe('CSV Execute Job', function () {
           searchRequest: { index: null, body: null },
         });
 
-        ({ content, max_size_reached: maxSizeReached } = await runTask(
-          'job123',
-          jobParams,
-          cancellationToken
-        ));
+        const trr = await runTask('job123', jobParams, cancellationToken);
+        ({ content, max_size_reached: maxSizeReached } = trr as TaskRunResult);
       });
 
       it(`shouldn't return max_size_reached`, function () {
@@ -976,11 +968,8 @@ describe('CSV Execute Job', function () {
           searchRequest: { index: null, body: null },
         });
 
-        ({ content, max_size_reached: maxSizeReached } = await runTask(
-          'job123',
-          jobParams,
-          cancellationToken
-        ));
+        const trr = await runTask('job123', jobParams, cancellationToken);
+        ({ content, max_size_reached: maxSizeReached } = trr as TaskRunResult);
       });
 
       it(`should return max_size_reached`, function () {
@@ -1016,11 +1005,8 @@ describe('CSV Execute Job', function () {
           searchRequest: { index: null, body: null },
         });
 
-        ({ content, max_size_reached: maxSizeReached } = await runTask(
-          'job123',
-          jobParams,
-          cancellationToken
-        ));
+        const trr = await runTask('job123', jobParams, cancellationToken);
+        ({ content, max_size_reached: maxSizeReached } = trr as TaskRunResult);
       });
 
       it(`shouldn't return max_size_reached`, async function () {

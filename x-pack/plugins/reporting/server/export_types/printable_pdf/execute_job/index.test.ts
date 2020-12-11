@@ -10,6 +10,7 @@ import * as Rx from 'rxjs';
 import { ReportingCore } from '../../../';
 import { CancellationToken } from '../../../../common';
 import { cryptoFactory, LevelLogger } from '../../../lib';
+import { TaskRunResult } from '../../../lib/tasks';
 import {
   createMockConfig,
   createMockConfigSchema,
@@ -104,11 +105,12 @@ test(`returns content_type of application/pdf`, async () => {
   const generatePdfObservable = await generatePdfObservableFactory(mockReporting);
   (generatePdfObservable as jest.Mock).mockReturnValue(Rx.of(Buffer.from('')));
 
-  const { content_type: contentType } = await runTask(
+  const taskRunResult = await runTask(
     'pdfJobId',
     getBasePayload({ relativeUrls: [], headers: encryptedHeaders }),
     cancellationToken
   );
+  const { content_type: contentType } = taskRunResult as TaskRunResult;
   expect(contentType).toBe('application/pdf');
 });
 
@@ -119,11 +121,12 @@ test(`returns content of generatePdf getBuffer base64 encoded`, async () => {
 
   const runTask = runTaskFnFactory(mockReporting, getMockLogger());
   const encryptedHeaders = await encryptHeaders({});
-  const { content } = await runTask(
+  const taskRunResult = await runTask(
     'pdfJobId',
     getBasePayload({ relativeUrls: [], headers: encryptedHeaders }),
     cancellationToken
   );
+  const { content } = taskRunResult as TaskRunResult;
 
   expect(content).toEqual(Buffer.from(testContent).toString('base64'));
 });
