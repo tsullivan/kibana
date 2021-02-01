@@ -20,7 +20,7 @@ import { DslQuery, isEsQueryString } from './es_query_dsl';
 
 export function decorateQuery(
   query: DslQuery,
-  queryStringOptions: Record<string, any>,
+  queryStringOptions: Record<string, any> | string,
   dateFormatTZ?: string
 ) {
   if (isEsQueryString(query)) {
