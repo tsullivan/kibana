@@ -24,6 +24,12 @@ export function decorateQuery(
   dateFormatTZ?: string
 ) {
   if (isEsQueryString(query)) {
+    // FIXME For an unknown reason, the queryStringOptions are a serialized string on the server context
+    // https://github.com/elastic/kibana/issues/89902
+    if (typeof queryStringOptions === 'string') {
+      queryStringOptions = JSON.parse(queryStringOptions);
+    }
+
     extend(query.query_string, queryStringOptions);
     if (dateFormatTZ) {
       defaults(query.query_string, {
