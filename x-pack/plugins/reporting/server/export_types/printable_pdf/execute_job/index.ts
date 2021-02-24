@@ -28,7 +28,7 @@ export const runTaskFnFactory: RunTaskFnFactory<
   const encryptionKey = config.get('encryptionKey');
 
   return async function runTask(jobId, job, cancellationToken) {
-    const jobLogger = parentLogger.clone([PDF_JOB_TYPE, 'execute-job', jobId]);
+    const logger = parentLogger.clone([PDF_JOB_TYPE, 'execute-job', jobId]);
     const apmTrans = apm.startTransaction('reporting execute_job pdf', 'reporting');
     const apmGetAssets = apmTrans?.startSpan('get_assets', 'setup');
     let apmGeneratePdf: { end: () => void } | null | undefined;
@@ -36,11 +36,11 @@ export const runTaskFnFactory: RunTaskFnFactory<
     const generatePdfObservable = await generatePdfObservableFactory(reporting);
 
     const process$: Rx.Observable<TaskRunResult> = Rx.of(1).pipe(
-      mergeMap(() => decryptJobHeaders(encryptionKey, job.headers, jobLogger)),
+      mergeMap(() => decryptJobHeaders(encryptionKey, job.headers, logger)),
       map((decryptedHeaders) => omitBlockedHeaders(decryptedHeaders)),
       map((filteredHeaders) => getConditionalHeaders(config, filteredHeaders)),
       mergeMap((conditionalHeaders) =>
-        getCustomLogo(reporting, conditionalHeaders, job.spaceId, jobLogger)
+        getCustomLogo(reporting, conditionalHeaders, job.spaceId, logger)
       ),
       mergeMap(({ logo, conditionalHeaders }) => {
         const urls = getFullUrls(config, job);
@@ -50,7 +50,7 @@ export const runTaskFnFactory: RunTaskFnFactory<
 
         apmGeneratePdf = apmTrans?.startSpan('generate_pdf_pipeline', 'execute');
         return generatePdfObservable(
-          jobLogger,
+          logger,
           title,
           urls,
           browserTimezone,
@@ -74,7 +74,7 @@ export const runTaskFnFactory: RunTaskFnFactory<
         };
       }),
       catchError((err) => {
-        jobLogger.error(err);
+        logger.error(err);
         return Rx.throwError(err);
       })
     );

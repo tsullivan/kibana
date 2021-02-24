@@ -32,9 +32,9 @@ export const runTaskFnFactory: RunTaskFnFactory<
     let apmGeneratePng: { end: () => void } | null | undefined;
 
     const generatePngObservable = await generatePngObservableFactory(reporting);
-    const jobLogger = parentLogger.clone([PNG_JOB_TYPE, 'execute', jobId]);
+    const logger = parentLogger.clone([PNG_JOB_TYPE, 'execute', jobId]);
     const process$: Rx.Observable<TaskRunResult> = Rx.of(1).pipe(
-      mergeMap(() => decryptJobHeaders(encryptionKey, job.headers, jobLogger)),
+      mergeMap(() => decryptJobHeaders(encryptionKey, job.headers, logger)),
       map((decryptedHeaders) => omitBlockedHeaders(decryptedHeaders)),
       map((filteredHeaders) => getConditionalHeaders(config, filteredHeaders)),
       mergeMap((conditionalHeaders) => {
@@ -44,7 +44,7 @@ export const runTaskFnFactory: RunTaskFnFactory<
 
         apmGeneratePng = apmTrans?.startSpan('generate_png_pipeline', 'execute');
         return generatePngObservable(
-          jobLogger,
+          logger,
           hashUrl,
           job.browserTimezone,
           conditionalHeaders,
@@ -62,7 +62,7 @@ export const runTaskFnFactory: RunTaskFnFactory<
         };
       }),
       catchError((err) => {
-        jobLogger.error(err);
+        logger.error(err);
         return Rx.throwError(err);
       })
     );
