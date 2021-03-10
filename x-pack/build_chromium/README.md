@@ -27,7 +27,7 @@ are created in x86. CentOS is not supported for building Chromium.
     - python2 (`python` must link to `python2`)
     - lsb_release
     - tmux is recommended in case your ssh session is interrupted
-6. Copy the entire `build_chromium` directory into a GCP storage bucket, so you can copy the scripts into the instance and run them.
+6. Copy the entire `build_chromium` directory into a Google Cloud Storage bucket, so you can copy the scripts into the instance and run them.
 
 ## Build Script Usage
 

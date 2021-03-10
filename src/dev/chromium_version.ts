@@ -74,7 +74,7 @@ async function getChromiumRevision(
   }
 
   log.info(`Found Chromium revision ${revision} from Puppeteer ${kibanaPuppeteerVersion}`);
-  return revision;
+  return getChromiumCommit(revision, log);
 }
 
 async function getChromiumCommit(
@@ -119,8 +119,7 @@ run(
         puppeteerVersion = await getPuppeteerRelease(log);
       }
 
-      const chromiumRevision = await getChromiumRevision(puppeteerVersion, log);
-      await getChromiumCommit(chromiumRevision, log);
+      await getChromiumRevision(puppeteerVersion, log);
     } catch (err) {
       log.error(err);
     }
@@ -132,7 +131,8 @@ run(
       -  node x-pack/dev-tools/chromium_version 5.5.0  {dim # gets the Chromium commit for Puppeteer v5.5.0}
       -  node x-pack/dev-tools/chromium_version       {dim  # gets the Chromium commit for the Kibana dependency version of Puppeteer}
 
-      You can use https://omahaproxy.appspot.com/ to look up the Chromium release that first shipped with that commit.
+      To look up the Chromium release that first shipped with commit identified by this script, use https://omahaproxy.appspot.com/. You can also
+      refer to https://raw.githubusercontent.com/puppeteer/puppeteer/main/docs/api.md to find the Chromium release version for almost any version of Puppeteer.
     `,
   }
 );
