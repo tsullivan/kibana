@@ -189,7 +189,7 @@ describe('POST /api/reporting/generate', () => {
 
     await supertest(httpSetup.server.listener)
       .post('/api/reporting/generate/printablePdf')
-      .send({ jobParams: rison.encode({ title: `abc` }) })
+      .send({ jobParams: rison.encode({ title: 'abc' }) })
       .expect(200)
       .then(({ body }) => {
         expect(body).toMatchObject({
@@ -206,7 +206,7 @@ describe('POST /api/reporting/generate', () => {
             },
             status: 'pending',
           },
-          path: 'mock-server-basepath/api/reporting/jobs/download/foo',
+          path: '/mock-server-basepath/api/reporting/jobs/download/foo',
         });
       });
   });
