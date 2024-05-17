@@ -8,6 +8,7 @@
 
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
+import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 import {
   EuiPage,
   EuiPageBody,
@@ -17,32 +18,39 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 
-import { AppMountParameters } from '@kbn/core/public';
+import { AppMountParameters, CoreSetup, CoreStart } from '@kbn/core/public';
 
-const AppStatusApp = ({ appId }: { appId: string }) => (
-  <EuiPage>
-    <EuiPageBody data-test-subj="appStatusApp">
-      <EuiPageHeader>
-        <EuiPageHeaderSection>
-          <EuiTitle size="l">
-            <h1>Welcome to {appId} Test App!</h1>
-          </EuiTitle>
-        </EuiPageHeaderSection>
-      </EuiPageHeader>
-      <EuiPageSection>
+const AppStatusApp = ({ appId, ...startServices }: { appId: string } & CoreStart) => (
+  <KibanaRenderContextProvider {...startServices}>
+    <EuiPage>
+      <EuiPageBody data-test-subj="appStatusApp">
         <EuiPageHeader>
-          <EuiTitle>
-            <h2>{appId} Test App home page section title</h2>
-          </EuiTitle>
+          <EuiPageHeaderSection>
+            <EuiTitle size="l">
+              <h1>Welcome to {appId} Test App!</h1>
+            </EuiTitle>
+          </EuiPageHeaderSection>
         </EuiPageHeader>
-        <EuiPageSection>{appId} Test App content</EuiPageSection>
-      </EuiPageSection>
-    </EuiPageBody>
-  </EuiPage>
+        <EuiPageSection>
+          <EuiPageHeader>
+            <EuiTitle>
+              <h2>{appId} Test App home page section title</h2>
+            </EuiTitle>
+          </EuiPageHeader>
+          <EuiPageSection>{appId} Test App content</EuiPageSection>
+        </EuiPageSection>
+      </EuiPageBody>
+    </EuiPage>
+  </KibanaRenderContextProvider>
 );
 
-export const renderApp = (appId: string, { element }: AppMountParameters) => {
-  render(<AppStatusApp appId={appId} />, element);
+export const renderApp = async (
+  appId: string,
+  { element }: AppMountParameters,
+  core: CoreSetup
+) => {
+  const [startServices] = await core.getStartServices();
+  render(<AppStatusApp appId={appId} {...startServices} />, element);
 
   return () => unmountComponentAtNode(element);
 };

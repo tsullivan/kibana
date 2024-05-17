@@ -26,7 +26,7 @@ export class CoreAppStatusPlugin implements Plugin<{}, CoreAppStatusPluginStart>
       id: 'app_status_start',
       title: 'App Status Start Page',
       async mount(params: AppMountParameters) {
-        return renderApp('app_status_start', params);
+        return renderApp('app_status_start', params, core);
       },
     });
 
@@ -36,7 +36,7 @@ export class CoreAppStatusPlugin implements Plugin<{}, CoreAppStatusPluginStart>
       euiIconType: 'snowflake',
       updater$: this.appUpdater,
       async mount(params: AppMountParameters) {
-        return renderApp('app_status', params);
+        return renderApp('app_status', params, core);
       },
     });
 
