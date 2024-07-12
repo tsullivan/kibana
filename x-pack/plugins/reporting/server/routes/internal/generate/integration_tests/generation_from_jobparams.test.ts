@@ -119,7 +119,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .expect(400)
       .then(({ body }) =>
         expect(body.message).toMatchInlineSnapshot(
@@ -134,7 +134,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdf?jobParams=foo:`)
+      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdfV2?jobParams=foo:`)
       .expect(400)
       .then(({ body }) => expect(body.message).toMatchInlineSnapshot('"invalid rison: foo:"'));
   });
@@ -145,7 +145,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({ jobParams: `foo:` })
       .expect(400)
       .then(({ body }) => expect(body.message).toMatchInlineSnapshot('"invalid rison: foo:"'));
@@ -171,7 +171,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({ jobParams: rison.encode({ browserTimezone: 'America/Amsterdam', title: `abc` }) })
       .expect(400)
       .then(({ body }) =>
@@ -187,7 +187,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({ jobParams: rison.encode({ title: `abc` }) })
       .expect(500);
   });
@@ -198,7 +198,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({
         jobParams: rison.encode({
           title: `abc`,
@@ -218,7 +218,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
             jobtype: 'printable_pdf',
             payload: {
               forceNow: expect.any(String),
-              isDeprecated: true,
+              isDeprecated: false,
               layout: {
                 id: 'test',
               },
@@ -245,7 +245,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
       await server.start();
 
       await supertest(httpSetup.server.listener)
-        .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdf`)
+        .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
         .send({
           jobParams: rison.encode({
             title: `abc`,
@@ -258,7 +258,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
 
       expect(usageCounter.incrementCounter).toHaveBeenCalledTimes(1);
       expect(usageCounter.incrementCounter).toHaveBeenCalledWith({
-        counterName: `post /internal/reporting/generate/printablePdf`,
+        counterName: `post /internal/reporting/generate/printablePdfV2`,
         counterType: 'reportingApi',
       });
     });
@@ -270,7 +270,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${INTERNAL_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({
         jobParams: rison.encode({
           title: `abc`,

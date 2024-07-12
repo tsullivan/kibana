@@ -53,6 +53,6 @@ export interface ReportingSharingData {
 
 export interface JobParamsProviderOptions {
   sharingData: ReportingSharingData;
-  shareableUrl?: string;
+  shareableUrl?: string; // FIXME: is this needed?
   objectType: string;
 }

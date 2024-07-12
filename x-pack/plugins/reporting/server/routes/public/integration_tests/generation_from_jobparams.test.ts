@@ -118,7 +118,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .expect(400)
       .then(({ body }) =>
         expect(body.message).toMatchInlineSnapshot(
@@ -133,7 +133,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdf?jobParams=foo:`)
+      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdfV2?jobParams=foo:`)
       .expect(400)
       .then(({ body }) => expect(body.message).toMatchInlineSnapshot('"invalid rison: foo:"'));
   });
@@ -144,7 +144,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({ jobParams: `foo:` })
       .expect(400)
       .then(({ body }) => expect(body.message).toMatchInlineSnapshot('"invalid rison: foo:"'));
@@ -170,7 +170,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({ jobParams: rison.encode({ browserTimezone: 'America/Amsterdam', title: `abc` }) })
       .expect(400)
       .then(({ body }) =>
@@ -186,7 +186,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({ jobParams: rison.encode({ title: `abc` }) })
       .expect(500);
   });
@@ -197,7 +197,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
     await server.start();
 
     await supertest(httpSetup.server.listener)
-      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdf`)
+      .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
       .send({
         jobParams: rison.encode({
           title: `abc`,
@@ -217,7 +217,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
             jobtype: 'printable_pdf',
             payload: {
               forceNow: expect.any(String),
-              isDeprecated: true,
+              isDeprecated: false,
               layout: {
                 id: 'test',
               },
@@ -244,7 +244,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
       await server.start();
 
       await supertest(httpSetup.server.listener)
-        .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdf`)
+        .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
         .send({
           jobParams: rison.encode({
             title: `abc`,
@@ -257,7 +257,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
 
       expect(usageCounter.incrementCounter).toHaveBeenCalledTimes(1);
       expect(usageCounter.incrementCounter).toHaveBeenCalledWith({
-        counterName: `post /api/reporting/generate/printablePdf`,
+        counterName: `post /api/reporting/generate/printablePdfV2`,
         counterType: 'reportingApi',
       });
     });
@@ -268,7 +268,7 @@ describe(`POST ${PUBLIC_ROUTES.GENERATE_PREFIX}`, () => {
       await server.start();
 
       await supertest(httpSetup.server.listener)
-        .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdf`)
+        .post(`${PUBLIC_ROUTES.GENERATE_PREFIX}/printablePdfV2`)
         .send({
           jobParams: rison.encode({
             title: `abc`,

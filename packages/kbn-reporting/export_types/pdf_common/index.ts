@@ -11,15 +11,6 @@ import { LayoutParams } from '@kbn/screenshotting-plugin/common';
 
 export * from './constants';
 
-/**
- * Structure of stored job data provided by create_job
- */
-export interface TaskPayloadPDF extends BasePayload {
-  layout: LayoutParams;
-  forceNow?: string;
-  objects: Array<{ relativeUrl: string }>;
-}
-
 interface BaseParamsPDFV2 {
   layout: LayoutParams;
 
@@ -48,17 +39,3 @@ export interface TaskPayloadPDFV2 extends BasePayload, BaseParamsPDFV2 {
    */
   forceNow: string;
 }
-
-/**
- * @deprecated
- */
-interface BaseParamsPDF {
-  layout: LayoutParams;
-  relativeUrls: string[];
-  isDeprecated?: boolean;
-}
-
-/**
- * @deprecated
- */
-export type JobParamsPDFDeprecated = BaseParamsPDF & BaseParams;
