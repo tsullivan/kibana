@@ -17,7 +17,7 @@ import { featuresPluginMock } from '@kbn/features-plugin/server/mocks';
 import { createMockConfigSchema } from '@kbn/reporting-mocks-server';
 
 import { CSV_REPORT_TYPE, CSV_REPORT_TYPE_V2 } from '@kbn/reporting-export-types-csv-common';
-import { PDF_REPORT_TYPE, PDF_REPORT_TYPE_V2 } from '@kbn/reporting-export-types-pdf-common';
+import { PDF_REPORT_TYPE_V2 } from '@kbn/reporting-export-types-pdf-common';
 import { PNG_REPORT_TYPE_V2 } from '@kbn/reporting-export-types-png-common';
 
 import type { ReportingCore, ReportingInternalStart } from './core';
@@ -126,7 +126,6 @@ describe('Reporting Plugin', () => {
       expect(registerSpy).toHaveBeenCalledTimes(5);
       expect(registerSpy).toHaveBeenCalledWith(expect.objectContaining({ id: CSV_REPORT_TYPE }));
       expect(registerSpy).toHaveBeenCalledWith(expect.objectContaining({ id: CSV_REPORT_TYPE_V2 }));
-      expect(registerSpy).toHaveBeenCalledWith(expect.objectContaining({ id: PDF_REPORT_TYPE }));
       expect(registerSpy).toHaveBeenCalledWith(expect.objectContaining({ id: PDF_REPORT_TYPE_V2 }));
       expect(registerSpy).toHaveBeenCalledWith(expect.objectContaining({ id: PNG_REPORT_TYPE_V2 }));
     });
@@ -155,9 +154,6 @@ describe('Reporting Plugin', () => {
       expect(registerSpy).toHaveBeenCalledWith(expect.objectContaining({ id: CSV_REPORT_TYPE_V2 }));
 
       // check the spy function was NOT called with anything else
-      expect(registerSpy).not.toHaveBeenCalledWith(
-        expect.objectContaining({ id: PDF_REPORT_TYPE })
-      );
       expect(registerSpy).not.toHaveBeenCalledWith(
         expect.objectContaining({ id: PDF_REPORT_TYPE_V2 })
       );
