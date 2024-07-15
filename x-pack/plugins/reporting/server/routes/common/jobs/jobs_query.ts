@@ -71,7 +71,7 @@ export function jobsQueryFactory(reportingCore: ReportingCore): JobsQueryFactory
   }
 
   return {
-    async list(jobTypes, user, page = 0, size = defaultSize, jobIds) {
+    async list(_jobTypes, user, page = 0, size = defaultSize, jobIds) {
       const username = getUsername(user);
       const body = getSearchBody({
         size,
@@ -81,7 +81,6 @@ export function jobsQueryFactory(reportingCore: ReportingCore): JobsQueryFactory
             filter: {
               bool: {
                 must: [
-                  { terms: { jobtype: jobTypes } },
                   { term: { created_by: username } },
                   ...(jobIds ? [{ ids: { values: jobIds } }] : []),
                 ],
@@ -108,14 +107,14 @@ export function jobsQueryFactory(reportingCore: ReportingCore): JobsQueryFactory
       );
     },
 
-    async count(jobTypes, user) {
+    async count(_jobTypes, user) {
       const username = getUsername(user);
       const body = {
         query: {
           constant_score: {
             filter: {
               bool: {
-                must: [{ terms: { jobtype: jobTypes } }, { term: { created_by: username } }],
+                must: [{ term: { created_by: username } }],
               },
             },
           },

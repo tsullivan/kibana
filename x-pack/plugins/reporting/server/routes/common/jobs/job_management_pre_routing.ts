@@ -31,11 +31,6 @@ export const jobManagementPreRouting = async (
   counters: Counters,
   cb: JobManagementResponseHandler
 ) => {
-  const licenseInfo = await reporting.getLicenseInfo();
-  const {
-    management: { jobTypes = [] },
-  } = licenseInfo;
-
   const jobsQuery = jobsQueryFactory(reporting);
 
   const doc = await jobsQuery.get(user, jobId);
@@ -44,15 +39,6 @@ export const jobManagementPreRouting = async (
   }
 
   const { jobtype } = doc;
-  if (!jobTypes.includes(jobtype)) {
-    return res.forbidden({
-      body: i18n.translate('xpack.reporting.jobResponse.errorHandler.notAuthorized', {
-        defaultMessage: `Sorry, you are not authorized to view or delete {jobtype} reports`,
-        values: { jobtype },
-      }),
-    });
-  }
-
   counters.usageCounter(jobtype);
 
   try {
