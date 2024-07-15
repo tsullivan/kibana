@@ -67,10 +67,4 @@ export const CSV_REPORTING_ACTION = 'generateCsvReport';
  */
 export const CSV_SEARCHSOURCE_IMMEDIATE_TYPE = 'csv_searchsource_immediate';
 
-/**
- * @deprecated
- * Supported in case older reports exist in storage
- */
-export const CSV_JOB_TYPE_DEPRECATED = 'csv';
-
 export { getQueryFromCsvJob, type QueryInspection } from './lib/get_query_from_job';

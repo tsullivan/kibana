@@ -20,7 +20,6 @@ import {
 } from 'rxjs';
 import { Writable } from 'stream';
 
-import type { LicenseType } from '@kbn/licensing-plugin/server';
 import {
   CancellationToken,
   LICENSE_TYPE_CLOUD_STANDARD,
@@ -50,7 +49,7 @@ export class PngExportType extends ExportType<JobParamsPNGV2, TaskPayloadPNGV2> 
   jobType = PNG_JOB_TYPE_V2;
   jobContentEncoding = 'base64' as const;
   jobContentExtension = 'png' as const;
-  validLicenses: LicenseType[] = [
+  validLicenses = [
     LICENSE_TYPE_TRIAL,
     LICENSE_TYPE_CLOUD_STANDARD,
     LICENSE_TYPE_GOLD,

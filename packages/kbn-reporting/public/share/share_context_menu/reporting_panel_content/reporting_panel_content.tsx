@@ -248,14 +248,13 @@ class ReportingPanelContentUi extends Component<Props, State> {
 
   private prettyPrintReportingType = () => {
     switch (this.props.reportType) {
-      case 'pdf':
+      case 'printablePdf': // V1 implementation, removed
       case PDF_REPORT_TYPE_V2:
         return 'PDF';
-      case 'csv':
       case CSV_REPORT_TYPE:
       case CSV_REPORT_TYPE_V2:
         return 'CSV';
-      case 'png':
+      case 'png': // V1 implementation, removed
       case PNG_REPORT_TYPE_V2:
         return 'PNG';
       default:

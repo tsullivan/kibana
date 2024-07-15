@@ -21,18 +21,10 @@ import type {
   ReportSource,
   TaskRunResult,
 } from '@kbn/reporting-common/types';
-import { CSV_JOB_TYPE, CSV_JOB_TYPE_V2 } from '@kbn/reporting-export-types-csv-common';
-import { PDF_JOB_TYPE_V2 } from '@kbn/reporting-export-types-pdf-common';
-import { PNG_JOB_TYPE_V2 } from '@kbn/reporting-export-types-png-common';
-
-const jobTypes = [CSV_JOB_TYPE, CSV_JOB_TYPE_V2, PDF_JOB_TYPE_V2, PNG_JOB_TYPE_V2];
-
-type JobTypeDeclaration = typeof jobTypes;
-type JobTypes = JobTypeDeclaration[keyof JobTypeDeclaration];
-
-const { COMPLETED, FAILED, PENDING, PROCESSING, WARNINGS } = JOB_STATUS;
 
 type ReportPayload = ReportSource['payload'];
+
+const { COMPLETED, FAILED, PENDING, PROCESSING, WARNINGS } = JOB_STATUS;
 
 /*
  * This class represents a report job for the UI
@@ -188,7 +180,7 @@ export class Job {
   }
 
   public get prettyJobTypeName(): undefined | string {
-    switch (this.jobtype as JobTypes) {
+    switch (this.jobtype) {
       case 'printable_pdf':
       case 'printable_pdf_v2':
         return i18n.translate('reporting.jobType.pdfOutputName', {

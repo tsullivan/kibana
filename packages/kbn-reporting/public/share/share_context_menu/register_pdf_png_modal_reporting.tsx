@@ -111,14 +111,6 @@ export const reportingScreenshotShareProvider = ({
       objectType,
       sharingData,
     };
-    const isJobV2Params = ({
-      sharingData: _sharingData,
-    }: {
-      sharingData: Record<string, unknown>;
-    }) => _sharingData.locatorParams != null;
-
-    const isV2Job = isJobV2Params(jobProviderOptions);
-    const requiresSavedState = !isV2Job;
 
     const panelPng = {
       shareMenuItem: {
@@ -138,7 +130,7 @@ export const reportingScreenshotShareProvider = ({
             startServices$={startServices$}
             reportType={'pngV2'}
             objectId={objectId}
-            requiresSavedState={requiresSavedState}
+            requiresSavedState={false}
             getJobParams={getJobParams(jobProviderOptions, 'pngV2')}
             isDirty={isDirty}
             onClose={onClose}
@@ -169,7 +161,7 @@ export const reportingScreenshotShareProvider = ({
             startServices$={startServices$}
             reportType={'printablePdfV2'}
             objectId={objectId}
-            requiresSavedState={requiresSavedState}
+            requiresSavedState={false}
             layoutOption={objectType === 'dashboard' ? 'print' : undefined}
             getJobParams={getJobParams(jobProviderOptions, 'printablePdfV2')}
             isDirty={isDirty}
