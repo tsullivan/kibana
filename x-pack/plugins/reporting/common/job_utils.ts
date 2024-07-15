@@ -9,22 +9,18 @@ import { CSV_JOB_TYPE, CSV_JOB_TYPE_V2 } from '@kbn/reporting-export-types-csv-c
 import { PDF_JOB_TYPE_V2 } from '@kbn/reporting-export-types-pdf-common';
 import { PNG_JOB_TYPE_V2 } from '@kbn/reporting-export-types-png-common';
 
-// TODO: Remove this code once the enabled CSV export type is using the new format
-export const isJobV2Params = ({ sharingData }: { sharingData: Record<string, unknown> }): boolean =>
-  sharingData.locatorParams != null;
-
 export const prettyPrintJobType = (type: string) => {
-  switch (type) {
+  switch (type.toLowerCase()) {
     case 'pdf':
     case 'printable_pdf':
-    case PDF_JOB_TYPE_V2:
+    case PDF_JOB_TYPE_V2.toLowerCase():
       return 'PDF';
     case 'csv':
-    case CSV_JOB_TYPE:
-    case CSV_JOB_TYPE_V2:
+    case CSV_JOB_TYPE.toLowerCase():
+    case CSV_JOB_TYPE_V2.toLowerCase():
       return 'CSV';
     case 'png':
-    case PNG_JOB_TYPE_V2:
+    case PNG_JOB_TYPE_V2.toLowerCase():
       return 'PNG';
     default:
       return type;
