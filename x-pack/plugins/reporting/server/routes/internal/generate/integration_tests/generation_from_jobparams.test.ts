@@ -202,7 +202,6 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
       .send({
         jobParams: rison.encode({
           title: `abc`,
-          relativeUrls: ['test'],
           layout: { id: 'test' },
           objectType: 'canvas workpad',
         }),
@@ -215,7 +214,7 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
             created_by: 'Tom Riddle',
             id: 'foo',
             index: 'foo-index',
-            jobtype: 'printable_pdf',
+            jobtype: 'printable_pdf_v2',
             payload: {
               forceNow: expect.any(String),
               isDeprecated: false,
@@ -223,11 +222,6 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
                 id: 'test',
               },
               objectType: 'canvas workpad',
-              objects: [
-                {
-                  relativeUrl: 'test',
-                },
-              ],
               title: 'abc',
               version: '7.14.0',
             },
@@ -249,7 +243,6 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
         .send({
           jobParams: rison.encode({
             title: `abc`,
-            relativeUrls: ['test'],
             layout: { id: 'test' },
             objectType: 'canvas workpad',
           }),
@@ -274,7 +267,6 @@ describe(`POST ${INTERNAL_ROUTES.GENERATE_PREFIX}`, () => {
       .send({
         jobParams: rison.encode({
           title: `abc`,
-          relativeUrls: ['test'],
           layout: { id: 'test' },
           objectType: 'canvas workpad',
         }),

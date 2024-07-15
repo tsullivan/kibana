@@ -59,6 +59,7 @@ export class PdfExportType extends ExportType<JobParamsPDFV2, TaskPayloadPDFV2> 
    * @returns jobParams
    */
   public createJob = async ({ locatorParams, ...jobParams }: JobParamsPDFV2) => {
+    // FIXME: validate that locatorParams exists, and contains an ID field and params object
     return {
       ...jobParams,
       locatorParams,
