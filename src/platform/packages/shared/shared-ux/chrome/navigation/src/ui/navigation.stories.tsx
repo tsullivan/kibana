@@ -544,11 +544,11 @@ export const ComplexObjectDefinition = (args: NavigationServices) => {
 };
 
 const panelContentProvider: ContentProvider = (id: string) => {
-  if (id === 'example_projet.group:openpanel1') {
+  if (id === 'example_projet.group.openpanel1') {
     return; // Use default title & content
   }
 
-  if (id === 'example_projet.group:openpanel2') {
+  if (id === 'example_projet.group.openpanel2') {
     // Custom content
     return {
       content: ({ closePanel }) => {
@@ -562,7 +562,7 @@ const panelContentProvider: ContentProvider = (id: string) => {
     };
   }
 
-  if (id === 'example_projet.group:openpanel3') {
+  if (id === 'example_projet.group.openpanel3') {
     return {
       title: <div style={{ backgroundColor: 'yellow', fontWeight: 600 }}>Custom title</div>,
     };
@@ -596,35 +596,35 @@ const navigationTreeWithPanels: NavigationTreeDefinitionUI = {
         {
           // Panel with default content
           // Groups with title
-          id: 'group:openpanel1',
+          id: 'group.openpanel1',
           title: 'Open panel (1)',
           renderAs: 'panelOpener',
           href: '/app/kibana',
-          path: 'example_projet.group:openpanel1',
+          path: 'example_projet.group.openpanel1',
           children: [
             {
               id: 'group1',
               title: 'Group 1',
-              path: 'example_projet.group:openpanel1.group1',
+              path: 'example_projet.group.openpanel1.group1',
               children: [
                 {
                   id: 'item1',
                   href: '/app/kibana',
-                  path: 'example_projet.group:openpanel1.group1.item1',
+                  path: 'example_projet.group.openpanel1.group1.item1',
                   title: 'Logs',
                   icon: 'logoObservability',
                 },
                 {
                   id: 'item2',
                   href: '/app/kibana',
-                  path: 'example_projet.group:openpanel1.group1.item2',
+                  path: 'example_projet.group.openpanel1.group1.item2',
                   title: 'Signals xxxxxx',
                   openInNewTab: true,
                 },
                 {
                   id: 'item3',
                   href: '/app/kibana',
-                  path: 'example_projet.group:openpanel1.group1.item3',
+                  path: 'example_projet.group.openpanel1.group1.item3',
                   title: 'Tracing',
                   withBadge: true, // Default to "Beta" badge
                 },
@@ -632,25 +632,25 @@ const navigationTreeWithPanels: NavigationTreeDefinitionUI = {
             },
             {
               id: 'group2',
-              path: 'example_projet.group:openpanel1.group2',
+              path: 'example_projet.group.openpanel1.group2',
               title: 'Group 2',
               children: [
                 {
                   id: 'group2:settings.logs',
                   href: '/app/kibana',
-                  path: 'example_projet.group:openpanel1.group2.group2:settings.logs',
+                  path: 'example_projet.group.openpanel1.group2.group2:settings.logs',
                   title: 'Logs',
                 },
                 {
                   id: 'group2:settings.signals',
                   href: '/app/kibana',
-                  path: 'example_projet.group:openpanel1.group2.group2:settings.signals',
+                  path: 'example_projet.group.openpanel1.group2.group2:settings.signals',
                   title: 'Signals',
                 },
                 {
                   id: 'group2:settings.tracing',
                   href: '/app/kibana',
-                  path: 'example_projet.group:openpanel1.group2.group2:settings.tracing',
+                  path: 'example_projet.group.openpanel1.group2.group2:settings.tracing',
                   title: 'Tracing',
                 },
               ],
