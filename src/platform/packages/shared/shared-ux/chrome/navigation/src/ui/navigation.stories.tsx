@@ -90,7 +90,7 @@ const NavigationWrapper: FC<Props & Omit<Partial<EuiCollapsibleNavBetaProps>, 'c
   );
 };
 
-const groupExamplesNavigationTree: NavigationTreeDefinitionUI = {
+const navigationTreeWithGroups: NavigationTreeDefinitionUI = {
   id: 'es',
   body: [
     // My custom project
@@ -250,14 +250,14 @@ export const GroupsExamples = (args: NavigationServices) => {
     <NavigationWrapper>
       {({ isCollapsed }) => (
         <NavigationProvider {...services} isSideNavCollapsed={isCollapsed}>
-          <Navigation navigationTree$={of(groupExamplesNavigationTree)} />
+          <Navigation navigationTree$={of(navigationTreeWithGroups)} />
         </NavigationProvider>
       )}
     </NavigationWrapper>
   );
 };
 
-const navigationTree: NavigationTreeDefinitionUI = {
+const navigationTreeWithComplexDefinition: NavigationTreeDefinitionUI = {
   id: 'es',
   body: [
     // My custom project
@@ -536,7 +536,7 @@ export const ComplexObjectDefinition = (args: NavigationServices) => {
     <NavigationWrapper>
       {({ isCollapsed }) => (
         <NavigationProvider {...services} isSideNavCollapsed={isCollapsed}>
-          <Navigation navigationTree$={of(navigationTree)} />
+          <Navigation navigationTree$={of(navigationTreeWithComplexDefinition)} />
         </NavigationProvider>
       )}
     </NavigationWrapper>
@@ -1135,7 +1135,7 @@ const navigationTreeWithPanels: NavigationTreeDefinitionUI = {
   ],
 };
 
-export const ObjectDefinitionWithPanel = (args: NavigationServices) => {
+export const CustomPanelsExample = (args: NavigationServices) => {
   const services = storybookMock.getServices({
     ...args,
     recentlyAccessed$: of([
