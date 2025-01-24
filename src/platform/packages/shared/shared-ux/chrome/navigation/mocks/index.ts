@@ -9,3 +9,4 @@
 
 export { StorybookMock as NavigationStorybookMock } from './storybook';
 export type { Params as NavigationStorybookParams } from './storybook';
+export { NavigationWrapper } from './navigation_wrapper';
