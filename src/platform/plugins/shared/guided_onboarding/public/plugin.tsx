@@ -16,7 +16,6 @@ import {
   ApplicationStart,
   NotificationsStart,
 } from '@kbn/core/public';
-import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 
 import { PLUGIN_FEATURE } from '../common/constants';
 import type {
@@ -80,22 +79,22 @@ export class GuidedOnboardingPlugin
     application,
     notifications,
   }: {
-    startServices: Pick<CoreStart, 'analytics' | 'i18n' | 'theme' | 'userProfile'>;
+    startServices: Pick<CoreStart, 'theme' | 'rendering'>;
     targetDomElement: HTMLElement;
     api: ApiService;
     application: ApplicationStart;
     notifications: NotificationsStart;
   }) {
-    const { theme } = startServices;
+    const { theme, rendering } = startServices;
     ReactDOM.render(
-      <KibanaRenderContextProvider {...startServices}>
+      rendering.addContext(
         <GuidePanel
           api={api}
           application={application}
           notifications={notifications}
           theme$={theme.theme$}
         />
-      </KibanaRenderContextProvider>,
+      ),
       targetDomElement
     );
     return () => ReactDOM.unmountComponentAtNode(targetDomElement);
