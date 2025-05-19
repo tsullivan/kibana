@@ -18,7 +18,11 @@ import type { ThemeServiceStart } from '@kbn/core-theme-browser';
 import type { UserProfileService } from '@kbn/core-user-profile-browser';
 import type { I18nStart } from '@kbn/core-i18n-browser';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
-import type { OverlayFlyoutOpenOptions, OverlayFlyoutStart } from '@kbn/core-overlays-browser';
+import type {
+  ManagedFlyoutApi,
+  OverlayFlyoutOpenOptions,
+  OverlayFlyoutStart,
+} from '@kbn/core-overlays-browser';
 import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 import { OverlayMountWrapper } from '../overlay_mount_wrapper';
 
@@ -142,6 +146,14 @@ export class FlyoutService {
         );
 
         return flyout;
+      },
+
+      useManaged: (): ManagedFlyoutApi => {
+        return {
+          openFlyout: () => {
+            window.alert('hello flyout');
+          },
+        };
       },
     };
   }

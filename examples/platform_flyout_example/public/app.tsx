@@ -39,7 +39,7 @@ const App = ({
         </EuiTabs>
         <EuiSpacer />
 
-        <GreyboxExample />
+        <GreyboxExample services={{ overlays: core.overlays }} />
       </EuiPageSection>
     </KibanaRenderContextProvider>
   );
