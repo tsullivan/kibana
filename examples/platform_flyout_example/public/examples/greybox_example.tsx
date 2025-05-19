@@ -19,9 +19,10 @@ import {
   EuiTextArea,
 } from '@elastic/eui';
 import { useStateFromPublishingSubject } from '@kbn/presentation-publishing';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
+import { OverlayStart } from '@kbn/core/public';
 import { JourneyFlyout } from '../journey_flyouts/journey_flyout';
-import { FlyoutApi, FlyoutProps } from '../journey_flyouts/types';
+import { FlyoutProps } from '../journey_flyouts/types';
 
 interface FlyoutOneState {
   name: string;
@@ -184,8 +185,14 @@ const FlyoutFive: React.FC<FlyoutProps> = ({}) => {
   );
 };
 
-export const GreyboxExample = () => {
-  const flyoutApi = useRef<FlyoutApi | null>(null);
+interface Props {
+  services: {
+    overlays: OverlayStart;
+  };
+}
+
+export const GreyboxExample = ({ services }: Props) => {
+  const flyoutApi = services.overlays.useManagedFlyout();
 
   return (
     <>
@@ -213,18 +220,9 @@ export const GreyboxExample = () => {
       </EuiText>
       <EuiSpacer />
       <EuiButton
-        onClick={() =>
-          /**
-           * FLYOUTS-TODO: here, we need to specify the type of the state explicitly. It would be ideal if it could be inferred by the props type of the passed component.
-           * This way, users of the API would be forced to provide the correct initial state type. If left alone, this could lead to a situation where the type of state manager
-           * created is different from the type of the state manager the component expects. This would cause runtime errors.
-           */
-          flyoutApi.current?.openFlyout<FlyoutOneState>({
-            Component: FlyoutOne,
-            width: 800,
-            initialState: { name: 'Main flyout one', description: undefined },
-          })
-        }
+        onClick={() => {
+          flyoutApi.openFlyout();
+        }}
       >
         Open showcase flyout
       </EuiButton>

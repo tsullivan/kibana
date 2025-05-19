@@ -10,6 +10,10 @@
 import type { EuiFlyoutProps, EuiFlyoutResizableProps } from '@elastic/eui';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
 
+export interface ManagedFlyoutApi {
+  openFlyout: () => void;
+}
+
 /**
  * APIs to open and manage fly-out dialogs.
  *
@@ -25,6 +29,8 @@ export interface OverlayFlyoutStart {
    * @return {@link OverlayRef} A reference to the opened flyout panel.
    */
   open(mount: MountPoint, options?: OverlayFlyoutOpenOptions): OverlayRef;
+
+  useManaged(): ManagedFlyoutApi;
 }
 
 /**
