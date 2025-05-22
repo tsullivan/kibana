@@ -9,7 +9,6 @@
 
 import { EuiPageHeader, EuiPageSection, EuiSpacer, EuiTab, EuiTabs } from '@elastic/eui';
 import { AppMountParameters, CoreStart } from '@kbn/core/public';
-import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { GreyboxExample } from './examples/greybox_example';
@@ -25,28 +24,33 @@ const App = ({
   mountParams: AppMountParameters;
 }) => {
   return (
-    <KibanaRenderContextProvider {...core}>
+    <>
       <EuiPageHeader
         paddingSize="l"
         restrictWidth={true}
         bottomBorder="extended"
-        pageTitle="Journey flyouts"
+        pageTitle="Platform flyouts"
         description="This example app demonstrates how to use the Journey Flyouts API for flyout-to-flyout interactions, and for showing detail content side by side with main content."
       />
-      <EuiPageSection restrictWidth={false} alignment={'top'} color={'plain'} grow={true}>
+      <EuiPageSection restrictWidth={false} alignment="top" color="plain" grow={true}>
         <EuiTabs>
           <EuiTab isSelected={true}>Greybox example</EuiTab>
         </EuiTabs>
         <EuiSpacer />
 
-        <GreyboxExample services={{ overlays: core.overlays }} />
+        <GreyboxExample core={{ overlays: core.overlays }} />
       </EuiPageSection>
-    </KibanaRenderContextProvider>
+    </>
   );
 };
 
 export const renderApp = (core: CoreStart, deps: StartDeps, mountParams: AppMountParameters) => {
-  ReactDOM.render(<App core={core} deps={deps} mountParams={mountParams} />, mountParams.element);
+  core.chrome.docTitle.change('Flyout examples');
+
+  ReactDOM.render(
+    core.rendering.addContext(<App core={core} deps={deps} mountParams={mountParams} />),
+    mountParams.element
+  );
 
   return () => ReactDOM.unmountComponentAtNode(mountParams.element);
 };

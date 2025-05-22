@@ -51,8 +51,8 @@ export class OverlayService {
 
     return {
       banners,
-      useManagedFlyout: flyouts.useManaged.bind(flyouts),
       openFlyout: flyouts.open.bind(flyouts),
+      useManagedFlyoutApi: flyouts.useManagedApi.bind(flyouts),
       openModal: modals.open.bind(modals),
       openConfirm: modals.openConfirm.bind(modals),
     };

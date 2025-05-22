@@ -9,7 +9,12 @@
 
 export type { OverlayStart } from './src/overlays';
 export type { OverlayBannersStart } from './src/banners';
-export type { OverlayFlyoutStart, OverlayFlyoutOpenOptions, ManagedFlyoutApi } from './src/flyout';
+export type {
+  OverlayFlyoutStart,
+  OverlayFlyoutOpenOptions,
+  ManagedFlyoutEntry,
+  ManagedFlyoutImperativeHandle,
+} from './src/flyout';
 export type {
   OverlayModalStart,
   OverlayModalOpenOptions,

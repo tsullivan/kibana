@@ -18,7 +18,7 @@ export interface SetupDeps {
 export interface StartDeps {}
 
 const APP_ID = 'PlatformFlyoutApp';
-const title = 'Platform Flyouts';
+const title = 'Platform flyouts';
 
 export class PlatformFlyoutExamplesPlugin implements Plugin<void, void, SetupDeps, StartDeps> {
   public setup(core: CoreSetup<StartDeps>, { developerExamples }: SetupDeps) {
@@ -35,7 +35,7 @@ export class PlatformFlyoutExamplesPlugin implements Plugin<void, void, SetupDep
     developerExamples.register({
       appId: APP_ID,
       title,
-      description: `Displays use cases for the Platform Flyouts service`,
+      description: `Displays use cases for the Platform flyouts service`,
     });
   }
 

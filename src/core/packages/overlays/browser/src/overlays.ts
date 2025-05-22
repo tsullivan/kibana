@@ -17,9 +17,8 @@ export interface OverlayStart {
   banners: OverlayBannersStart;
   /** {@link OverlayFlyoutStart#open} */
   openFlyout: OverlayFlyoutStart['open'];
-
-  useManagedFlyout: OverlayFlyoutStart['useManaged'];
-
+  /** {@link OverlayFlyoutStart#useManagedApi} */
+  useManagedFlyoutApi: OverlayFlyoutStart['useManagedApi'];
   /** {@link OverlayModalStart#open} */
   openModal: OverlayModalStart['open'];
   /** {@link OverlayModalStart#openConfirm} */
