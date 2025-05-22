@@ -42,11 +42,6 @@ export interface OverlayFlyoutStart {
    * @return {@link OverlayRef} A reference to the opened flyout panel.
    */
   open(mount: MountPoint, options?: OverlayFlyoutOpenOptions): OverlayRef;
-
-  /**
-   * NEW!
-   */
-  useManagedApi(): UseManagedFlyoutApi;
 }
 
 /**

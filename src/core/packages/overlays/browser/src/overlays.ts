@@ -8,7 +8,7 @@
  */
 
 import type { OverlayBannersStart } from './banners';
-import type { OverlayFlyoutStart } from './flyout';
+import type { ManagedFlyoutImperativeHandle, OverlayFlyoutStart } from './flyout';
 import type { OverlayModalStart } from './modal';
 
 /** @public */
@@ -17,10 +17,10 @@ export interface OverlayStart {
   banners: OverlayBannersStart;
   /** {@link OverlayFlyoutStart#open} */
   openFlyout: OverlayFlyoutStart['open'];
-  /** {@link OverlayFlyoutStart#useManagedApi} */
-  useManagedFlyoutApi: OverlayFlyoutStart['useManagedApi'];
   /** {@link OverlayModalStart#open} */
   openModal: OverlayModalStart['open'];
   /** {@link OverlayModalStart#openConfirm} */
   openConfirm: OverlayModalStart['openConfirm'];
+
+  managedFlyout: ManagedFlyoutImperativeHandle;
 }

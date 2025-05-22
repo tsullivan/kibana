@@ -322,6 +322,7 @@ export class CoreSystem {
       coreUiTargetDomElement.dataset.testSubj = 'kibanaChrome';
       const notificationsTargetDomElement = document.createElement('div');
       const overlayTargetDomElement = document.createElement('div');
+      overlayTargetDomElement.setAttribute('data-test-subj', 'hello-tim-sullivan');
 
       const overlays = this.overlay.start({
         i18n,

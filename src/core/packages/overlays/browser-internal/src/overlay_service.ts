@@ -14,7 +14,7 @@ import type { I18nStart } from '@kbn/core-i18n-browser';
 import type { IUiSettingsClient } from '@kbn/core-ui-settings-browser';
 import type { OverlayStart } from '@kbn/core-overlays-browser';
 import { OverlayBannersService } from './banners';
-import { FlyoutService } from './flyout';
+import { FlyoutService, ManagedFlyoutService } from './flyout';
 import { ModalService } from './modal';
 
 interface StartDeps {
@@ -31,10 +31,13 @@ export class OverlayService {
   private bannersService = new OverlayBannersService();
   private modalService = new ModalService();
   private flyoutService = new FlyoutService();
+  private managedFlyoutService = new ManagedFlyoutService();
 
   public start({ targetDomElement, ...startDeps }: StartDeps): OverlayStart {
     const flyoutElement = document.createElement('div');
     targetDomElement.appendChild(flyoutElement);
+
+    // start your typical flyout service
     const flyouts = this.flyoutService.start({
       targetDomElement: flyoutElement,
       ...startDeps,
@@ -49,10 +52,15 @@ export class OverlayService {
       ...startDeps,
     });
 
+    const managedFlyoutElement = document.createElement('div');
+    const managedFlyout = this.managedFlyoutService.start({
+      targetDomElement: managedFlyoutElement,
+    });
+
     return {
       banners,
+      managedFlyout,
       openFlyout: flyouts.open.bind(flyouts),
-      useManagedFlyoutApi: flyouts.useManagedApi.bind(flyouts),
       openModal: modals.open.bind(modals),
       openConfirm: modals.openConfirm.bind(modals),
     };
