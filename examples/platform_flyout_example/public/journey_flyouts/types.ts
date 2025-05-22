@@ -7,27 +7,11 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { WithAllKeys } from '@kbn/presentation-publishing';
-import { StateManager } from '@kbn/presentation-publishing/state_manager/types';
+import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
 
-export interface FlyoutEntry<StateType extends object = {}> {
-  Component: React.FC<FlyoutProps<StateType>>;
-  width: number;
-  initialState?: WithAllKeys<StateType>;
-}
-
-export interface FlyoutProps<ThisFlyoutState extends object = {}> {
-  openNextFlyout: <NextFlyoutState extends object = {}>(
-    entry: FlyoutEntry<NextFlyoutState>
-  ) => void;
-  openChildFlyout: <ChildFlyoutState extends object = {}>(
-    entry: FlyoutEntry<ChildFlyoutState>
-  ) => void;
-  stateManager: StateManager<ThisFlyoutState>;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FlyoutProps {}
 
 export interface FlyoutApi {
-  openFlyout: <InitialFlyoutState extends object = {}>(
-    entry: FlyoutEntry<InitialFlyoutState>
-  ) => void;
+  openFlyout: (entry: ManagedFlyoutEntry) => void;
 }

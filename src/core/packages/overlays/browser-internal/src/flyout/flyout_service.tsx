@@ -10,7 +10,7 @@
 /* eslint-disable max-classes-per-file */
 
 import { EuiFlyout, EuiFlyoutResizable } from '@elastic/eui';
-import React from 'react';
+import React, { useRef } from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { Subject } from 'rxjs';
 import type { AnalyticsServiceStart } from '@kbn/core-analytics-browser';
@@ -19,11 +19,12 @@ import type { UserProfileService } from '@kbn/core-user-profile-browser';
 import type { I18nStart } from '@kbn/core-i18n-browser';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
 import type {
-  ManagedFlyoutApi,
+  ManagedFlyoutImperativeHandle,
   OverlayFlyoutOpenOptions,
   OverlayFlyoutStart,
 } from '@kbn/core-overlays-browser';
 import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
+import { UseManagedFlyoutApi } from '@kbn/core-overlays-browser/src/flyout';
 import { OverlayMountWrapper } from '../overlay_mount_wrapper';
 
 /**
@@ -148,10 +149,13 @@ export class FlyoutService {
         return flyout;
       },
 
-      useManaged: (): ManagedFlyoutApi => {
+      useManagedApi: (): UseManagedFlyoutApi => {
+        const ref = useRef<ManagedFlyoutImperativeHandle | null>(null);
+
         return {
-          openFlyout: () => {
-            window.alert('hello flyout');
+          ref,
+          openFlyout: (component) => {
+            ref.current?.openFlyout(component);
           },
         };
       },

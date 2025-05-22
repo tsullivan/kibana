@@ -7,11 +7,24 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import { MutableRefObject } from 'react';
 import type { EuiFlyoutProps, EuiFlyoutResizableProps } from '@elastic/eui';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
 
-export interface ManagedFlyoutApi {
-  openFlyout: () => void;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface FlyoutProps {}
+
+export interface ManagedFlyoutEntry {
+  Component: React.FC<FlyoutProps>;
+  width?: number;
+}
+
+export interface ManagedFlyoutImperativeHandle {
+  openFlyout: (entry: ManagedFlyoutEntry) => void;
+}
+
+export interface UseManagedFlyoutApi extends ManagedFlyoutImperativeHandle {
+  ref: MutableRefObject<ManagedFlyoutImperativeHandle | null>;
 }
 
 /**
@@ -30,7 +43,10 @@ export interface OverlayFlyoutStart {
    */
   open(mount: MountPoint, options?: OverlayFlyoutOpenOptions): OverlayRef;
 
-  useManaged(): ManagedFlyoutApi;
+  /**
+   * NEW!
+   */
+  useManagedApi(): UseManagedFlyoutApi;
 }
 
 /**
