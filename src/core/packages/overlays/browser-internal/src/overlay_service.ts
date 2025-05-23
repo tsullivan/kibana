@@ -16,6 +16,7 @@ import type { OverlayStart } from '@kbn/core-overlays-browser';
 import { OverlayBannersService } from './banners';
 import { FlyoutService, ManagedFlyoutService } from './flyout';
 import { ModalService } from './modal';
+import { useManagedFlyout } from './flyout/use_managed_flyout';
 
 interface StartDeps {
   targetDomElement: HTMLElement;
@@ -53,13 +54,13 @@ export class OverlayService {
     });
 
     const managedFlyoutElement = document.createElement('div');
-    const managedFlyout = this.managedFlyoutService.start({
+    this.managedFlyoutService.start({
       targetDomElement: managedFlyoutElement,
     });
 
     return {
       banners,
-      managedFlyout,
+      useManagedFlyout,
       openFlyout: flyouts.open.bind(flyouts),
       openModal: modals.open.bind(modals),
       openConfirm: modals.openConfirm.bind(modals),
