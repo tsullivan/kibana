@@ -8,14 +8,87 @@
  */
 
 import React, { useEffect, useState, type FC } from 'react';
-import { OverlayStart } from '@kbn/core/public';
+
 import { EuiButton, EuiFlexGrid, EuiFlexItem, EuiListGroup, EuiPanel, EuiText } from '@elastic/eui';
 
-interface GreyboxExampleProps {
-  core: {
-    overlays: OverlayStart;
-  };
-}
+import { useManagedFlyout } from '../context';
+
+const Step1Content: FC = () => {
+  const { nextFlyout, openChildFlyout } = useManagedFlyout();
+  return (
+    <EuiText>
+      <h3>Step 1: Initial Content</h3>
+      <p>This is the first piece of content in the flyout.</p>
+      <EuiFlexGrid columns={2}>
+        <EuiFlexItem>
+          <EuiButton onClick={() => nextFlyout({ Component: Step2Content, width: 450 })}>
+            Go to Step 2
+          </EuiButton>
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 250 })}>
+            Open Child Flyout
+          </EuiButton>
+        </EuiFlexItem>
+      </EuiFlexGrid>
+    </EuiText>
+  );
+};
+
+const Step2Content: FC = () => {
+  const { nextFlyout, openChildFlyout } = useManagedFlyout();
+  return (
+    <EuiText>
+      <h3>Step 2: Next Content</h3>
+      <p>You navigated from Step 1.</p>
+      <EuiFlexGrid columns={2}>
+        <EuiFlexItem>
+          <EuiButton onClick={() => nextFlyout({ Component: Step3Content, width: 500 })}>
+            Go to Step 3
+          </EuiButton>
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 280 })}>
+            Open Child Flyout
+          </EuiButton>
+        </EuiFlexItem>
+      </EuiFlexGrid>
+    </EuiText>
+  );
+};
+
+const Step3Content: FC = () => {
+  const { openChildFlyout } = useManagedFlyout();
+  return (
+    <EuiText>
+      <h3>Step 3: Final Content</h3>
+      <p>This is the last step in this sequence.</p>
+      <p>Use the &quot;Back&quot; button to return.</p>
+      <EuiFlexGrid>
+        <EuiFlexItem>
+          <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 220 })}>
+            Open Child Flyout
+          </EuiButton>
+        </EuiFlexItem>
+      </EuiFlexGrid>
+    </EuiText>
+  );
+};
+
+const ChildContent: React.FC = () => {
+  const { closeChildFlyout } = useManagedFlyout();
+  return (
+    <EuiText>
+      <h4>Child Flyout Content!</h4>
+      <p>This panel is aligned to the left of the main flyout.</p>
+      <EuiFlexGrid>
+        <EuiFlexItem>
+          <EuiButton onClick={closeChildFlyout}>Close Child Flyout</EuiButton>
+        </EuiFlexItem>
+      </EuiFlexGrid>
+    </EuiText>
+  );
+};
 
 const AnotherFlyoutContent: FC<{}> = () => {
   return (
@@ -26,91 +99,10 @@ const AnotherFlyoutContent: FC<{}> = () => {
   );
 };
 
-export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
-  const {
-    openFlyout,
-    closeFlyout,
-    isFlyoutOpen,
-    onFlyoutToggle,
-    nextFlyout,
-    openChildFlyout,
-    closeChildFlyout,
-  } = core.overlays.useManagedFlyout();
+export const GreyboxExample: FC<{}> = () => {
+  const { openFlyout, closeFlyout, isFlyoutOpen, onFlyoutToggle } = useManagedFlyout();
 
   const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
-
-  const Step1Content: FC = () => {
-    return (
-      <EuiText>
-        <h3>Step 1: Initial Content</h3>
-        <p>This is the first piece of content in the flyout.</p>
-        <EuiFlexGrid columns={2}>
-          <EuiFlexItem>
-            <EuiButton onClick={() => nextFlyout({ Component: Step2Content, width: 450 })}>
-              Go to Step 2
-            </EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 250 })}>
-              Open Child Flyout
-            </EuiButton>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      </EuiText>
-    );
-  };
-
-  const Step2Content: FC = () => {
-    return (
-      <EuiText>
-        <h3>Step 2: Next Content</h3>
-        <p>You navigated from Step 1.</p>
-        <EuiFlexGrid columns={2}>
-          <EuiFlexItem>
-            <EuiButton onClick={() => nextFlyout({ Component: Step3Content, width: 500 })}>
-              Go to Step 3
-            </EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 280 })}>
-              Open Child Flyout
-            </EuiButton>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      </EuiText>
-    );
-  };
-
-  const Step3Content: FC = () => {
-    return (
-      <EuiText>
-        <h3>Step 3: Final Content</h3>
-        <p>This is the last step in this sequence.</p>
-        <p>Use the &quot;Back&quot; button to return.</p>
-        <EuiFlexGrid>
-          <EuiFlexItem>
-            <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 220 })}>
-              Open Child Flyout
-            </EuiButton>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      </EuiText>
-    );
-  };
-
-  const ChildContent: React.FC = () => {
-    return (
-      <EuiText>
-        <h4>Child Flyout Content!</h4>
-        <p>This panel is aligned to the left of the main flyout.</p>
-        <EuiFlexGrid>
-          <EuiFlexItem>
-            <EuiButton onClick={closeChildFlyout}>Close Child Flyout</EuiButton>
-          </EuiFlexItem>
-        </EuiFlexGrid>
-      </EuiText>
-    );
-  };
 
   useEffect(() => {
     const subscription = onFlyoutToggle.subscribe((isOpen) => {
@@ -123,10 +115,7 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
   }, [onFlyoutToggle]);
 
   const handleOpenInitialFlyout = () => {
-    openFlyout({
-      Component: Step1Content,
-      width: 400,
-    });
+    openFlyout({ Component: Step1Content, width: 400 });
   };
 
   const handleOpenAnotherFreshFlyout = () => {
