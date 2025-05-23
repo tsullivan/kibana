@@ -8,7 +8,6 @@
  */
 
 import { ManagedFlyoutEntry, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
-
 import { managedFlyoutService } from './managed_flyout_service';
 
 export function useManagedFlyout(): UseManagedFlyoutApi {
@@ -19,7 +18,7 @@ export function useManagedFlyout(): UseManagedFlyoutApi {
   };
 
   const closeFlyout = () => {
-    flyoutSubject.next(null); // Emit null to close the flyout
+    flyoutSubject.next(null);
   };
 
   return {
