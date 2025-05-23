@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { EuiPageHeader, EuiPageSection, EuiSpacer, EuiTab, EuiTabs } from '@elastic/eui';
+import { EuiPageHeader, EuiPageSection } from '@elastic/eui';
 import { AppMountParameters, CoreStart } from '@kbn/core/public';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -26,18 +26,11 @@ const App = ({
   return (
     <>
       <EuiPageHeader
-        paddingSize="l"
-        restrictWidth={true}
-        bottomBorder="extended"
+        paddingSize="m"
         pageTitle="Platform flyouts"
-        description="This example app demonstrates how to use the Journey Flyouts API for flyout-to-flyout interactions, and for showing detail content side by side with main content."
+        description="This example app demonstrates how to use the Platform Flyouts API for flyout-to-flyout interactions, and for showing detail content side by side with main content."
       />
-      <EuiPageSection restrictWidth={false} alignment="top" color="plain" grow={true}>
-        <EuiTabs>
-          <EuiTab isSelected={true}>Greybox example</EuiTab>
-        </EuiTabs>
-        <EuiSpacer />
-
+      <EuiPageSection paddingSize="m" alignment="top">
         <GreyboxExample core={{ overlays: core.overlays }} />
       </EuiPageSection>
     </>

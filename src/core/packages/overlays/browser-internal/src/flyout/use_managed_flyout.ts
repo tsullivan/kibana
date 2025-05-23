@@ -8,6 +8,8 @@
  */
 
 import { ManagedFlyoutEntry, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
+
+// import a singleton to always operate on the same, shared state
 import { managedFlyoutService } from './managed_flyout_service';
 
 export function useManagedFlyout(): UseManagedFlyoutApi {
