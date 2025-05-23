@@ -9,13 +9,18 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, Observable } from 'rxjs';
 
-import type { FlyoutState, ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
+import type { ManagedFlyoutEntry, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
 import { FlyoutContainer } from './flyout_container';
 
 interface ManagedFlyoutServiceStartDeps {
   targetDomElement: HTMLElement;
+}
+
+export interface FlyoutState {
+  main: ManagedFlyoutEntry | null;
+  child: ManagedFlyoutEntry | null;
 }
 
 interface HistoryEntry {
@@ -23,7 +28,7 @@ interface HistoryEntry {
   child: ManagedFlyoutEntry | null;
 }
 
-export class ManagedFlyoutService {
+export class ManagedFlyoutService implements UseManagedFlyoutApi {
   private flyout$ = new Subject<FlyoutState>();
   private isOpen$ = new BehaviorSubject<boolean>(false);
   private targetElement: HTMLElement | null = null;
@@ -52,39 +57,47 @@ export class ManagedFlyoutService {
     }
 
     this.targetElement = targetDomElement;
-    ReactDOM.render(<FlyoutContainer />, this.targetElement);
+    // Pass 'this' (the service instance itself) as managedFlyoutApi
+    ReactDOM.render(<FlyoutContainer managedFlyoutApi={this} />, this.targetElement);
     this.isStarted = true;
   }
 
-  public initializeFlyout(entry: ManagedFlyoutEntry | null): void {
-    this._mainHistoryStack = [];
-    this._childFlyoutEntry = null;
-    this._currentMainEntry = entry;
-    this._emitFlyoutState();
+  // --- Implementations of UseManagedFlyoutApi methods ---
+  // These are now explicitly part of the UseManagedFlyoutApi contract
+
+  public openFlyout(entry: ManagedFlyoutEntry): void {
+    this.initializeFlyout(entry);
   }
 
-  public navigateToFlyout(entry: ManagedFlyoutEntry): void {
-    if (this._currentMainEntry) {
-      this._mainHistoryStack.push({
-        main: this._currentMainEntry,
-        child: this._childFlyoutEntry,
-      });
-    }
-    this._childFlyoutEntry = null; // New step always starts without a child flyout
-    this._currentMainEntry = entry;
-    this._emitFlyoutState();
+  public closeFlyout(): void {
+    this.initializeFlyout(null);
+  }
+
+  public isFlyoutOpen(): boolean {
+    return this.getIsFlyoutOpen();
+  }
+
+  public onFlyoutToggle(): Observable<boolean> {
+    return this.isOpen$.asObservable();
+  }
+
+  public nextFlyout(entry: ManagedFlyoutEntry): void {
+    this.navigateToFlyout(entry);
   }
 
   public goBack(): void {
     if (this.canGoBack()) {
-      // Use non-null assertion operator '!' because canGoBack() guarantees array is not empty
       const prevState = this._mainHistoryStack.pop()!;
       this._currentMainEntry = prevState.main;
       this._childFlyoutEntry = prevState.child;
       this._emitFlyoutState();
     } else {
-      this.initializeFlyout(null); // Close main flyout if no history left
+      this.initializeFlyout(null);
     }
+  }
+
+  public canGoBack(): boolean {
+    return this._mainHistoryStack.length > 0;
   }
 
   public openChildFlyout(entry: ManagedFlyoutEntry): void {
@@ -102,9 +115,7 @@ export class ManagedFlyoutService {
     }
   }
 
-  public canGoBack(): boolean {
-    return this._mainHistoryStack.length > 0;
-  }
+  // --- Internal getters and core logic methods (used by above API methods) ---
 
   public getFlyout$(): Subject<FlyoutState> {
     return this.flyout$;
@@ -114,11 +125,27 @@ export class ManagedFlyoutService {
     return this.isOpen$.getValue();
   }
 
-  public onFlyoutToggle(): Observable<boolean> {
-    return this.isOpen$.asObservable();
+  // Internal initialization method, used by openFlyout and closeFlyout
+  public initializeFlyout(entry: ManagedFlyoutEntry | null): void {
+    this._mainHistoryStack = [];
+    this._childFlyoutEntry = null;
+    this._currentMainEntry = entry;
+    this._emitFlyoutState();
   }
 
-  /* TODO: use this from somewhere */
+  // Internal navigation method, used by nextFlyout
+  public navigateToFlyout(entry: ManagedFlyoutEntry): void {
+    if (this._currentMainEntry) {
+      this._mainHistoryStack.push({
+        main: this._currentMainEntry,
+        child: this._childFlyoutEntry,
+      });
+    }
+    this._childFlyoutEntry = null;
+    this._currentMainEntry = entry;
+    this._emitFlyoutState();
+  }
+
   public stop(): void {
     if (this.targetElement && this.isStarted) {
       ReactDOM.unmountComponentAtNode(this.targetElement);
@@ -133,7 +160,4 @@ export class ManagedFlyoutService {
   }
 }
 
-/*
- * Export a singleton to facilitate an imperative API for the useManagedFlyout hook
- */
 export const managedFlyoutService = new ManagedFlyoutService();
