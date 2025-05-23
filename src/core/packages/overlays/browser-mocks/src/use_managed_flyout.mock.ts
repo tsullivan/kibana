@@ -8,13 +8,13 @@
  */
 
 import { BehaviorSubject } from 'rxjs';
-import { UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
+import { ManagedFlyoutApi } from '@kbn/core-overlays-browser';
 
-export const useManagedFlyoutMock = jest.fn<UseManagedFlyoutApi, []>(() => ({
+export const useManagedFlyoutMock = jest.fn<ManagedFlyoutApi, []>(() => ({
   openFlyout: jest.fn(),
   closeFlyout: jest.fn(),
   isFlyoutOpen: jest.fn(() => false),
-  onFlyoutToggle: new BehaviorSubject(false),
+  getIsFlyoutOpen$: () => new BehaviorSubject(false),
   nextFlyout: jest.fn(),
   goBack: jest.fn(),
   canGoBack: jest.fn(() => false),
