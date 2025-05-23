@@ -10,19 +10,26 @@
 import { css } from '@emotion/react';
 import React, { useEffect, useState, type FC } from 'react';
 
-import type { FlyoutState, ManagedFlyoutEntry } from '@kbn/core-overlays-browser/src/flyout';
+import type {
+  UseManagedFlyoutApi,
+  ManagedFlyoutEntry,
+  FlyoutState,
+} from '@kbn/core-overlays-browser';
 import { managedFlyoutService } from './managed_flyout_service';
 
-// Helper component for a single flyout panel (main or child)
+interface FlyoutContainerProps {
+  managedFlyoutApi: UseManagedFlyoutApi;
+}
+
 const FlyoutPanel: FC<{
   entry: ManagedFlyoutEntry | null;
-  positionRight: number; // Right offset in pixels
-  type: 'main' | 'child'; // To apply specific styles/classes if needed
-  zIndex: number; // For layering
   // props for buttons (if this is the main flyout)
+  positionRight: number; // Right offset in pixels
+  type: 'main' | 'child';
+  zIndex: number;
   showMainControls?: boolean;
-  canGoBack?: boolean;
-}> = ({ entry, positionRight, type, zIndex, showMainControls, canGoBack }) => {
+  managedFlyoutApi: UseManagedFlyoutApi;
+}> = ({ entry, positionRight, type, zIndex, showMainControls, managedFlyoutApi }) => {
   const [isOpen, setIsOpen] = useState(!!entry);
 
   useEffect(() => {
@@ -83,25 +90,24 @@ const FlyoutPanel: FC<{
     }
   `;
 
+  const canGoBack = managedFlyoutApi.canGoBack();
+
   return (
     <div css={panelStyles}>
-      {entry && entry.Component && <entry.Component />}
+      {entry && entry.Component && <entry.Component managedFlyoutApi={managedFlyoutApi} />}
 
       {/* Render buttons ONLY if showMainControls is true (i.e., this is the main flyout) */}
       {showMainControls && (
         <>
           <button
-            onClick={() => managedFlyoutService.goBack()}
+            onClick={() => managedFlyoutApi.goBack()}
             css={backButtonStyles}
             disabled={!canGoBack}
             style={{ display: canGoBack ? 'inline-block' : 'none' }}
           >
             Back
           </button>
-          <button
-            onClick={() => managedFlyoutService.initializeFlyout(null)}
-            css={closeButtonStyles}
-          >
+          <button onClick={() => managedFlyoutApi.closeFlyout()} css={closeButtonStyles}>
             X
           </button>
         </>
@@ -110,7 +116,7 @@ const FlyoutPanel: FC<{
   );
 };
 
-export const FlyoutContainer: FC = () => {
+export const FlyoutContainer: FC<FlyoutContainerProps> = ({ managedFlyoutApi }) => {
   const [flyoutState, setFlyoutState] = useState<FlyoutState>({ main: null, child: null });
 
   const flyout$ = managedFlyoutService.getFlyout$();
@@ -123,32 +129,26 @@ export const FlyoutContainer: FC = () => {
   }, [flyout$]);
 
   const mainFlyoutWidth = flyoutState.main?.width || 300;
-  // const childFlyoutWidth = flyoutState.child?.width || 300; // Not directly needed for positioning logic here
-
-  const mainPanelRight = 0;
   const childPanelRight = mainFlyoutWidth;
-
-  const canGoBack = managedFlyoutService.canGoBack();
 
   return (
     <>
-      {/* Main Flyout Panel: Pass control props */}
       <FlyoutPanel
         entry={flyoutState.main}
-        positionRight={mainPanelRight}
+        positionRight={0}
         type="main"
         zIndex={1000}
-        showMainControls={!!flyoutState.main} // Only show controls if main flyout is active
-        canGoBack={canGoBack}
+        showMainControls={!!flyoutState.main}
+        managedFlyoutApi={managedFlyoutApi}
       />
 
-      {/* Child Flyout Panel: No controls here */}
-      {flyoutState.main && ( // Only render child if main is conceptually open
+      {flyoutState.main && (
         <FlyoutPanel
           entry={flyoutState.child}
           positionRight={childPanelRight}
           type="child"
-          zIndex={1001} // Child z-index should be higher than main
+          zIndex={1001}
+          managedFlyoutApi={managedFlyoutApi}
         />
       )}
     </>

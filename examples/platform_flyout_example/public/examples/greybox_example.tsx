@@ -105,7 +105,7 @@ export const GreyboxExample: FC<{}> = () => {
   const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
 
   useEffect(() => {
-    const subscription = onFlyoutToggle.subscribe((isOpen) => {
+    const subscription = onFlyoutToggle().subscribe((isOpen) => {
       setFlyoutStatus(isOpen);
     });
 

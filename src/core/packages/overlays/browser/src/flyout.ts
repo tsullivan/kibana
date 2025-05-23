@@ -7,38 +7,11 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { Observable } from 'rxjs';
+import React from 'react';
+import { Observable } from 'rxjs';
+
 import type { EuiFlyoutProps, EuiFlyoutResizableProps } from '@elastic/eui';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface FlyoutProps {}
-
-export interface ManagedFlyoutEntry {
-  Component: React.FC<FlyoutProps>;
-  width?: number;
-}
-
-export interface UseManagedFlyoutApi {
-  openFlyout: (entry: ManagedFlyoutEntry) => void;
-  closeFlyout: () => void;
-  isFlyoutOpen: () => boolean;
-  onFlyoutToggle: Observable<boolean>;
-
-  // Navigation methods for main flyout
-  nextFlyout: (entry: ManagedFlyoutEntry) => void;
-  goBack: () => void;
-  canGoBack: () => boolean;
-
-  // Child flyout methods
-  openChildFlyout: (entry: ManagedFlyoutEntry) => void;
-  closeChildFlyout: () => void;
-}
-
-export interface FlyoutState {
-  main: ManagedFlyoutEntry | null;
-  child: ManagedFlyoutEntry | null;
-}
 
 /**
  * APIs to open and manage fly-out dialogs.
@@ -71,3 +44,22 @@ export type OverlayFlyoutOpenOptions = Omit<
   onClose?: (flyout: OverlayRef) => void;
   isResizable?: boolean;
 };
+
+// NEW
+export interface UseManagedFlyoutApi {
+  openFlyout: (entry: ManagedFlyoutEntry) => void;
+  closeFlyout: () => void;
+  isFlyoutOpen: () => boolean;
+  onFlyoutToggle: () => Observable<boolean>; // Use Observable here
+  nextFlyout: (entry: ManagedFlyoutEntry) => void;
+  goBack: () => void;
+  canGoBack: () => boolean;
+  openChildFlyout: (entry: ManagedFlyoutEntry) => void;
+  closeChildFlyout: () => void;
+}
+
+// NEW
+export interface ManagedFlyoutEntry {
+  Component: React.FC<{ managedFlyoutApi: UseManagedFlyoutApi }>;
+  width?: number;
+}
