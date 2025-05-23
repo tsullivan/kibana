@@ -12,11 +12,15 @@ import { managedFlyoutService } from './managed_flyout_service';
 
 export function useManagedFlyout(): UseManagedFlyoutApi {
   const openFlyout = (entry: ManagedFlyoutEntry) => {
+    console.log(
+      `[useManagedFlyout] openFlyout called (will initialize new flyout and clear history).`
+    );
     managedFlyoutService.initializeFlyout(entry);
   };
 
   const closeFlyout = () => {
-    managedFlyoutService.initializeFlyout(null);
+    console.log(`[useManagedFlyout] closeFlyout called. Closing all flyouts and clearing history.`);
+    managedFlyoutService.initializeFlyout(null); // Close all flyouts and clear history
   };
 
   const isFlyoutOpen = (): boolean => {
@@ -26,15 +30,27 @@ export function useManagedFlyout(): UseManagedFlyoutApi {
   const onFlyoutToggle = managedFlyoutService.onFlyoutToggle();
 
   const nextFlyout = (entry: ManagedFlyoutEntry) => {
+    console.log(`[useManagedFlyout] nextFlyout called (will navigate to next main flyout).`);
     managedFlyoutService.navigateToFlyout(entry);
   };
 
   const goBack = () => {
+    console.log(`[useManagedFlyout] goBack called (will go back in main flyout history).`);
     managedFlyoutService.goBack();
   };
 
   const canGoBack = (): boolean => {
     return managedFlyoutService.canGoBack();
+  };
+
+  const openChildFlyout = (entry: ManagedFlyoutEntry) => {
+    console.log(`[useManagedFlyout] openChildFlyout called.`);
+    managedFlyoutService.openChildFlyout(entry);
+  };
+
+  const closeChildFlyout = () => {
+    console.log(`[useManagedFlyout] closeChildFlyout called.`);
+    managedFlyoutService.closeChildFlyout();
   };
 
   return {
@@ -45,5 +61,7 @@ export function useManagedFlyout(): UseManagedFlyoutApi {
     nextFlyout,
     goBack,
     canGoBack,
+    openChildFlyout,
+    closeChildFlyout,
   };
 }

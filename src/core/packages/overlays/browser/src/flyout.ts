@@ -21,12 +21,23 @@ export interface ManagedFlyoutEntry {
 
 export interface UseManagedFlyoutApi {
   openFlyout: (entry: ManagedFlyoutEntry) => void;
-  nextFlyout: (entry: ManagedFlyoutEntry) => void;
   closeFlyout: () => void;
   isFlyoutOpen: () => boolean;
   onFlyoutToggle: Observable<boolean>;
-  canGoBack: () => boolean;
+
+  // Navigation methods for main flyout
+  nextFlyout: (entry: ManagedFlyoutEntry) => void;
   goBack: () => void;
+  canGoBack: () => boolean;
+
+  // Child flyout methods
+  openChildFlyout: (entry: ManagedFlyoutEntry) => void;
+  closeChildFlyout: () => void; // Added for explicit child close
+}
+
+export interface FlyoutState {
+  main: ManagedFlyoutEntry | null;
+  child: ManagedFlyoutEntry | null;
 }
 
 /**

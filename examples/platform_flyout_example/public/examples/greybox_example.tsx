@@ -27,8 +27,16 @@ const AnotherFlyoutContent: FC<{}> = () => {
 };
 
 export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
-  const { openFlyout, closeFlyout, isFlyoutOpen, onFlyoutToggle, nextFlyout } =
-    core.overlays.useManagedFlyout();
+  const {
+    openFlyout,
+    closeFlyout,
+    isFlyoutOpen,
+    onFlyoutToggle,
+    nextFlyout,
+    openChildFlyout,
+    closeChildFlyout,
+  } = core.overlays.useManagedFlyout();
+
   const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
 
   const Step1Content: FC = () => {
@@ -38,6 +46,9 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
         <p>This is the first piece of content in the flyout.</p>
         <EuiButton onClick={() => nextFlyout({ Component: Step2Content, width: 450 })}>
           Go to Step 2
+        </EuiButton>
+        <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 250 })}>
+          Open Child Flyout
         </EuiButton>
       </EuiText>
     );
@@ -51,6 +62,9 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
         <EuiButton onClick={() => nextFlyout({ Component: Step3Content, width: 500 })}>
           Go to Step 3
         </EuiButton>
+        <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 280 })}>
+          Open Child Flyout
+        </EuiButton>
       </EuiText>
     );
   };
@@ -61,7 +75,20 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
         <h3>Step 3: Final Content</h3>
         <p>This is the last step in this sequence.</p>
         <p>Use the &quot;Back&quot; button to return.</p>
+        <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 220 })}>
+          Open Child Flyout
+        </EuiButton>
       </EuiText>
+    );
+  };
+
+  const ChildContent: React.FC = () => {
+    return (
+      <div style={{ padding: 20 }}>
+        <h4>Child Flyout Content!</h4>
+        <p>This panel is aligned to the left of the main flyout.</p>
+        <button onClick={closeChildFlyout}>Close Child Flyout</button>
+      </div>
     );
   };
 
