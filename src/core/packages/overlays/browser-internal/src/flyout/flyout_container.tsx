@@ -33,7 +33,7 @@ export const FlyoutContainer: React.FC = () => {
 
   const flyoutStyles = css`
     position: fixed;
-    top: 0;
+    top: 110px;
     right: 0;
     height: 100%;
     width: ${flyoutEntry?.width || 300}px;

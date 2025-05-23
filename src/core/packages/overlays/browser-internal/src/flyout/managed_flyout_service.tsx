@@ -83,6 +83,24 @@ export class ManagedFlyoutService {
     this.isStarted = true;
   }
 
+  public getFlyout$(): Subject<ManagedFlyoutEntry | null> {
+    return this.flyout$;
+  }
+
+  public stop(): void {
+    if (this.targetElement && this.isStarted) {
+      ReactDOM.unmountComponentAtNode(this.targetElement);
+      this.isStarted = false;
+      this.targetElement = null;
+      this.flyout$.complete();
+      this.isOpen$.complete();
+      this.historyStack = []; // Clear history on stop
+      this.currentFlyoutEntry = null;
+    }
+  }
+
+  // --- Public API Methods only to be exposed through the useManagedFlyout hook  ---
+
   public initializeFlyout(entry: ManagedFlyoutEntry | null): void {
     this.historyStack = []; // Clear all history
     this._updateCurrentFlyout(entry); // Set the new entry as the first one
@@ -96,13 +114,8 @@ export class ManagedFlyoutService {
     this._popHistoryAndDisplay();
   }
 
-  // Public method to check if going back is possible
   public canGoBack(): boolean {
     return this.historyStack.length > 0;
-  }
-
-  public getFlyout$(): Subject<ManagedFlyoutEntry | null> {
-    return this.flyout$;
   }
 
   public getIsFlyoutOpen(): boolean {
@@ -112,18 +125,6 @@ export class ManagedFlyoutService {
 
   public onFlyoutToggle(): Observable<boolean> {
     return this.isOpen$.asObservable();
-  }
-
-  public stop(): void {
-    if (this.targetElement && this.isStarted) {
-      ReactDOM.unmountComponentAtNode(this.targetElement);
-      this.isStarted = false;
-      this.targetElement = null;
-      this.flyout$.complete();
-      this.isOpen$.complete();
-      this.historyStack = []; // Clear history on stop
-      this.currentFlyoutEntry = null;
-    }
   }
 }
 

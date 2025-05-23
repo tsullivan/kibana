@@ -7,10 +7,9 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useEffect, useState } from 'react';
-
-import { EuiButton, EuiSpacer, EuiText } from '@elastic/eui';
+import React, { useEffect, useState, type FC } from 'react';
 import { OverlayStart } from '@kbn/core/public';
+import { EuiButton, EuiListGroup, EuiPanel, EuiText } from '@elastic/eui';
 
 interface GreyboxExampleProps {
   core: {
@@ -18,50 +17,119 @@ interface GreyboxExampleProps {
   };
 }
 
+const AnotherFlyoutContent: FC<{}> = () => {
+  return (
+    <EuiText>
+      <h3>New</h3>
+      <p>This is a fresh new flyout.</p>
+    </EuiText>
+  );
+};
+
 export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
-  const { openFlyout, closeFlyout, isFlyoutOpen, onFlyoutToggle } =
+  const { openFlyout, closeFlyout, isFlyoutOpen, onFlyoutToggle, nextFlyout } =
     core.overlays.useManagedFlyout();
+  const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
 
-  const [buttonText, setButtonText] = useState<string | undefined>();
-
-  useEffect(() => {
-    const subscription = onFlyoutToggle.subscribe((isOpen) => {
-      setButtonText(isOpen ? 'Close flyout' : 'Open flyout');
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [onFlyoutToggle]);
-
-  const GreyboxFlyout1: React.FC<{}> = () => {
+  const Step1Content: FC = () => {
     return (
       <EuiText>
-        <h2>My flyout</h2>
-        <EuiText>The flyout is: {isFlyoutOpen() ? 'open!' : 'not open!'}</EuiText>
+        <h3>Step 1: Initial Content</h3>
+        <p>This is the first piece of content in the flyout.</p>
+        <EuiButton onClick={() => nextFlyout({ Component: Step2Content, width: 450 })}>
+          Go to Step 2
+        </EuiButton>
       </EuiText>
     );
   };
 
-  const handleClick = () => {
-    if (isFlyoutOpen()) {
-      closeFlyout();
-    } else {
-      openFlyout({
-        Component: GreyboxFlyout1,
-      });
-    }
+  const Step2Content: FC = () => {
+    return (
+      <EuiText>
+        <h3>Step 2: Next Content</h3>
+        <p>You navigated from Step 1.</p>
+        <EuiButton onClick={() => nextFlyout({ Component: Step3Content, width: 500 })}>
+          Go to Step 3
+        </EuiButton>
+      </EuiText>
+    );
   };
 
-  return (
-    <>
+  const Step3Content: FC = () => {
+    return (
       <EuiText>
-        <p>
-          This example contains a simplistic greybox demonstration of the features of the system.
-        </p>
+        <h3>Step 3: Final Content</h3>
+        <p>This is the last step in this sequence.</p>
+        <p>Use the &quot;Back&quot; button to return.</p>
       </EuiText>
-      <EuiSpacer />
-      <EuiButton onClick={handleClick}>{buttonText}</EuiButton>
-    </>
+    );
+  };
+
+  useEffect(() => {
+    console.log(`[MyApp] useEffect: Subscribing to onFlyoutToggle.`);
+    const subscription = onFlyoutToggle.subscribe((isOpen) => {
+      console.log(`[MyApp] Flyout status changed: ${isOpen}`);
+      setFlyoutStatus(isOpen);
+    });
+
+    return () => {
+      console.log(`[MyApp] useEffect Cleanup: Unsubscribing from onFlyoutToggle.`);
+      subscription.unsubscribe();
+    };
+  }, [onFlyoutToggle]);
+
+  const handleOpenInitialFlyout = () => {
+    openFlyout({
+      Component: Step1Content,
+      width: 400,
+    });
+  };
+
+  const handleOpenAnotherFreshFlyout = () => {
+    openFlyout({
+      // This will clear history if already open
+      Component: AnotherFlyoutContent,
+      width: 350,
+    });
+  };
+
+  const handleCheckFlyoutStatus = () => {
+    alert(`The flyout is currently ${isFlyoutOpen() ? 'open' : 'closed'}. (Synchronous check)`);
+  };
+
+  const buttonContent = [
+    {
+      label: 'Open step-by-step flyout (step 1)',
+      href: '#',
+      onClick: handleOpenInitialFlyout,
+    },
+    {
+      label: 'Open fresh flyout',
+      href: '#',
+      onClick: handleOpenAnotherFreshFlyout,
+    },
+    {
+      label: 'Close flyout',
+      href: '#',
+      onClick: closeFlyout,
+    },
+    {
+      label: 'Check flyout status (synchronous)',
+      href: '#',
+      onClick: handleCheckFlyoutStatus,
+    },
+  ];
+
+  return (
+    <EuiText>
+      <h1>My Application Content</h1>
+      <p>
+        Flyout is currently: <strong>{flyoutStatus ? 'OPEN' : 'CLOSED'}</strong> (Reactive update)
+      </p>
+
+      <EuiPanel>
+        <EuiListGroup listItems={buttonContent} color="primary" size="l" />
+      </EuiPanel>
+    </EuiText>
   );
 };
