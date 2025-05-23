@@ -13,35 +13,24 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { GreyboxExample } from './examples/greybox_example';
 import { StartDeps } from './plugin';
-
-const App = ({
-  core,
-  deps,
-  mountParams,
-}: {
-  core: CoreStart;
-  deps: StartDeps;
-  mountParams: AppMountParameters;
-}) => {
-  return (
-    <>
-      <EuiPageHeader
-        paddingSize="m"
-        pageTitle="Platform flyouts"
-        description="This example app demonstrates how to use the Platform Flyouts API for flyout-to-flyout interactions, and for showing detail content side by side with main content."
-      />
-      <EuiPageSection paddingSize="m" alignment="top">
-        <GreyboxExample core={{ overlays: core.overlays }} />
-      </EuiPageSection>
-    </>
-  );
-};
+import { FlyoutApiProvider } from './context';
 
 export const renderApp = (core: CoreStart, deps: StartDeps, mountParams: AppMountParameters) => {
   core.chrome.docTitle.change('Flyout examples');
 
   ReactDOM.render(
-    core.rendering.addContext(<App core={core} deps={deps} mountParams={mountParams} />),
+    core.rendering.addContext(
+      <FlyoutApiProvider core={core}>
+        <EuiPageHeader
+          paddingSize="m"
+          pageTitle="Platform flyouts"
+          description="This example app demonstrates how to use the Platform Flyouts API for flyout-to-flyout interactions, and for showing detail content side by side with main content."
+        />
+        <EuiPageSection paddingSize="m" alignment="top">
+          <GreyboxExample />
+        </EuiPageSection>
+      </FlyoutApiProvider>
+    ),
     mountParams.element
   );
 
