@@ -18,6 +18,11 @@ interface ManagedFlyoutServiceStartDeps {
   targetDomElement: HTMLElement;
 }
 
+interface HistoryEntry {
+  main: ManagedFlyoutEntry;
+  child: ManagedFlyoutEntry | null;
+}
+
 export class ManagedFlyoutService {
   private flyout$ = new Subject<FlyoutState>();
   private isOpen$ = new BehaviorSubject<boolean>(false);
@@ -25,7 +30,7 @@ export class ManagedFlyoutService {
   private isStarted = false;
 
   private _currentMainEntry: ManagedFlyoutEntry | null = null;
-  private _mainHistoryStack: ManagedFlyoutEntry[] = [];
+  private _mainHistoryStack: HistoryEntry[] = [];
   private _childFlyoutEntry: ManagedFlyoutEntry | null = null;
 
   constructor() {
@@ -34,7 +39,6 @@ export class ManagedFlyoutService {
     });
   }
 
-  // Centralized method to emit the complete current flyout state
   private _emitFlyoutState(): void {
     this.flyout$.next({
       main: this._currentMainEntry,
@@ -61,18 +65,22 @@ export class ManagedFlyoutService {
 
   public navigateToFlyout(entry: ManagedFlyoutEntry): void {
     if (this._currentMainEntry) {
-      this._mainHistoryStack.push(this._currentMainEntry);
+      this._mainHistoryStack.push({
+        main: this._currentMainEntry,
+        child: this._childFlyoutEntry,
+      });
     }
-    this._childFlyoutEntry = null;
+    this._childFlyoutEntry = null; // New step always starts without a child flyout
     this._currentMainEntry = entry;
     this._emitFlyoutState();
   }
 
   public goBack(): void {
     if (this.canGoBack()) {
-      const prevEntry = this._mainHistoryStack.pop();
-      this._childFlyoutEntry = null; // Close child when main goes back
-      this._currentMainEntry = prevEntry || null;
+      // Use non-null assertion operator '!' because canGoBack() guarantees array is not empty
+      const prevState = this._mainHistoryStack.pop()!;
+      this._currentMainEntry = prevState.main;
+      this._childFlyoutEntry = prevState.child;
       this._emitFlyoutState();
     } else {
       this.initializeFlyout(null); // Close main flyout if no history left
