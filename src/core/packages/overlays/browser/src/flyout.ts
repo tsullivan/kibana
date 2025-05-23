@@ -7,7 +7,6 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { MutableRefObject } from 'react';
 import type { EuiFlyoutProps, EuiFlyoutResizableProps } from '@elastic/eui';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
 
@@ -19,12 +18,9 @@ export interface ManagedFlyoutEntry {
   width?: number;
 }
 
-export interface ManagedFlyoutImperativeHandle {
+export interface UseManagedFlyoutApi {
   openFlyout: (entry: ManagedFlyoutEntry) => void;
-}
-
-export interface UseManagedFlyoutApi extends ManagedFlyoutImperativeHandle {
-  ref: MutableRefObject<ManagedFlyoutImperativeHandle | null>;
+  closeFlyout: () => void;
 }
 
 /**

@@ -12,7 +12,6 @@ import React from 'react';
 import { EuiButton, EuiSpacer, EuiText } from '@elastic/eui';
 
 import { OverlayStart } from '@kbn/core/public';
-import { JourneyFlyout } from '../journey_flyouts/journey_flyout';
 
 interface GreyboxExampleProps {
   core: {
@@ -30,7 +29,7 @@ const GreyboxFlyout1: React.FC<{}> = () => {
 };
 
 export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
-  const { ref: flyoutRef, ...flyoutApi } = core.overlays.useManagedFlyoutApi();
+  const flyoutApi = core.overlays.useManagedFlyout();
 
   return (
     <>
@@ -49,7 +48,6 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
       >
         Open my flyout
       </EuiButton>
-      <JourneyFlyout ref={flyoutRef} />
     </>
   );
 };
