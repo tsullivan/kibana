@@ -10,26 +10,30 @@
 import { css } from '@emotion/react';
 import React, { useEffect, useState, type FC } from 'react';
 
-import type {
-  UseManagedFlyoutApi,
-  ManagedFlyoutEntry,
-  FlyoutState,
-} from '@kbn/core-overlays-browser';
+import type { ManagedFlyoutApi, ManagedFlyoutEntry, FlyoutState } from '@kbn/core-overlays-browser';
 import { managedFlyoutService } from './managed_flyout_service';
 
 interface FlyoutContainerProps {
-  managedFlyoutApi: UseManagedFlyoutApi;
+  managedFlyoutApi: ManagedFlyoutApi;
 }
 
-const FlyoutPanel: FC<{
+interface FlyoutPanelProps {
   entry: ManagedFlyoutEntry | null;
-  // props for buttons (if this is the main flyout)
   positionRight: number; // Right offset in pixels
-  type: 'main' | 'child';
+  level: 'main' | 'child';
   zIndex: number;
   showMainControls?: boolean;
-  managedFlyoutApi: UseManagedFlyoutApi;
-}> = ({ entry, positionRight, type, zIndex, showMainControls, managedFlyoutApi }) => {
+  managedFlyoutApi: ManagedFlyoutApi;
+}
+
+const FlyoutPanel: FC<FlyoutPanelProps> = ({
+  entry,
+  positionRight,
+  level,
+  zIndex,
+  showMainControls,
+  managedFlyoutApi,
+}) => {
   const [isOpen, setIsOpen] = useState(!!entry);
 
   useEffect(() => {
@@ -45,7 +49,7 @@ const FlyoutPanel: FC<{
     right: ${positionRight}px; /* Dynamic right position */
     height: 100%;
     width: ${panelWidth}px;
-    background-color: ${type === 'main'
+    background-color: ${level === 'main'
       ? 'lightgray'
       : '#e0e0e0'}; /* Different background for child */
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Stronger shadow for layering */
@@ -57,7 +61,7 @@ const FlyoutPanel: FC<{
     visibility: ${entry || isOpen ? 'visible' : 'hidden'};
     box-sizing: border-box; /* Include padding in width */
     padding: 60px 20px 20px 20px;
-    border-left: ${type === 'child' ? '1px solid #ccc' : 'none'}; /* Visual separation */
+    border-left: ${level === 'child' ? '1px solid #ccc' : 'none'}; /* Visual separation */
   `;
 
   const closeButtonStyles = css`
@@ -94,7 +98,7 @@ const FlyoutPanel: FC<{
 
   return (
     <div css={panelStyles}>
-      {entry && entry.Component && <entry.Component managedFlyoutApi={managedFlyoutApi} />}
+      {entry && entry.Component && <entry.Component {...managedFlyoutApi} />}
 
       {/* Render buttons ONLY if showMainControls is true (i.e., this is the main flyout) */}
       {showMainControls && (
@@ -136,7 +140,7 @@ export const FlyoutContainer: FC<FlyoutContainerProps> = ({ managedFlyoutApi }) 
       <FlyoutPanel
         entry={flyoutState.main}
         positionRight={0}
-        type="main"
+        level="main"
         zIndex={1000}
         showMainControls={!!flyoutState.main}
         managedFlyoutApi={managedFlyoutApi}
@@ -146,7 +150,7 @@ export const FlyoutContainer: FC<FlyoutContainerProps> = ({ managedFlyoutApi }) 
         <FlyoutPanel
           entry={flyoutState.child}
           positionRight={childPanelRight}
-          type="child"
+          level="child"
           zIndex={1001}
           managedFlyoutApi={managedFlyoutApi}
         />

@@ -7,14 +7,17 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useEffect, useState, type FC } from 'react';
+import React, { useEffect, type FC, useState } from 'react';
 
 import { EuiButton, EuiFlexGrid, EuiFlexItem, EuiListGroup, EuiPanel, EuiText } from '@elastic/eui';
+import { OverlayStart, ManagedFlyoutApi } from '@kbn/core-overlays-browser';
 
-import { useManagedFlyout } from '../context';
+interface GreyboxExampleProps {
+  overlays: OverlayStart;
+}
 
-const Step1Content: FC = () => {
-  const { nextFlyout, openChildFlyout } = useManagedFlyout();
+const Step1Content: FC<ManagedFlyoutApi> = (managedFlyoutApi) => {
+  const { nextFlyout, openChildFlyout } = managedFlyoutApi;
   return (
     <EuiText>
       <h3>Step 1: Initial Content</h3>
@@ -35,8 +38,7 @@ const Step1Content: FC = () => {
   );
 };
 
-const Step2Content: FC = () => {
-  const { nextFlyout, openChildFlyout } = useManagedFlyout();
+const Step2Content: FC<ManagedFlyoutApi> = ({ nextFlyout, openChildFlyout }) => {
   return (
     <EuiText>
       <h3>Step 2: Next Content</h3>
@@ -57,8 +59,7 @@ const Step2Content: FC = () => {
   );
 };
 
-const Step3Content: FC = () => {
-  const { openChildFlyout } = useManagedFlyout();
+const Step3Content: FC<ManagedFlyoutApi> = ({ openChildFlyout }) => {
   return (
     <EuiText>
       <h3>Step 3: Final Content</h3>
@@ -75,8 +76,7 @@ const Step3Content: FC = () => {
   );
 };
 
-const ChildContent: React.FC = () => {
-  const { closeChildFlyout } = useManagedFlyout();
+const ChildContent: React.FC<ManagedFlyoutApi> = ({ closeChildFlyout }) => {
   return (
     <EuiText>
       <h4>Child Flyout Content!</h4>
@@ -90,7 +90,7 @@ const ChildContent: React.FC = () => {
   );
 };
 
-const AnotherFlyoutContent: FC<{}> = () => {
+const AnotherFlyoutContent: FC = () => {
   return (
     <EuiText>
       <h3>New</h3>
@@ -99,20 +99,8 @@ const AnotherFlyoutContent: FC<{}> = () => {
   );
 };
 
-export const GreyboxExample: FC<{}> = () => {
-  const { openFlyout, closeFlyout, isFlyoutOpen, onFlyoutToggle } = useManagedFlyout();
-
-  const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
-
-  useEffect(() => {
-    const subscription = onFlyoutToggle().subscribe((isOpen) => {
-      setFlyoutStatus(isOpen);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [onFlyoutToggle]);
+export const GreyboxExample: FC<GreyboxExampleProps> = ({ overlays }) => {
+  const { openFlyout, closeFlyout, getIsFlyoutOpen$, isFlyoutOpen } = overlays.useManagedFlyout();
 
   const handleOpenInitialFlyout = () => {
     openFlyout({ Component: Step1Content, width: 400 });
@@ -153,9 +141,20 @@ export const GreyboxExample: FC<{}> = () => {
     },
   ];
 
+  const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
+  useEffect(() => {
+    const subscription = getIsFlyoutOpen$().subscribe((isOpen) => {
+      setFlyoutStatus(isOpen);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [getIsFlyoutOpen$]);
+
   return (
     <EuiText>
-      <h1>My Application Content</h1>
+      <h1>GreyboxExample</h1>
       <p>
         Flyout is currently: <strong>{flyoutStatus ? 'OPEN' : 'CLOSED'}</strong> (Reactive update)
       </p>
