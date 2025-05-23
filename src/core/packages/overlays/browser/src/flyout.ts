@@ -32,7 +32,7 @@ export interface UseManagedFlyoutApi {
 
   // Child flyout methods
   openChildFlyout: (entry: ManagedFlyoutEntry) => void;
-  closeChildFlyout: () => void; // Added for explicit child close
+  closeChildFlyout: () => void;
 }
 
 export interface FlyoutState {

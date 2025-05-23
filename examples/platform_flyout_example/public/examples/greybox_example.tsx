@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState, type FC } from 'react';
 import { OverlayStart } from '@kbn/core/public';
-import { EuiButton, EuiListGroup, EuiPanel, EuiText } from '@elastic/eui';
+import { EuiButton, EuiFlexGrid, EuiFlexItem, EuiListGroup, EuiPanel, EuiText } from '@elastic/eui';
 
 interface GreyboxExampleProps {
   core: {
@@ -44,12 +44,18 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
       <EuiText>
         <h3>Step 1: Initial Content</h3>
         <p>This is the first piece of content in the flyout.</p>
-        <EuiButton onClick={() => nextFlyout({ Component: Step2Content, width: 450 })}>
-          Go to Step 2
-        </EuiButton>
-        <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 250 })}>
-          Open Child Flyout
-        </EuiButton>
+        <EuiFlexGrid columns={2}>
+          <EuiFlexItem>
+            <EuiButton onClick={() => nextFlyout({ Component: Step2Content, width: 450 })}>
+              Go to Step 2
+            </EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 250 })}>
+              Open Child Flyout
+            </EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGrid>
       </EuiText>
     );
   };
@@ -59,12 +65,18 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
       <EuiText>
         <h3>Step 2: Next Content</h3>
         <p>You navigated from Step 1.</p>
-        <EuiButton onClick={() => nextFlyout({ Component: Step3Content, width: 500 })}>
-          Go to Step 3
-        </EuiButton>
-        <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 280 })}>
-          Open Child Flyout
-        </EuiButton>
+        <EuiFlexGrid columns={2}>
+          <EuiFlexItem>
+            <EuiButton onClick={() => nextFlyout({ Component: Step3Content, width: 500 })}>
+              Go to Step 3
+            </EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 280 })}>
+              Open Child Flyout
+            </EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGrid>
       </EuiText>
     );
   };
@@ -75,9 +87,13 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
         <h3>Step 3: Final Content</h3>
         <p>This is the last step in this sequence.</p>
         <p>Use the &quot;Back&quot; button to return.</p>
-        <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 220 })}>
-          Open Child Flyout
-        </EuiButton>
+        <EuiFlexGrid>
+          <EuiFlexItem>
+            <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 220 })}>
+              Open Child Flyout
+            </EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGrid>
       </EuiText>
     );
   };
@@ -87,7 +103,11 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
       <EuiText>
         <h4>Child Flyout Content!</h4>
         <p>This panel is aligned to the left of the main flyout.</p>
-        <EuiButton onClick={closeChildFlyout}>Close Child Flyout</EuiButton>
+        <EuiFlexGrid>
+          <EuiFlexItem>
+            <EuiButton onClick={closeChildFlyout}>Close Child Flyout</EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGrid>
       </EuiText>
     );
   };
@@ -152,7 +172,7 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
       </p>
 
       <EuiPanel>
-        <EuiListGroup listItems={buttonContent} color="primary" size="l" />
+        <EuiListGroup listItems={buttonContent} color="primary" />
       </EuiPanel>
     </EuiText>
   );

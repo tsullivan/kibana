@@ -38,8 +38,6 @@ export class OverlayService {
   public start({ targetDomElement, ...startDeps }: StartDeps): OverlayStart {
     const flyoutElement = document.createElement('div');
     targetDomElement.appendChild(flyoutElement);
-
-    // start your typical flyout service
     const flyouts = this.flyoutService.start({
       targetDomElement: flyoutElement,
       ...startDeps,

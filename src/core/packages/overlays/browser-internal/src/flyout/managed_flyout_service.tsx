@@ -118,6 +118,7 @@ export class ManagedFlyoutService {
     return this.isOpen$.asObservable();
   }
 
+  /* TODO: use this from somewhere */
   public stop(): void {
     if (this.targetElement && this.isStarted) {
       ReactDOM.unmountComponentAtNode(this.targetElement);
@@ -132,4 +133,7 @@ export class ManagedFlyoutService {
   }
 }
 
+/*
+ * Export a singleton to facilitate an imperative API for the useManagedFlyout hook
+ */
 export const managedFlyoutService = new ManagedFlyoutService();
