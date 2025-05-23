@@ -7,13 +7,14 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
-import { FlyoutState, ManagedFlyoutEntry } from '@kbn/core-overlays-browser/src/flyout';
+import React, { useEffect, useState, type FC } from 'react';
+
+import type { FlyoutState, ManagedFlyoutEntry } from '@kbn/core-overlays-browser/src/flyout';
 import { managedFlyoutService } from './managed_flyout_service';
 
 // Helper component for a single flyout panel (main or child)
-const FlyoutPanel: React.FC<{
+const FlyoutPanel: FC<{
   entry: ManagedFlyoutEntry | null;
   positionRight: number; // Right offset in pixels
   type: 'main' | 'child'; // To apply specific styles/classes if needed
@@ -109,7 +110,7 @@ const FlyoutPanel: React.FC<{
   );
 };
 
-export const FlyoutContainer: React.FC = () => {
+export const FlyoutContainer: FC = () => {
   const [flyoutState, setFlyoutState] = useState<FlyoutState>({ main: null, child: null });
 
   const flyout$ = managedFlyoutService.getFlyout$();

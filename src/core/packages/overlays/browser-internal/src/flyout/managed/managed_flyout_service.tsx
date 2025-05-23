@@ -9,9 +9,9 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BehaviorSubject, Subject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
-import { FlyoutState, ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
+import type { FlyoutState, ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
 import { FlyoutContainer } from './flyout_container';
 
 interface ManagedFlyoutServiceStartDeps {

@@ -7,9 +7,8 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { ManagedFlyoutEntry, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
-
-// import a singleton to always operate on the same, shared state
+import type { ManagedFlyoutEntry, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
+// import a singleton to always operate on the same shared state
 import { managedFlyoutService } from './managed_flyout_service';
 
 export function useManagedFlyout(): UseManagedFlyoutApi {
