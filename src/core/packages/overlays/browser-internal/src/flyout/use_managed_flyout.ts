@@ -11,18 +11,26 @@ import { ManagedFlyoutEntry, UseManagedFlyoutApi } from '@kbn/core-overlays-brow
 import { managedFlyoutService } from './managed_flyout_service';
 
 export function useManagedFlyout(): UseManagedFlyoutApi {
-  const flyoutSubject = managedFlyoutService.getFlyoutSubject();
+  const flyout$ = managedFlyoutService.getFlyout$();
 
   const openFlyout = (entry: ManagedFlyoutEntry) => {
-    flyoutSubject.next(entry);
+    flyout$.next(entry);
   };
 
   const closeFlyout = () => {
-    flyoutSubject.next(null);
+    flyout$.next(null);
   };
+
+  const isFlyoutOpen = (): boolean => {
+    return managedFlyoutService.getIsFlyoutOpen();
+  };
+
+  const onFlyoutToggle = managedFlyoutService.onFlyoutToggle();
 
   return {
     openFlyout,
     closeFlyout,
+    isFlyoutOpen,
+    onFlyoutToggle,
   };
 }

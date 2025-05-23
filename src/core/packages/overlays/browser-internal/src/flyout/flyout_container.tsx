@@ -9,28 +9,25 @@
 
 import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
-import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser/src/flyout';
-import { managedFlyoutService } from './managed_flyout_service'; // Import the global service instance
+import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
+import { managedFlyoutService } from './managed_flyout_service';
 
 export const FlyoutContainer: React.FC = () => {
   const [flyoutEntry, setFlyoutEntry] = useState<ManagedFlyoutEntry | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   // Get the subject from the globally imported service instance
-  const flyoutSubject = managedFlyoutService.getFlyoutSubject();
+  const flyout$ = managedFlyoutService.getFlyout$();
 
   useEffect(() => {
-    console.log(`[FlyoutContainer] useEffect: Subscribing to Subject from global service.`);
-    const subscription = flyoutSubject.subscribe((entry) => {
-      console.log(`[FlyoutContainer] Subject Callback Fired! Entry:`, entry);
+    const subscription = flyout$.subscribe((entry) => {
       setFlyoutEntry(entry);
       setIsOpen(!!entry);
     });
     return () => {
-      console.log(`[FlyoutContainer] useEffect Cleanup: Unsubscribing from Subject.`);
       subscription.unsubscribe();
     };
-  }, [flyoutSubject]); // Dependency array includes flyoutSubject, which is stable for this pattern
+  }, [flyout$]);
 
   const flyoutStyles = css`
     position: fixed;
@@ -65,7 +62,7 @@ export const FlyoutContainer: React.FC = () => {
 
   return (
     <div css={flyoutStyles}>
-      <button onClick={() => flyoutSubject.next(null)} css={closeButtonStyles}>
+      <button onClick={() => flyout$.next(null)} css={closeButtonStyles}>
         X
       </button>
       {flyoutEntry && <flyoutEntry.Component />}
