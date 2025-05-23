@@ -16,22 +16,24 @@ export const FlyoutContainer: React.FC = () => {
   const [flyoutEntry, setFlyoutEntry] = useState<ManagedFlyoutEntry | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Get the subject from the globally imported service instance
   const flyout$ = managedFlyoutService.getFlyout$();
 
   useEffect(() => {
+    console.log(`[FlyoutContainer] useEffect: Subscribing to flyout$ from global service.`);
     const subscription = flyout$.subscribe((entry) => {
+      console.log(`[FlyoutContainer] flyout$ Callback Fired! Entry:`, entry);
       setFlyoutEntry(entry);
       setIsOpen(!!entry);
     });
     return () => {
+      console.log(`[FlyoutContainer] useEffect Cleanup: Unsubscribing from flyout$.`);
       subscription.unsubscribe();
     };
   }, [flyout$]);
 
   const flyoutStyles = css`
     position: fixed;
-    top: 110px; /* FIXME */
+    top: 0;
     right: 0;
     height: 100%;
     width: ${flyoutEntry?.width || 300}px;
@@ -43,6 +45,7 @@ export const FlyoutContainer: React.FC = () => {
     display: ${flyoutEntry || isOpen ? 'block' : 'none'};
     pointer-events: ${flyoutEntry || isOpen ? 'auto' : 'none'};
     visibility: ${flyoutEntry || isOpen ? 'visible' : 'hidden'};
+    padding: 20px;
   `;
 
   const closeButtonStyles = css`
@@ -60,12 +63,41 @@ export const FlyoutContainer: React.FC = () => {
     }
   `;
 
+  const backButtonStyles = css`
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover {
+      background-color: #0056b3;
+    }
+  `;
+
+  const canGoBack = managedFlyoutService.canGoBack();
+
   return (
     <div css={flyoutStyles}>
-      <button onClick={() => flyout$.next(null)} css={closeButtonStyles}>
+      {/* Back button calls managedFlyoutService.goBack() */}
+      <button
+        onClick={() => managedFlyoutService.goBack()}
+        css={backButtonStyles}
+        disabled={!canGoBack}
+        style={{ display: canGoBack ? 'inline-block' : 'none' }}
+      >
+        Back
+      </button>
+      {/* Close button calls initializeFlyout(null) for a full reset */}
+      <button onClick={() => managedFlyoutService.initializeFlyout(null)} css={closeButtonStyles}>
         X
       </button>
-      {flyoutEntry && <flyoutEntry.Component />}
+      {flyoutEntry && (
+        <div style={{ marginTop: '20px' }}>
+          {flyoutEntry.Component && <flyoutEntry.Component />}
+        </div>
+      )}
     </div>
   );
 };

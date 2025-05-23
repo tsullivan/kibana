@@ -21,9 +21,12 @@ export interface ManagedFlyoutEntry {
 
 export interface UseManagedFlyoutApi {
   openFlyout: (entry: ManagedFlyoutEntry) => void;
+  nextFlyout: (entry: ManagedFlyoutEntry) => void;
   closeFlyout: () => void;
   isFlyoutOpen: () => boolean;
   onFlyoutToggle: Observable<boolean>;
+  canGoBack: () => boolean;
+  goBack: () => void;
 }
 
 /**
