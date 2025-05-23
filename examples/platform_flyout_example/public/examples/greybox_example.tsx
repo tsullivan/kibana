@@ -84,23 +84,20 @@ export const GreyboxExample = ({ core }: GreyboxExampleProps) => {
 
   const ChildContent: React.FC = () => {
     return (
-      <div style={{ padding: 20 }}>
+      <EuiText>
         <h4>Child Flyout Content!</h4>
         <p>This panel is aligned to the left of the main flyout.</p>
-        <button onClick={closeChildFlyout}>Close Child Flyout</button>
-      </div>
+        <EuiButton onClick={closeChildFlyout}>Close Child Flyout</EuiButton>
+      </EuiText>
     );
   };
 
   useEffect(() => {
-    console.log(`[MyApp] useEffect: Subscribing to onFlyoutToggle.`);
     const subscription = onFlyoutToggle.subscribe((isOpen) => {
-      console.log(`[MyApp] Flyout status changed: ${isOpen}`);
       setFlyoutStatus(isOpen);
     });
 
     return () => {
-      console.log(`[MyApp] useEffect Cleanup: Unsubscribing from onFlyoutToggle.`);
       subscription.unsubscribe();
     };
   }, [onFlyoutToggle]);
