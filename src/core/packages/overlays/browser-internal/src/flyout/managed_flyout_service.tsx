@@ -9,62 +9,63 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Subject } from 'rxjs'; // From rxjs
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
-import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser/src/flyout';
-import { FlyoutContainer } from './flyout_container'; // Import the new FlyoutContainer component
+import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
+import { FlyoutContainer } from './flyout_container';
 
-interface StartProps {
+interface ManagedFlyoutServiceStartDeps {
   targetDomElement: HTMLElement;
 }
 
 export class ManagedFlyoutService {
-  private flyoutSubject = new Subject<ManagedFlyoutEntry | null>();
+  private flyout$ = new Subject<ManagedFlyoutEntry | null>();
+  private isOpen$ = new BehaviorSubject<boolean>(false);
   private targetElement: HTMLElement | null = null;
   private isStarted = false;
   private instanceId = Math.random().toString(36).substring(2, 9); // For debugging instance issues
 
   constructor() {
     console.log(`[ManagedFlyoutService] Instance created with ID: ${this.instanceId}`);
+    this.flyout$.subscribe((entry) => {
+      this.isOpen$.next(!!entry);
+    });
   }
 
-  public start({ targetDomElement }: StartProps): void {
+  public start({ targetDomElement }: ManagedFlyoutServiceStartDeps): void {
     if (this.isStarted) {
-      console.warn(
-        `[ManagedFlyoutService:${this.instanceId}] Already started. Ignoring subsequent start calls.`
-      );
       return;
     }
 
     this.targetElement = targetDomElement;
-    console.log(
-      `[ManagedFlyoutService:${this.instanceId}] Starting rendering FlyoutContainer into`,
-      targetDomElement
-    );
-    // Render FlyoutContainer without passing the subject as a prop
-    // FlyoutContainer will get the subject directly from the global managedFlyoutService instance
     ReactDOM.render(<FlyoutContainer />, this.targetElement);
     this.isStarted = true;
   }
 
-  // This method still needs to be public so useManagedFlyout and FlyoutContainer can access the subject
-  public getFlyoutSubject(): Subject<ManagedFlyoutEntry | null> {
-    console.log(`[ManagedFlyoutService:${this.instanceId}] getFlyoutSubject called.`);
-    return this.flyoutSubject;
+  public getFlyout$(): Subject<ManagedFlyoutEntry | null> {
+    return this.flyout$;
   }
 
-  // Optional: A stop method to clean up
+  public getIsFlyoutOpen(): boolean {
+    const isOpen = this.isOpen$.getValue();
+    return isOpen;
+  }
+
+  public onFlyoutToggle(): Observable<boolean> {
+    return this.isOpen$.asObservable();
+  }
+
+  // TODO: use this from somewhere
   public stop(): void {
     if (this.targetElement && this.isStarted) {
-      console.log(
-        `[ManagedFlyoutService:${this.instanceId}] Stopping service and unmounting component.`
-      );
       ReactDOM.unmountComponentAtNode(this.targetElement);
       this.isStarted = false;
       this.targetElement = null;
+      this.flyout$.complete();
+      this.isOpen$.complete();
     }
   }
 }
 
-// Export a single, globally accessible instance of the service.
+// Export a single instance of the service accessible from the UseManagedFlyoutApi hook
 export const managedFlyoutService = new ManagedFlyoutService();
