@@ -8,7 +8,7 @@
  */
 
 import { css } from '@emotion/react';
-import React, { useEffect, useState, type FC } from 'react';
+import React, { memo, useEffect, useState, type FC } from 'react';
 
 import type { ManagedFlyoutApi, ManagedFlyoutEntry, FlyoutState } from '@kbn/core-overlays-browser';
 import { managedFlyoutService } from './managed_flyout_service';
@@ -26,103 +26,99 @@ interface FlyoutPanelProps {
   managedFlyoutApi: ManagedFlyoutApi;
 }
 
-const FlyoutPanel: FC<FlyoutPanelProps> = ({
-  entry,
-  positionRight,
-  level,
-  zIndex,
-  showMainControls,
-  managedFlyoutApi,
-}) => {
-  const [isOpen, setIsOpen] = useState(!!entry);
+const FlyoutPanel = memo<FlyoutPanelProps>(
+  ({ entry, positionRight, level, zIndex, showMainControls, managedFlyoutApi }) => {
+    const [isOpen, setIsOpen] = useState(!!entry);
 
-  useEffect(() => {
-    setIsOpen(!!entry);
-  }, [entry]);
+    useEffect(() => {
+      setIsOpen(!!entry);
+    }, [entry]);
 
-  const defaultWidth = 300;
-  const panelWidth = entry?.width || defaultWidth;
+    const defaultWidth = 300;
+    const panelWidth = entry?.width || defaultWidth;
 
-  const panelStyles = css`
-    position: fixed;
-    top: 110px;
-    right: ${positionRight}px; /* Dynamic right position */
-    height: 100%;
-    width: ${panelWidth}px;
-    background-color: ${level === 'main'
-      ? 'lightgray'
-      : '#e0e0e0'}; /* Different background for child */
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Stronger shadow for layering */
-    transform: translateX(${isOpen ? '0' : `${panelWidth + 10}px`}); /* Slide in/out */
-    transition: transform 0.3s ease-in-out;
-    z-index: ${zIndex}; /* Layering */
-    display: ${entry || isOpen ? 'block' : 'none'}; /* Keep block display during transition */
-    pointer-events: ${entry || isOpen ? 'auto' : 'none'};
-    visibility: ${entry || isOpen ? 'visible' : 'hidden'};
-    box-sizing: border-box; /* Include padding in width */
-    padding: 60px 20px 20px 20px;
-    border-left: ${level === 'child' ? '1px solid #ccc' : 'none'}; /* Visual separation */
-  `;
+    const panelStyles = css`
+      position: fixed;
+      top: 110px;
+      right: ${positionRight}px; /* Dynamic right position */
+      height: 100%;
+      width: ${panelWidth}px;
+      background-color: ${level === 'main'
+        ? 'lightgray'
+        : '#e0e0e0'}; /* Different background for child */
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Stronger shadow for layering */
+      transform: translateX(${isOpen ? '0' : `${panelWidth + 10}px`}); /* Slide in/out */
+      transition: transform 0.3s ease-in-out;
+      z-index: ${zIndex}; /* Layering */
+      display: ${entry || isOpen ? 'block' : 'none'}; /* Keep block display during transition */
+      pointer-events: ${entry || isOpen ? 'auto' : 'none'};
+      visibility: ${entry || isOpen ? 'visible' : 'hidden'};
+      box-sizing: border-box; /* Include padding in width */
+      padding: 60px 20px 20px 20px;
+      border-left: ${level === 'child' ? '1px solid #ccc' : 'none'}; /* Visual separation */
+    `;
 
-  const closeButtonStyles = css`
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #333;
-    &:hover {
-      color: #000;
-    }
-  `;
+    const closeButtonStyles = css`
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #333;
+      &:hover {
+        color: #000;
+      }
+    `;
 
-  const backButtonStyles = css`
-    position: absolute;
-    top: 10px;
-    left: 10px; /* Position relative to the panel's left edge */
-    padding: 8px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    &:hover {
-      background-color: #0056b3;
-    }
-  `;
+    const backButtonStyles = css`
+      position: absolute;
+      top: 10px;
+      left: 10px; /* Position relative to the panel's left edge */
+      padding: 8px 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      &:hover {
+        background-color: #0056b3;
+      }
+    `;
 
-  const canGoBack = managedFlyoutApi.canGoBack();
+    const canGoBack = managedFlyoutApi.canGoBack();
 
-  return (
-    <div css={panelStyles}>
-      {entry && entry.Component && <entry.Component {...managedFlyoutApi} />}
+    return (
+      <div css={panelStyles}>
+        {entry && entry.Component && <entry.Component {...managedFlyoutApi} />}
 
-      {/* Render buttons ONLY if showMainControls is true (i.e., this is the main flyout) */}
-      {showMainControls && (
-        <>
-          <button
-            onClick={() => managedFlyoutApi.goBack()}
-            css={backButtonStyles}
-            disabled={!canGoBack}
-            style={{ display: canGoBack ? 'inline-block' : 'none' }}
-          >
-            Back
-          </button>
-          <button onClick={() => managedFlyoutApi.closeFlyout()} css={closeButtonStyles}>
-            X
-          </button>
-        </>
-      )}
-    </div>
-  );
-};
+        {/* Render buttons ONLY if showMainControls is true (i.e., this is the main flyout) */}
+        {showMainControls && (
+          <>
+            <button
+              onClick={() => managedFlyoutApi.goBack()}
+              css={backButtonStyles}
+              disabled={!canGoBack}
+              style={{ display: canGoBack ? 'inline-block' : 'none' }}
+            >
+              Back
+            </button>
+            <button onClick={() => managedFlyoutApi.closeFlyout()} css={closeButtonStyles}>
+              X
+            </button>
+          </>
+        )}
+      </div>
+    );
+  }
+);
 
 export const FlyoutContainer: FC<FlyoutContainerProps> = ({ managedFlyoutApi }) => {
   const [flyoutState, setFlyoutState] = useState<FlyoutState>({ main: null, child: null });
 
+  // get the current flyout state from the singleton service
   const flyout$ = managedFlyoutService.getFlyout$();
 
   useEffect(() => {
