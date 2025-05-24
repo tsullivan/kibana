@@ -45,14 +45,11 @@ export type OverlayFlyoutOpenOptions = Omit<
   isResizable?: boolean;
 };
 
-/**
- * @public
- */
 export interface ManagedFlyoutApi {
   openFlyout: (entry: ManagedFlyoutEntry) => void;
   closeFlyout: () => void;
   isFlyoutOpen: () => boolean;
-  getIsFlyoutOpen$: () => Observable<boolean>;
+  getIsFlyoutOpen(): Observable<boolean>;
   nextFlyout: (entry: ManagedFlyoutEntry) => void;
   goBack: () => void;
   canGoBack: () => boolean;
@@ -60,18 +57,13 @@ export interface ManagedFlyoutApi {
   closeChildFlyout: () => void;
 }
 
-/**
- * @public
- */
-export interface ManagedFlyoutEntry {
-  Component: React.FC<ManagedFlyoutApi>;
+export interface ManagedFlyoutEntry<T = {}> {
+  Component: React.FC<{ managedFlyoutApi: ManagedFlyoutApi; customProps: T }>;
   width?: number;
+  props?: T;
 }
 
-/**
- * @public
- */
-export interface FlyoutState {
-  main: ManagedFlyoutEntry | null;
-  child: ManagedFlyoutEntry | null;
+export interface ContentComponentProps {
+  managedFlyoutApi: ManagedFlyoutApi;
+  customProps: { username?: string }; // Define the expected structure for customProps
 }

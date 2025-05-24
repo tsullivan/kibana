@@ -62,7 +62,7 @@ export class ManagedFlyoutService implements Pick<ManagedFlyoutApi, 'openFlyout'
       openFlyout: this.openFlyout.bind(this),
       closeFlyout: this.closeFlyout.bind(this),
       isFlyoutOpen: this.isFlyoutOpen.bind(this),
-      getIsFlyoutOpen$: this.getIsFlyoutOpen$.bind(this),
+      getIsFlyoutOpen: this.getIsFlyoutOpen$.bind(this),
       nextFlyout: this.nextFlyout.bind(this),
       goBack: this.goBack.bind(this),
       canGoBack: this.canGoBack.bind(this),

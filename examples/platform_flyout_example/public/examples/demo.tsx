@@ -7,24 +7,35 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useEffect, type FC, useState } from 'react';
+import React, { useEffect, useState, type FC } from 'react';
 
-import { EuiButton, EuiFlexGrid, EuiFlexItem, EuiListGroup, EuiPanel, EuiText } from '@elastic/eui';
-import { OverlayStart, ManagedFlyoutApi } from '@kbn/core-overlays-browser';
+import {
+  EuiButton,
+  EuiFlexGrid,
+  EuiFlexItem,
+  EuiListGroup,
+  EuiPanel,
+  EuiSpacer,
+  EuiText,
+} from '@elastic/eui';
+import { ContentComponentProps, OverlayStart } from '@kbn/core-overlays-browser';
 
 interface DemoProps {
   overlays: OverlayStart;
 }
 
-const Step1Content: FC<ManagedFlyoutApi> = (managedFlyoutApi) => {
+const Step1Content: FC<ContentComponentProps> = ({ managedFlyoutApi, customProps }) => {
   const { nextFlyout, openChildFlyout } = managedFlyoutApi;
   return (
     <EuiText>
       <h3>Step 1: Initial Content</h3>
       <p>This is the first piece of content in the flyout.</p>
+      <DataList {...customProps} />
       <EuiFlexGrid columns={2}>
         <EuiFlexItem>
-          <EuiButton onClick={() => nextFlyout({ Component: Step2Content, width: 450 })}>
+          <EuiButton
+            onClick={() => nextFlyout({ Component: Step2Content, props: customProps, width: 450 })}
+          >
             Go to Step 2
           </EuiButton>
         </EuiFlexItem>
@@ -38,14 +49,18 @@ const Step1Content: FC<ManagedFlyoutApi> = (managedFlyoutApi) => {
   );
 };
 
-const Step2Content: FC<ManagedFlyoutApi> = ({ nextFlyout, openChildFlyout }) => {
+const Step2Content: FC<ContentComponentProps> = ({ managedFlyoutApi, customProps }) => {
+  const { nextFlyout, openChildFlyout } = managedFlyoutApi;
   return (
     <EuiText>
       <h3>Step 2: Next Content</h3>
       <p>You navigated from Step 1.</p>
+      <DataList {...customProps} />
       <EuiFlexGrid columns={2}>
         <EuiFlexItem>
-          <EuiButton onClick={() => nextFlyout({ Component: Step3Content, width: 500 })}>
+          <EuiButton
+            onClick={() => nextFlyout({ Component: Step3Content, props: customProps, width: 500 })}
+          >
             Go to Step 3
           </EuiButton>
         </EuiFlexItem>
@@ -59,15 +74,21 @@ const Step2Content: FC<ManagedFlyoutApi> = ({ nextFlyout, openChildFlyout }) => 
   );
 };
 
-const Step3Content: FC<ManagedFlyoutApi> = ({ openChildFlyout }) => {
+const Step3Content: FC<ContentComponentProps> = ({ managedFlyoutApi, customProps }) => {
+  const { openChildFlyout } = managedFlyoutApi;
   return (
     <EuiText>
       <h3>Step 3: Final Content</h3>
       <p>This is the last step in this sequence.</p>
       <p>Use the &quot;Back&quot; button to return.</p>
+      <DataList {...customProps} />
       <EuiFlexGrid>
         <EuiFlexItem>
-          <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 220 })}>
+          <EuiButton
+            onClick={() =>
+              openChildFlyout({ Component: ChildContent, props: customProps, width: 220 })
+            }
+          >
             Open Child Flyout
           </EuiButton>
         </EuiFlexItem>
@@ -76,11 +97,13 @@ const Step3Content: FC<ManagedFlyoutApi> = ({ openChildFlyout }) => {
   );
 };
 
-const ChildContent: React.FC<ManagedFlyoutApi> = ({ closeChildFlyout }) => {
+const ChildContent: FC<ContentComponentProps> = ({ managedFlyoutApi, customProps }) => {
+  const { closeChildFlyout } = managedFlyoutApi;
   return (
     <EuiText>
       <h4>Child Flyout Content!</h4>
       <p>This panel is aligned to the left of the main flyout.</p>
+      <DataList {...customProps} />
       <EuiFlexGrid>
         <EuiFlexItem>
           <EuiButton onClick={closeChildFlyout}>Close Child Flyout</EuiButton>
@@ -90,27 +113,42 @@ const ChildContent: React.FC<ManagedFlyoutApi> = ({ closeChildFlyout }) => {
   );
 };
 
-const AnotherFlyoutContent: FC = () => {
+const AnotherFlyoutContent: FC<ContentComponentProps> = ({ customProps }) => {
   return (
     <EuiText>
       <h3>New</h3>
       <p>This is a fresh new flyout.</p>
+      <DataList {...customProps} />
     </EuiText>
   );
 };
 
+const DataList: FC<ContentComponentProps['customProps']> = ({ username }) => {
+  return (
+    <ul>
+      <li>Username: {username}</li>
+    </ul>
+  );
+};
+
 export const Demo: FC<DemoProps> = ({ overlays }) => {
-  const { openFlyout, closeFlyout, getIsFlyoutOpen$, isFlyoutOpen } = overlays.useManagedFlyout();
+  const { openFlyout, closeFlyout, isFlyoutOpen, getIsFlyoutOpen } = overlays.useManagedFlyout();
+  const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
+  const [username, setUsername] = useState<string>('');
 
   const handleOpenInitialFlyout = () => {
-    openFlyout({ Component: Step1Content, width: 400 });
+    openFlyout({
+      Component: Step1Content,
+      width: 400,
+      props: { username },
+    });
   };
 
   const handleOpenAnotherFreshFlyout = () => {
     openFlyout({
-      // This will clear history if already open
       Component: AnotherFlyoutContent,
       width: 350,
+      props: { username },
     });
   };
 
@@ -141,16 +179,15 @@ export const Demo: FC<DemoProps> = ({ overlays }) => {
     },
   ];
 
-  const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
   useEffect(() => {
-    const subscription = getIsFlyoutOpen$().subscribe((isOpen) => {
+    const subscription = getIsFlyoutOpen().subscribe((isOpen) => {
       setFlyoutStatus(isOpen);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [getIsFlyoutOpen$]);
+  }, [getIsFlyoutOpen]);
 
   return (
     <EuiText>
@@ -158,6 +195,21 @@ export const Demo: FC<DemoProps> = ({ overlays }) => {
       <p>
         Flyout is currently: <strong>{flyoutStatus ? 'OPEN' : 'CLOSED'}</strong> (Reactive update)
       </p>
+
+      <EuiPanel>
+        <label htmlFor="username-input" style={{ marginRight: '10px' }}>
+          Your Name:
+        </label>
+        <input
+          id="username-input"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter your name"
+        />
+      </EuiPanel>
+
+      <EuiSpacer />
 
       <EuiPanel>
         <EuiListGroup listItems={buttonContent} color="primary" />

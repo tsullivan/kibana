@@ -14,7 +14,7 @@ export const useManagedFlyoutMock = jest.fn<ManagedFlyoutApi, []>(() => ({
   openFlyout: jest.fn(),
   closeFlyout: jest.fn(),
   isFlyoutOpen: jest.fn(() => false),
-  getIsFlyoutOpen$: () => new BehaviorSubject(false),
+  getIsFlyoutOpen: () => new BehaviorSubject(false),
   nextFlyout: jest.fn(),
   goBack: jest.fn(),
   canGoBack: jest.fn(() => false),
