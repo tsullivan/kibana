@@ -7,6 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import { useMemo } from 'react';
 import { ManagedFlyoutApi } from '@kbn/core-overlays-browser';
 import { managedFlyoutService } from './managed_flyout_service';
 
@@ -14,16 +15,18 @@ export function useManagedFlyout(): ManagedFlyoutApi {
   // Get the singleton service instance
   const service = managedFlyoutService;
 
-  // Explicitly bind each method to the service instance
-  return {
-    openFlyout: service.openFlyout.bind(service),
-    closeFlyout: service.closeFlyout.bind(service),
-    isFlyoutOpen: service.isFlyoutOpen.bind(service),
-    getIsFlyoutOpen$: service.getIsFlyoutOpen$.bind(service),
-    nextFlyout: service.nextFlyout.bind(service),
-    goBack: service.goBack.bind(service),
-    canGoBack: service.canGoBack.bind(service),
-    openChildFlyout: service.openChildFlyout.bind(service),
-    closeChildFlyout: service.closeChildFlyout.bind(service),
-  };
+  return useMemo(
+    () => ({
+      openFlyout: service.openFlyout.bind(service),
+      closeFlyout: service.closeFlyout.bind(service),
+      isFlyoutOpen: service.isFlyoutOpen.bind(service),
+      getIsFlyoutOpen$: service.getIsFlyoutOpen$.bind(service),
+      nextFlyout: service.nextFlyout.bind(service),
+      goBack: service.goBack.bind(service),
+      canGoBack: service.canGoBack.bind(service),
+      openChildFlyout: service.openChildFlyout.bind(service),
+      closeChildFlyout: service.closeChildFlyout.bind(service),
+    }),
+    [service]
+  );
 }
