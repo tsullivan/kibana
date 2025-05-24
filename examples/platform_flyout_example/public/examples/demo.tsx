@@ -12,7 +12,7 @@ import React, { useEffect, type FC, useState } from 'react';
 import { EuiButton, EuiFlexGrid, EuiFlexItem, EuiListGroup, EuiPanel, EuiText } from '@elastic/eui';
 import { OverlayStart, ManagedFlyoutApi } from '@kbn/core-overlays-browser';
 
-interface GreyboxExampleProps {
+interface DemoProps {
   overlays: OverlayStart;
 }
 
@@ -99,7 +99,7 @@ const AnotherFlyoutContent: FC = () => {
   );
 };
 
-export const GreyboxExample: FC<GreyboxExampleProps> = ({ overlays }) => {
+export const Demo: FC<DemoProps> = ({ overlays }) => {
   const { openFlyout, closeFlyout, getIsFlyoutOpen$, isFlyoutOpen } = overlays.useManagedFlyout();
 
   const handleOpenInitialFlyout = () => {
@@ -154,7 +154,7 @@ export const GreyboxExample: FC<GreyboxExampleProps> = ({ overlays }) => {
 
   return (
     <EuiText>
-      <h1>GreyboxExample</h1>
+      <h1>Demo</h1>
       <p>
         Flyout is currently: <strong>{flyoutStatus ? 'OPEN' : 'CLOSED'}</strong> (Reactive update)
       </p>

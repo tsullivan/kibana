@@ -11,7 +11,7 @@ import { EuiPageHeader, EuiPageSection } from '@elastic/eui';
 import { AppMountParameters, CoreStart } from '@kbn/core/public';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { GreyboxExample } from './examples/greybox_example';
+import { Demo } from './examples/demo';
 import { StartDeps } from './plugin';
 
 export const renderApp = (core: CoreStart, deps: StartDeps, mountParams: AppMountParameters) => {
@@ -26,7 +26,7 @@ export const renderApp = (core: CoreStart, deps: StartDeps, mountParams: AppMoun
           description="This example app demonstrates how to use the Platform Flyouts API for flyout-to-flyout interactions, and for showing detail content side by side with main content."
         />
         <EuiPageSection paddingSize="m" alignment="top">
-          <GreyboxExample overlays={core.overlays} />
+          <Demo overlays={core.overlays} />
         </EuiPageSection>
       </>
     ),
