@@ -35,6 +35,7 @@ export class OverlayService {
 
   public start({ targetDomElement, ...startDeps }: StartDeps): OverlayStart {
     const flyoutElement = document.createElement('div');
+    flyoutElement.setAttribute('data-test-subj', 'overlay-service-flyout');
     targetDomElement.appendChild(flyoutElement);
     const flyouts = this.flyoutService.start({
       targetDomElement: flyoutElement,
@@ -44,6 +45,7 @@ export class OverlayService {
     const banners = this.bannersService.start(startDeps);
 
     const modalElement = document.createElement('div');
+    modalElement.setAttribute('data-test-subj', 'overlay-service-modal');
     targetDomElement.appendChild(modalElement);
     const modals = this.modalService.start({
       targetDomElement: modalElement,
@@ -51,6 +53,7 @@ export class OverlayService {
     });
 
     const managedFlyoutElement = document.createElement('div');
+    managedFlyoutElement.setAttribute('data-test-subj', 'overlay-service-managed-flyout');
     targetDomElement.appendChild(managedFlyoutElement);
     managedFlyoutService.start({
       targetDomElement: managedFlyoutElement,
