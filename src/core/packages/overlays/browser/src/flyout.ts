@@ -8,7 +8,6 @@
  */
 
 import React from 'react';
-import { Observable } from 'rxjs';
 
 import type { EuiFlyoutProps, EuiFlyoutResizableProps } from '@elastic/eui';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
@@ -49,7 +48,6 @@ export interface ManagedFlyoutApi {
   openFlyout: (entry: ManagedFlyoutEntry) => void;
   closeFlyout: () => void;
   isFlyoutOpen: () => boolean;
-  getIsFlyoutOpen(): Observable<boolean>;
   nextFlyout: (entry: ManagedFlyoutEntry) => void;
   goBack: () => void;
   canGoBack: () => boolean;

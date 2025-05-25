@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useEffect, useState, type FC } from 'react';
+import React, { useState, type FC } from 'react';
 
 import {
   EuiButton,
@@ -132,8 +132,7 @@ const DataList: FC<ContentComponentProps['customProps']> = ({ username }) => {
 };
 
 export const Demo: FC<DemoProps> = ({ overlays }) => {
-  const { openFlyout, closeFlyout, isFlyoutOpen, getIsFlyoutOpen } = overlays.useManagedFlyout();
-  const [flyoutStatus, setFlyoutStatus] = useState<boolean>(isFlyoutOpen());
+  const { openFlyout, closeFlyout, isFlyoutOpen } = overlays.useManagedFlyout();
   const [username, setUsername] = useState<string>('');
 
   const handleOpenInitialFlyout = () => {
@@ -173,29 +172,15 @@ export const Demo: FC<DemoProps> = ({ overlays }) => {
       onClick: closeFlyout,
     },
     {
-      label: 'Check flyout status (synchronous)',
+      label: 'Check flyout status',
       href: '#',
       onClick: handleCheckFlyoutStatus,
     },
   ];
 
-  useEffect(() => {
-    const subscription = getIsFlyoutOpen().subscribe((isOpen) => {
-      setFlyoutStatus(isOpen);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [getIsFlyoutOpen]);
-
   return (
     <EuiText>
       <h1>Demo</h1>
-      <p>
-        Flyout is currently: <strong>{flyoutStatus ? 'OPEN' : 'CLOSED'}</strong> (Reactive update)
-      </p>
-
       <EuiPanel>
         <label htmlFor="username-input" style={{ marginRight: '10px' }}>
           Your Name:

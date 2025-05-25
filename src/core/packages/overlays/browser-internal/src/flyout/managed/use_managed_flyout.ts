@@ -20,7 +20,6 @@ export function useManagedFlyout(): ManagedFlyoutApi {
       openFlyout: service.openFlyout.bind(service),
       closeFlyout: service.closeFlyout.bind(service),
       isFlyoutOpen: service.isFlyoutOpen.bind(service),
-      getIsFlyoutOpen: service.getIsFlyoutOpen$.bind(service),
       nextFlyout: service.nextFlyout.bind(service),
       goBack: service.goBack.bind(service),
       canGoBack: service.canGoBack.bind(service),

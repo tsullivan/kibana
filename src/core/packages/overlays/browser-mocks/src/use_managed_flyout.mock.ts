@@ -7,14 +7,12 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { BehaviorSubject } from 'rxjs';
 import { ManagedFlyoutApi } from '@kbn/core-overlays-browser';
 
 export const useManagedFlyoutMock = jest.fn<ManagedFlyoutApi, []>(() => ({
   openFlyout: jest.fn(),
   closeFlyout: jest.fn(),
   isFlyoutOpen: jest.fn(() => false),
-  getIsFlyoutOpen: () => new BehaviorSubject(false),
   nextFlyout: jest.fn(),
   goBack: jest.fn(),
   canGoBack: jest.fn(() => false),
