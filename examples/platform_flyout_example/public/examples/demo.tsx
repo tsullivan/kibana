@@ -9,8 +9,9 @@
 
 import {
   EuiButton,
-  EuiFlexGrid,
+  EuiFlexGroup,
   EuiFlexItem,
+  EuiForm,
   EuiListGroup,
   EuiPanel,
   EuiSpacer,
@@ -30,10 +31,10 @@ interface StepProps {
 }
 
 const DataList: FC<StepProps> = ({ username$ }) => {
-  const username = useObservable(username$, 'Guest');
+  const username = useObservable(username$);
   return (
     <ul>
-      <li>Username: {username || 'Guest'}</li>
+      <li>Username: {username}</li>
     </ul>
   );
 };
@@ -42,11 +43,17 @@ const renderStep1Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
   const { nextFlyout, openChildFlyout } = managedFlyoutApi;
 
   const handleGoToStep2 = () => {
-    nextFlyout({ renderBody: renderStep2Content(props), width: 450 });
+    nextFlyout({
+      renderBody: renderStep2Content(props),
+      flyoutProps: { ownFocus: false, size: 'm' },
+    });
   };
 
   const handleOpenChild = () => {
-    openChildFlyout({ renderBody: renderChildContent(props), width: 250 });
+    openChildFlyout({
+      renderBody: renderChildContent(props),
+      flyoutProps: { ownFocus: false, size: 's' },
+    });
   };
 
   return (
@@ -54,14 +61,18 @@ const renderStep1Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
       <h3>Step 1: Initial Content</h3>
       <p>This is the first piece of content in the flyout.</p>
       <DataList {...props} />
-      <EuiFlexGrid columns={2}>
+      <EuiFlexGroup justifyContent="spaceBetween">
         <EuiFlexItem>
-          <EuiButton onClick={handleGoToStep2}>Go to Step 2</EuiButton>
+          <span>
+            <EuiButton onClick={handleGoToStep2}>Go to Step 2</EuiButton>
+          </span>
         </EuiFlexItem>
         <EuiFlexItem>
-          <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
+          <span>
+            <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
+          </span>
         </EuiFlexItem>
-      </EuiFlexGrid>
+      </EuiFlexGroup>
     </EuiText>
   );
 };
@@ -70,11 +81,17 @@ const renderStep2Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
   const { nextFlyout, openChildFlyout } = managedFlyoutApi;
 
   const handleGoToStep3 = () => {
-    nextFlyout({ renderBody: renderStep3Content(props), width: 500 });
+    nextFlyout({
+      renderBody: renderStep3Content(props),
+      flyoutProps: { ownFocus: false, size: 'l' },
+    });
   };
 
   const handleOpenChild = () => {
-    openChildFlyout({ renderBody: renderChildContent(props), width: 280 });
+    openChildFlyout({
+      renderBody: renderChildContent(props),
+      flyoutProps: { ownFocus: false, size: 's' },
+    });
   };
 
   return (
@@ -82,14 +99,18 @@ const renderStep2Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
       <h3>Step 2: Next Content</h3>
       <p>You navigated from Step 1.</p>
       <DataList {...props} />
-      <EuiFlexGrid columns={2}>
+      <EuiFlexGroup justifyContent="spaceBetween">
         <EuiFlexItem>
-          <EuiButton onClick={handleGoToStep3}>Go to Step 3</EuiButton>
+          <span>
+            <EuiButton onClick={handleGoToStep3}>Go to Step 3</EuiButton>
+          </span>
         </EuiFlexItem>
         <EuiFlexItem>
-          <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
+          <span>
+            <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
+          </span>
         </EuiFlexItem>
-      </EuiFlexGrid>
+      </EuiFlexGroup>
     </EuiText>
   );
 };
@@ -98,7 +119,10 @@ const renderStep3Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
   const { openChildFlyout } = managedFlyoutApi;
 
   const handleOpenChild = () => {
-    openChildFlyout({ renderBody: renderChildContent(props), width: 220 });
+    openChildFlyout({
+      renderBody: renderChildContent(props),
+      flyoutProps: { ownFocus: false, size: 's' },
+    });
   };
 
   return (
@@ -107,11 +131,13 @@ const renderStep3Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
       <p>This is the last step in this sequence.</p>
       <p>Use the &quot;Back&quot; button to return.</p>
       <DataList {...props} />
-      <EuiFlexGrid>
+      <EuiFlexGroup>
         <EuiFlexItem>
-          <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
+          <span>
+            <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
+          </span>
         </EuiFlexItem>
-      </EuiFlexGrid>
+      </EuiFlexGroup>
     </EuiText>
   );
 };
@@ -128,11 +154,7 @@ const renderChildContent = (props: StepProps) => (managedFlyoutApi: UseManagedFl
       <h4>Child Flyout Content!</h4>
       <p>This panel is aligned to the left of the main flyout.</p>
       <DataList {...props} />
-      <EuiFlexGrid>
-        <EuiFlexItem>
-          <EuiButton onClick={handleCloseChild}>Close Child Flyout</EuiButton>
-        </EuiFlexItem>
-      </EuiFlexGrid>
+      <EuiButton onClick={handleCloseChild}>Close Child Flyout</EuiButton>
     </EuiText>
   );
 };
@@ -153,7 +175,7 @@ const renderAnotherFlyoutContent = (props: StepProps) => () => {
 
 export const Demo: FC<DemoDeps> = ({ overlays }) => {
   const { openFlyout, closeFlyout, isFlyoutOpen } = overlays.useManagedFlyout();
-  const [username, setUsername] = useState<string>('');
+  const [username, setUsername] = useState<string>('Guest');
 
   const usernameSubjectRef = useRef(new BehaviorSubject(username));
 
@@ -171,14 +193,14 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
   const handleOpenInitialFlyout = useCallback(() => {
     openFlyout({
       renderBody: renderStep1Content({ username$: usernameSubjectRef.current }),
-      width: 400,
+      flyoutProps: { ownFocus: false, size: 's' },
     });
   }, [openFlyout]);
 
   const handleOpenAnotherFreshFlyout = useCallback(() => {
     openFlyout({
       renderBody: renderAnotherFlyoutContent({ username$: usernameSubjectRef.current }),
-      width: 350,
+      flyoutProps: { ownFocus: false, type: 'push' },
     });
   }, [openFlyout]);
 
@@ -188,7 +210,7 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
 
   const buttonContent = [
     { label: 'Open step-by-step flyout (step 1)', href: '#', onClick: handleOpenInitialFlyout },
-    { label: 'Open fresh flyout', href: '#', onClick: handleOpenAnotherFreshFlyout },
+    { label: 'Open fresh flyout (push)', href: '#', onClick: handleOpenAnotherFreshFlyout },
     { label: 'Close flyout', href: '#', onClick: closeFlyout },
     { label: 'Check flyout status', href: '#', onClick: handleCheckFlyoutStatus },
   ];
@@ -197,16 +219,18 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
     <EuiText>
       <h1>Demo</h1>
       <EuiPanel>
-        <label htmlFor="username-input" style={{ marginRight: '10px' }}>
-          Your Name:
-        </label>
-        <input
-          id="username-input"
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter your name"
-        />
+        <EuiForm>
+          <label htmlFor="username-input" css={{ marginRight: '10px' }}>
+            Your Name:
+          </label>
+          <input
+            id="username-input"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter your name"
+          />
+        </EuiForm>
       </EuiPanel>
 
       <EuiSpacer />

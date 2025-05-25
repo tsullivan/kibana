@@ -7,124 +7,119 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useEffect, useState } from 'react';
-import { css } from '@emotion/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UseManagedFlyoutApi, ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
 import useObservable from 'react-use/lib/useObservable';
+import {
+  EuiButtonEmpty,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiFlyout,
+  EuiFlyoutBody,
+  EuiFlyoutFooter,
+  EuiFlyoutHeader,
+  EuiFlyoutProps,
+  EuiSpacer,
+  EuiTitle,
+} from '@elastic/eui';
 import { managedFlyoutService } from './managed_flyout_service'; // Use generic ManagedFlyoutEntry
 
 interface FlyoutContainerProps {
   managedFlyoutApi: UseManagedFlyoutApi;
 }
 
+interface FlyoutPanelProps {
+  entry: ManagedFlyoutEntry | null;
+  level: 'main' | 'child';
+  positionRight: number;
+  showMainControls?: boolean;
+  canGoBack?: boolean;
+  managedFlyoutApi: UseManagedFlyoutApi;
+}
+
 const FlyoutPanel = React.memo(
   ({
     entry,
+    level,
     positionRight,
-    type,
-    zIndex,
     showMainControls,
     canGoBack,
     managedFlyoutApi,
-  }: {
-    entry: ManagedFlyoutEntry | null;
-    positionRight: number;
-    type: 'main' | 'child';
-    zIndex: number;
-    showMainControls?: boolean;
-    canGoBack?: boolean;
-    managedFlyoutApi: UseManagedFlyoutApi;
-  }) => {
+  }: FlyoutPanelProps) => {
     const [isOpen, setIsOpen] = useState(!!entry);
 
     useEffect(() => {
       setIsOpen(!!entry);
     }, [entry]);
 
-    const defaultWidth = 300;
-    const panelWidth = entry?.width || defaultWidth;
+    const handleCloseFlyout = useCallback(() => managedFlyoutApi.closeFlyout(), [managedFlyoutApi]);
+    const handleGoBack = useCallback(() => managedFlyoutApi.goBack(), [managedFlyoutApi]);
 
-    const panelStyles = css`
-      position: fixed;
-      top: 110px;
-      right: ${positionRight}px;
-      height: 100%;
-      width: ${panelWidth}px;
-      background-color: ${type === 'main' ? 'lightgray' : '#e0e0e0'};
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-      transform: translateX(${isOpen ? '0' : `${panelWidth + 10}px`});
-      transition: transform 0.3s ease-in-out;
-      z-index: ${zIndex};
-      display: ${entry || isOpen ? 'block' : 'none'};
-      pointer-events: ${entry || isOpen ? 'auto' : 'none'};
-      visibility: ${entry || isOpen ? 'visible' : 'hidden'};
-      box-sizing: border-box;
-      padding: 60px 20px 20px 20px;
-      border-left: ${type === 'child' ? '1px solid #ccc' : 'none'};
-    `;
+    const contentToRender = useMemo(
+      () => (entry && entry.renderBody ? entry.renderBody(managedFlyoutApi) : null),
+      [entry, managedFlyoutApi]
+    );
+    const flyoutProps = useMemo(
+      () => (entry && entry.flyoutProps ? entry.flyoutProps : {}),
+      [entry]
+    );
 
-    const closeButtonStyles = css`
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-size: 1.2em;
-      font-weight: bold;
-      color: #333;
-      &:hover {
-        color: #000;
-      }
-    `;
-
-    const backButtonStyles = css`
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      padding: 8px 12px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      &:hover {
-        background-color: #0056b3;
-      }
-    `;
-
-    // Handle curried renderBody:
-    const contentToRender = entry && entry.renderBody ? entry.renderBody(managedFlyoutApi) : null;
+    if (!isOpen) {
+      return;
+    }
 
     return (
-      <div css={panelStyles}>
-        {contentToRender}
-
-        {showMainControls && (
-          <>
-            <button
-              onClick={() => managedFlyoutApi.goBack()}
-              css={backButtonStyles}
-              disabled={!canGoBack}
-              style={{ display: canGoBack ? 'inline-block' : 'none' }}
-            >
-              Back
-            </button>
-            <button onClick={() => managedFlyoutApi.closeFlyout()} css={closeButtonStyles}>
-              X
-            </button>
-          </>
-        )}
-      </div>
+      <EuiFlyout
+        {...flyoutProps}
+        onClose={handleCloseFlyout}
+        hideCloseButton
+        css={{ right: positionRight + 'px' }}
+        type={level === 'child' ? 'overlay' : flyoutProps.type}
+        ownFocus={level === 'child' ? false : flyoutProps.ownFocus}
+      >
+        <EuiFlyoutHeader hasBorder>
+          <EuiTitle size="m">
+            <h2>Flyout header</h2>
+          </EuiTitle>
+          <EuiSpacer size="s" />
+        </EuiFlyoutHeader>
+        <EuiFlyoutBody>{contentToRender}</EuiFlyoutBody>
+        <EuiFlyoutFooter>
+          <EuiFlexGroup justifyContent="spaceBetween">
+            <EuiFlexItem grow={false}>
+              <EuiButtonEmpty iconType="cross" onClick={handleCloseFlyout} flush="left">
+                Close
+              </EuiButtonEmpty>
+            </EuiFlexItem>
+            {showMainControls && canGoBack && (
+              <EuiButtonEmpty onClick={handleGoBack}>Back</EuiButtonEmpty>
+            )}
+          </EuiFlexGroup>
+        </EuiFlyoutFooter>
+      </EuiFlyout>
     );
   }
 );
+
+const calculateMainFlyoutWidth = (flyoutSize: EuiFlyoutProps['size'] = 'm') => {
+  if (flyoutSize && typeof flyoutSize === 'number') {
+    return flyoutSize;
+  }
+  switch (flyoutSize) {
+    case 'l':
+      return 1300;
+    case 'm':
+      return 870;
+    default:
+      return 435;
+  }
+};
 
 export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutApi }) => {
   const flyout$ = managedFlyoutService.getFlyout$();
   const flyoutState = useObservable(flyout$, { main: null, child: null });
 
-  const mainFlyoutWidth = flyoutState.main?.width || 300;
+  const mainFlyoutWidth = calculateMainFlyoutWidth(flyoutState.main?.flyoutProps?.size);
   const childPanelRight = mainFlyoutWidth;
   const canGoBack = managedFlyoutService.canGoBack();
 
@@ -133,9 +128,8 @@ export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutA
       <FlyoutPanel
         entry={flyoutState.main}
         positionRight={0}
-        type="main"
-        zIndex={1000}
-        showMainControls={!!flyoutState.main}
+        level="main"
+        showMainControls={true}
         canGoBack={canGoBack}
         managedFlyoutApi={managedFlyoutApi}
       />
@@ -144,8 +138,8 @@ export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutA
         <FlyoutPanel
           entry={flyoutState.child}
           positionRight={childPanelRight}
-          type="child"
-          zIndex={1001}
+          level="child"
+          showMainControls={false}
           managedFlyoutApi={managedFlyoutApi}
         />
       )}
