@@ -10,7 +10,8 @@
 import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
 import { UseManagedFlyoutApi, ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
-import { managedFlyoutService, FlyoutState } from './managed_flyout_service'; // Use generic ManagedFlyoutEntry
+import useObservable from 'react-use/lib/useObservable';
+import { managedFlyoutService } from './managed_flyout_service'; // Use generic ManagedFlyoutEntry
 
 interface FlyoutContainerProps {
   managedFlyoutApi: UseManagedFlyoutApi;
@@ -120,16 +121,8 @@ const FlyoutPanel = React.memo(
 );
 
 export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutApi }) => {
-  const [flyoutState, setFlyoutState] = useState<FlyoutState>({ main: null, child: null });
-
   const flyout$ = managedFlyoutService.getFlyout$();
-
-  useEffect(() => {
-    const subscription = flyout$.subscribe((state) => {
-      setFlyoutState(state);
-    });
-    return () => subscription.unsubscribe();
-  }, [flyout$]);
+  const flyoutState = useObservable(flyout$, { main: null, child: null });
 
   const mainFlyoutWidth = flyoutState.main?.width || 300;
   const childPanelRight = mainFlyoutWidth;
