@@ -17,9 +17,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { OverlayStart, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
-import React, { useCallback, useEffect, useMemo, useState, type FC } from 'react';
-import useObservable from 'react-use/lib/useObservable';
-import { BehaviorSubject, Observable } from 'rxjs';
+import React, { useCallback, useState, type FC } from 'react';
 
 interface DemoDeps {
   overlays: OverlayStart;
@@ -137,10 +135,9 @@ const renderChildContent = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 };
 
 const renderAnotherFlyoutContent =
-  ({ username$ }: { username$: Observable<string> }) =>
+  ({ username }: StepProps) =>
   () => {
     const FlyoutContent: React.FC = () => {
-      const username = useObservable(username$, 'Guest');
       console.log('FlyoutContent!', username);
       return (
         <EuiText>
@@ -158,15 +155,6 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
   const { openFlyout, closeFlyout, isFlyoutOpen } = overlays.useManagedFlyout();
   const [username, setUsername] = useState<string>('');
 
-  const username$ = useMemo(() => new BehaviorSubject(username), [username]);
-
-  useEffect(() => {
-    console.log('use effect!', username);
-    username$.next(username);
-
-    return () => username$.complete();
-  }, [username$, username]);
-
   const handleOpenInitialFlyout = useCallback(() => {
     openFlyout({
       renderBody: renderStep1Content({ username }),
@@ -176,10 +164,10 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
 
   const handleOpenAnotherFreshFlyout = useCallback(() => {
     openFlyout({
-      renderBody: renderAnotherFlyoutContent({ username$: username$.asObservable() }),
+      renderBody: renderAnotherFlyoutContent({ username }),
       width: 350,
     });
-  }, [openFlyout, username$]);
+  }, [openFlyout, username]);
 
   const handleCheckFlyoutStatus = useCallback(() => {
     alert(`The flyout is currently ${isFlyoutOpen() ? 'open' : 'closed'}. (Synchronous check)`);
