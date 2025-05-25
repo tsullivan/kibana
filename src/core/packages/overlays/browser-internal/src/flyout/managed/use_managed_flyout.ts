@@ -8,10 +8,10 @@
  */
 
 import { useMemo } from 'react';
-import { ManagedFlyoutApi } from '@kbn/core-overlays-browser';
+import { UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
 import { managedFlyoutService } from './managed_flyout_service';
 
-export function useManagedFlyout(): ManagedFlyoutApi {
+export function useManagedFlyout(): UseManagedFlyoutApi {
   // Get the singleton service instance
   const service = managedFlyoutService;
 

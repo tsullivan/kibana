@@ -19,7 +19,7 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { OverlayStart } from '@kbn/core-overlays-browser';
-import { ManagedFlyoutApi } from '@kbn/core-overlays-browser'; // Import ManagedFlyoutEntry
+import { UseManagedFlyoutApi } from '@kbn/core-overlays-browser'; // Import ManagedFlyoutEntry
 
 interface DemoProps {
   overlays: OverlayStart;
@@ -34,7 +34,7 @@ const DataList: FC<{ username?: string }> = React.memo(({ username }) => {
 });
 
 const renderStep1Content =
-  (props: { username?: string }) => (managedFlyoutApi: ManagedFlyoutApi) => {
+  (props: { username?: string }) => (managedFlyoutApi: UseManagedFlyoutApi) => {
     const { nextFlyout, openChildFlyout } = managedFlyoutApi;
 
     const handleGoToStep2 = () => {
@@ -63,7 +63,7 @@ const renderStep1Content =
   };
 
 const renderStep2Content =
-  (props: { username?: string }) => (managedFlyoutApi: ManagedFlyoutApi) => {
+  (props: { username?: string }) => (managedFlyoutApi: UseManagedFlyoutApi) => {
     const { nextFlyout, openChildFlyout } = managedFlyoutApi;
 
     const handleGoToStep3 = () => {
@@ -92,7 +92,7 @@ const renderStep2Content =
   };
 
 const renderStep3Content =
-  (props: { username?: string }) => (managedFlyoutApi: ManagedFlyoutApi) => {
+  (props: { username?: string }) => (managedFlyoutApi: UseManagedFlyoutApi) => {
     const { openChildFlyout } = managedFlyoutApi;
 
     const handleOpenChild = () => {
@@ -115,7 +115,7 @@ const renderStep3Content =
   };
 
 const renderChildContent =
-  (props: { username?: string }) => (managedFlyoutApi: ManagedFlyoutApi) => {
+  (props: { username?: string }) => (managedFlyoutApi: UseManagedFlyoutApi) => {
     const { closeChildFlyout } = managedFlyoutApi;
 
     const handleCloseChild = () => {
@@ -137,7 +137,7 @@ const renderChildContent =
   };
 
 const renderAnotherFlyoutContent =
-  (props: { username?: string }) => (_managedFlyoutApi: ManagedFlyoutApi) => {
+  (props: { username?: string }) => (_managedFlyoutApi: UseManagedFlyoutApi) => {
     return (
       <EuiText>
         <h3>New</h3>

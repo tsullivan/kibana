@@ -9,11 +9,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
-import { ManagedFlyoutApi, ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
+import { UseManagedFlyoutApi, ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
 import { managedFlyoutService, FlyoutState } from './managed_flyout_service'; // Use generic ManagedFlyoutEntry
 
 interface FlyoutContainerProps {
-  managedFlyoutApi: ManagedFlyoutApi;
+  managedFlyoutApi: UseManagedFlyoutApi;
 }
 
 const FlyoutPanel = React.memo(
@@ -32,7 +32,7 @@ const FlyoutPanel = React.memo(
     zIndex: number;
     showMainControls?: boolean;
     canGoBack?: boolean;
-    managedFlyoutApi: ManagedFlyoutApi;
+    managedFlyoutApi: UseManagedFlyoutApi;
   }) => {
     const [isOpen, setIsOpen] = useState(!!entry);
 

@@ -44,7 +44,7 @@ export type OverlayFlyoutOpenOptions = Omit<
   isResizable?: boolean;
 };
 
-export interface ManagedFlyoutApi {
+export interface UseManagedFlyoutApi {
   openFlyout: (entry: ManagedFlyoutEntry) => void;
   closeFlyout: () => void;
   isFlyoutOpen: () => boolean;
@@ -56,6 +56,6 @@ export interface ManagedFlyoutApi {
 }
 
 export interface ManagedFlyoutEntry {
-  renderBody: (managedFlyoutApi: ManagedFlyoutApi) => React.ReactElement;
+  renderBody: (managedFlyoutApi: UseManagedFlyoutApi) => React.ReactElement;
   width?: number;
 }
