@@ -17,7 +17,9 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { OverlayStart, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
-import React, { useCallback, useState, type FC } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, type FC } from 'react';
+import useObservable from 'react-use/lib/useObservable';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 interface DemoDeps {
   overlays: OverlayStart;
@@ -84,7 +86,7 @@ const renderStep2Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
           <EuiButton onClick={handleGoToStep3}>Go to Step 3</EuiButton>
         </EuiFlexItem>
         <EuiFlexItem>
-          <EuiButton onClick={handleOpenChild}>Open Child Flyout (Wider)</EuiButton>
+          <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
         </EuiFlexItem>
       </EuiFlexGrid>
     </EuiText>
@@ -135,19 +137,35 @@ const renderChildContent = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 };
 
 const renderAnotherFlyoutContent =
-  (props: StepProps) => (_managedFlyoutApi: UseManagedFlyoutApi) => {
-    return (
-      <EuiText>
-        <h3>New</h3>
-        <p>This is a fresh new flyout.</p>
-        <DataList {...props} />
-      </EuiText>
-    );
+  ({ username$ }: { username$: Observable<string> }) =>
+  () => {
+    const FlyoutContent: React.FC = () => {
+      const username = useObservable(username$, 'Guest');
+      console.log('FlyoutContent!', username);
+      return (
+        <EuiText>
+          <h3>New</h3>
+          <p>This is a fresh new flyout.</p>
+          <DataList username={username} />
+        </EuiText>
+      );
+    };
+
+    return <FlyoutContent />;
   };
 
 export const Demo: FC<DemoDeps> = ({ overlays }) => {
   const { openFlyout, closeFlyout, isFlyoutOpen } = overlays.useManagedFlyout();
   const [username, setUsername] = useState<string>('');
+
+  const username$ = useMemo(() => new BehaviorSubject(username), [username]);
+
+  useEffect(() => {
+    console.log('use effect!', username);
+    username$.next(username);
+
+    return () => username$.complete();
+  }, [username$, username]);
 
   const handleOpenInitialFlyout = useCallback(() => {
     openFlyout({
@@ -158,10 +176,10 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
 
   const handleOpenAnotherFreshFlyout = useCallback(() => {
     openFlyout({
-      renderBody: renderAnotherFlyoutContent({ username }),
+      renderBody: renderAnotherFlyoutContent({ username$: username$.asObservable() }),
       width: 350,
     });
-  }, [openFlyout, username]);
+  }, [openFlyout, username$]);
 
   const handleCheckFlyoutStatus = useCallback(() => {
     alert(`The flyout is currently ${isFlyoutOpen() ? 'open' : 'closed'}. (Synchronous check)`);

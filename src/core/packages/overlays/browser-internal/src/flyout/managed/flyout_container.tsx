@@ -59,7 +59,7 @@ const FlyoutPanel = React.memo(
       pointer-events: ${entry || isOpen ? 'auto' : 'none'};
       visibility: ${entry || isOpen ? 'visible' : 'hidden'};
       box-sizing: border-box;
-      padding: 20px;
+      padding: 60px 20px 20px 20px;
       border-left: ${type === 'child' ? '1px solid #ccc' : 'none'};
     `;
 
