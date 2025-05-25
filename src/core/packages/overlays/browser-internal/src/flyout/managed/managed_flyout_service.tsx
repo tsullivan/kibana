@@ -7,11 +7,12 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+// managed_flyout_service.ts
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 
-import type { ManagedFlyoutEntry, ManagedFlyoutApi } from '@kbn/core-overlays-browser';
+import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser'; // Use generic ManagedFlyoutEntry
 import { FlyoutContainer } from './flyout_container';
 
 interface ManagedFlyoutServiceStartDeps {
@@ -28,7 +29,7 @@ interface HistoryEntry {
   child: ManagedFlyoutEntry | null;
 }
 
-export class ManagedFlyoutService implements Pick<ManagedFlyoutApi, 'openFlyout'> {
+export class ManagedFlyoutService {
   private flyout$ = new Subject<FlyoutState>();
   private isOpen$ = new BehaviorSubject<boolean>(false);
   private targetElement: HTMLElement | null = null;
@@ -62,7 +63,6 @@ export class ManagedFlyoutService implements Pick<ManagedFlyoutApi, 'openFlyout'
       openFlyout: this.openFlyout.bind(this),
       closeFlyout: this.closeFlyout.bind(this),
       isFlyoutOpen: this.isFlyoutOpen.bind(this),
-      getIsFlyoutOpen: this.getIsFlyoutOpen$.bind(this),
       nextFlyout: this.nextFlyout.bind(this),
       goBack: this.goBack.bind(this),
       canGoBack: this.canGoBack.bind(this),
@@ -72,8 +72,6 @@ export class ManagedFlyoutService implements Pick<ManagedFlyoutApi, 'openFlyout'
     ReactDOM.render(<FlyoutContainer managedFlyoutApi={managedFlyoutApi} />, this.targetElement);
     this.isStarted = true;
   }
-
-  // --- Implementations of ManagedFlyoutApi methods ---
 
   public openFlyout(entry: ManagedFlyoutEntry): void {
     this.initializeFlyout(entry);
@@ -87,8 +85,9 @@ export class ManagedFlyoutService implements Pick<ManagedFlyoutApi, 'openFlyout'
     return this.getIsFlyoutOpen();
   }
 
-  public getIsFlyoutOpen$(): Observable<boolean> {
-    return this.isOpen$.asObservable();
+  public onFlyoutToggle(): Observable<boolean> {
+    const obs: Observable<boolean> = this.isOpen$.asObservable();
+    return obs;
   }
 
   public nextFlyout(entry: ManagedFlyoutEntry): void {

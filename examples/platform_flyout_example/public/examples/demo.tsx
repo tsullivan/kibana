@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useState, type FC } from 'react';
+import React, { useState, useCallback, type FC } from 'react';
 
 import {
   EuiButton,
@@ -18,142 +18,156 @@ import {
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
-import { ContentComponentProps, OverlayStart } from '@kbn/core-overlays-browser';
+import { OverlayStart } from '@kbn/core-overlays-browser';
+import { ManagedFlyoutApi } from '@kbn/core-overlays-browser'; // Import ManagedFlyoutEntry
 
 interface DemoProps {
   overlays: OverlayStart;
 }
 
-const Step1Content: FC<ContentComponentProps> = ({ managedFlyoutApi, customProps }) => {
-  const { nextFlyout, openChildFlyout } = managedFlyoutApi;
-  return (
-    <EuiText>
-      <h3>Step 1: Initial Content</h3>
-      <p>This is the first piece of content in the flyout.</p>
-      <DataList {...customProps} />
-      <EuiFlexGrid columns={2}>
-        <EuiFlexItem>
-          <EuiButton
-            onClick={() => nextFlyout({ Component: Step2Content, props: customProps, width: 450 })}
-          >
-            Go to Step 2
-          </EuiButton>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 250 })}>
-            Open Child Flyout
-          </EuiButton>
-        </EuiFlexItem>
-      </EuiFlexGrid>
-    </EuiText>
-  );
-};
-
-const Step2Content: FC<ContentComponentProps> = ({ managedFlyoutApi, customProps }) => {
-  const { nextFlyout, openChildFlyout } = managedFlyoutApi;
-  return (
-    <EuiText>
-      <h3>Step 2: Next Content</h3>
-      <p>You navigated from Step 1.</p>
-      <DataList {...customProps} />
-      <EuiFlexGrid columns={2}>
-        <EuiFlexItem>
-          <EuiButton
-            onClick={() => nextFlyout({ Component: Step3Content, props: customProps, width: 500 })}
-          >
-            Go to Step 3
-          </EuiButton>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiButton onClick={() => openChildFlyout({ Component: ChildContent, width: 280 })}>
-            Open Child Flyout
-          </EuiButton>
-        </EuiFlexItem>
-      </EuiFlexGrid>
-    </EuiText>
-  );
-};
-
-const Step3Content: FC<ContentComponentProps> = ({ managedFlyoutApi, customProps }) => {
-  const { openChildFlyout } = managedFlyoutApi;
-  return (
-    <EuiText>
-      <h3>Step 3: Final Content</h3>
-      <p>This is the last step in this sequence.</p>
-      <p>Use the &quot;Back&quot; button to return.</p>
-      <DataList {...customProps} />
-      <EuiFlexGrid>
-        <EuiFlexItem>
-          <EuiButton
-            onClick={() =>
-              openChildFlyout({ Component: ChildContent, props: customProps, width: 220 })
-            }
-          >
-            Open Child Flyout
-          </EuiButton>
-        </EuiFlexItem>
-      </EuiFlexGrid>
-    </EuiText>
-  );
-};
-
-const ChildContent: FC<ContentComponentProps> = ({ managedFlyoutApi, customProps }) => {
-  const { closeChildFlyout } = managedFlyoutApi;
-  return (
-    <EuiText>
-      <h4>Child Flyout Content!</h4>
-      <p>This panel is aligned to the left of the main flyout.</p>
-      <DataList {...customProps} />
-      <EuiFlexGrid>
-        <EuiFlexItem>
-          <EuiButton onClick={closeChildFlyout}>Close Child Flyout</EuiButton>
-        </EuiFlexItem>
-      </EuiFlexGrid>
-    </EuiText>
-  );
-};
-
-const AnotherFlyoutContent: FC<ContentComponentProps> = ({ customProps }) => {
-  return (
-    <EuiText>
-      <h3>New</h3>
-      <p>This is a fresh new flyout.</p>
-      <DataList {...customProps} />
-    </EuiText>
-  );
-};
-
-const DataList: FC<ContentComponentProps['customProps']> = ({ username }) => {
+const DataList: FC<{ username?: string }> = React.memo(({ username }) => {
   return (
     <ul>
-      <li>Username: {username}</li>
+      <li>Username: {username || 'Guest'}</li>
     </ul>
   );
-};
+});
+
+const renderStep1Content =
+  (props: { username?: string }) => (managedFlyoutApi: ManagedFlyoutApi) => {
+    const { nextFlyout, openChildFlyout } = managedFlyoutApi;
+
+    const handleGoToStep2 = () => {
+      nextFlyout({ renderBody: renderStep2Content(props), width: 450 });
+    };
+
+    const handleOpenChild = () => {
+      openChildFlyout({ renderBody: renderChildContent(props), width: 250 });
+    };
+
+    return (
+      <EuiText>
+        <h3>Step 1: Initial Content</h3>
+        <p>This is the first piece of content in the flyout.</p>
+        <DataList {...props} />
+        <EuiFlexGrid columns={2}>
+          <EuiFlexItem>
+            <EuiButton onClick={handleGoToStep2}>Go to Step 2</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGrid>
+      </EuiText>
+    );
+  };
+
+const renderStep2Content =
+  (props: { username?: string }) => (managedFlyoutApi: ManagedFlyoutApi) => {
+    const { nextFlyout, openChildFlyout } = managedFlyoutApi;
+
+    const handleGoToStep3 = () => {
+      nextFlyout({ renderBody: renderStep3Content(props), width: 500 });
+    };
+
+    const handleOpenChild = () => {
+      openChildFlyout({ renderBody: renderChildContent(props), width: 280 });
+    };
+
+    return (
+      <EuiText>
+        <h3>Step 2: Next Content</h3>
+        <p>You navigated from Step 1.</p>
+        <DataList {...props} />
+        <EuiFlexGrid columns={2}>
+          <EuiFlexItem>
+            <EuiButton onClick={handleGoToStep3}>Go to Step 3</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiButton onClick={handleOpenChild}>Open Child Flyout (Wider)</EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGrid>
+      </EuiText>
+    );
+  };
+
+const renderStep3Content =
+  (props: { username?: string }) => (managedFlyoutApi: ManagedFlyoutApi) => {
+    const { openChildFlyout } = managedFlyoutApi;
+
+    const handleOpenChild = () => {
+      openChildFlyout({ renderBody: renderChildContent(props), width: 220 });
+    };
+
+    return (
+      <EuiText>
+        <h3>Step 3: Final Content</h3>
+        <p>This is the last step in this sequence.</p>
+        <p>Use the &quot;Back&quot; button to return.</p>
+        <DataList {...props} />
+        <EuiFlexGrid>
+          <EuiFlexItem>
+            <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGrid>
+      </EuiText>
+    );
+  };
+
+const renderChildContent =
+  (props: { username?: string }) => (managedFlyoutApi: ManagedFlyoutApi) => {
+    const { closeChildFlyout } = managedFlyoutApi;
+
+    const handleCloseChild = () => {
+      closeChildFlyout();
+    };
+
+    return (
+      <EuiText>
+        <h4>Child Flyout Content!</h4>
+        <p>This panel is aligned to the left of the main flyout.</p>
+        <DataList {...props} />
+        <EuiFlexGrid>
+          <EuiFlexItem>
+            <EuiButton onClick={handleCloseChild}>Close Child Flyout</EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGrid>
+      </EuiText>
+    );
+  };
+
+const renderAnotherFlyoutContent =
+  (props: { username?: string }) => (_managedFlyoutApi: ManagedFlyoutApi) => {
+    return (
+      <EuiText>
+        <h3>New</h3>
+        <p>This is a fresh new flyout.</p>
+        <DataList {...props} />
+      </EuiText>
+    );
+  };
 
 export const Demo: FC<DemoProps> = ({ overlays }) => {
   const { openFlyout, closeFlyout, isFlyoutOpen } = overlays.useManagedFlyout();
   const [username, setUsername] = useState<string>('');
 
-  const handleOpenInitialFlyout = () => {
+  const handleOpenInitialFlyout = useCallback(() => {
     openFlyout({
-      Component: Step1Content,
+      renderBody: renderStep1Content({ username }),
       width: 400,
-      props: { username },
     });
-  };
+  }, [openFlyout, username]);
 
-  const handleOpenAnotherFreshFlyout = () => {
+  const handleOpenAnotherFreshFlyout = useCallback(() => {
     openFlyout({
-      Component: AnotherFlyoutContent,
+      renderBody: renderAnotherFlyoutContent({ username }),
       width: 350,
-      props: { username },
     });
-  };
+  }, [openFlyout, username]);
 
-  const handleCheckFlyoutStatus = () => {
+  const handleCheckFlyoutStatus = useCallback(() => {
     alert(`The flyout is currently ${isFlyoutOpen() ? 'open' : 'closed'}. (Synchronous check)`);
-  };
+  }, [isFlyoutOpen]);
 
   const buttonContent = [
     {

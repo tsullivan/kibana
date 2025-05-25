@@ -39,7 +39,7 @@ export class PlatformFlyoutExamplesPlugin implements Plugin<void, void, SetupDep
     });
   }
 
-  public start(core: CoreStart, deps: StartDeps) {}
+  public start(_core: CoreStart, _deps: StartDeps) {}
 
   public stop() {}
 }

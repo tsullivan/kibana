@@ -55,13 +55,7 @@ export interface ManagedFlyoutApi {
   closeChildFlyout: () => void;
 }
 
-export interface ManagedFlyoutEntry<T = {}> {
-  Component: React.FC<{ managedFlyoutApi: ManagedFlyoutApi; customProps: T }>;
+export interface ManagedFlyoutEntry {
+  renderBody: (managedFlyoutApi: ManagedFlyoutApi) => React.ReactElement;
   width?: number;
-  props?: T;
-}
-
-export interface ContentComponentProps {
-  managedFlyoutApi: ManagedFlyoutApi;
-  customProps: { username?: string }; // Define the expected structure for customProps
 }

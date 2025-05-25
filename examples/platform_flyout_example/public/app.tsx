@@ -14,7 +14,7 @@ import ReactDOM from 'react-dom';
 import { Demo } from './examples/demo';
 import { StartDeps } from './plugin';
 
-export const renderApp = (core: CoreStart, deps: StartDeps, mountParams: AppMountParameters) => {
+export const renderApp = (core: CoreStart, _deps: StartDeps, mountParams: AppMountParameters) => {
   core.chrome.docTitle.change('Flyout examples');
 
   ReactDOM.render(
