@@ -17,23 +17,26 @@ import {
   EuiText,
 } from '@elastic/eui';
 import { OverlayStart, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
-import React, { useCallback, useState, type FC } from 'react';
+import React, { useCallback, useEffect, useRef, useState, type FC } from 'react';
+import useObservable from 'react-use/lib/useObservable';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 interface DemoDeps {
   overlays: OverlayStart;
 }
 
 interface StepProps {
-  username: string;
+  username$: Observable<string>;
 }
 
-const DataList: FC<StepProps> = React.memo(({ username }) => {
+const DataList: FC<StepProps> = ({ username$ }) => {
+  const username = useObservable(username$, 'Guest');
   return (
     <ul>
       <li>Username: {username || 'Guest'}</li>
     </ul>
   );
-});
+};
 
 const renderStep1Content = (props: StepProps) => (managedFlyoutApi: UseManagedFlyoutApi) => {
   const { nextFlyout, openChildFlyout } = managedFlyoutApi;
@@ -134,66 +137,60 @@ const renderChildContent = (props: StepProps) => (managedFlyoutApi: UseManagedFl
   );
 };
 
-const renderAnotherFlyoutContent =
-  ({ username }: StepProps) =>
-  () => {
-    const FlyoutContent: React.FC = () => {
-      console.log('FlyoutContent!', username);
-      return (
-        <EuiText>
-          <h3>New</h3>
-          <p>This is a fresh new flyout.</p>
-          <DataList username={username} />
-        </EuiText>
-      );
-    };
-
-    return <FlyoutContent />;
+const renderAnotherFlyoutContent = (props: StepProps) => () => {
+  const FlyoutContent: React.FC = () => {
+    return (
+      <EuiText>
+        <h3>New</h3>
+        <p>This is a fresh new flyout.</p>
+        <DataList {...props} />
+      </EuiText>
+    );
   };
+
+  return <FlyoutContent />;
+};
 
 export const Demo: FC<DemoDeps> = ({ overlays }) => {
   const { openFlyout, closeFlyout, isFlyoutOpen } = overlays.useManagedFlyout();
   const [username, setUsername] = useState<string>('');
 
+  const usernameSubjectRef = useRef(new BehaviorSubject(username));
+
+  useEffect(() => {
+    usernameSubjectRef.current.next(username);
+  }, [username]);
+
+  useEffect(() => {
+    const currentSubject = usernameSubjectRef.current;
+    return () => {
+      currentSubject.complete();
+    };
+  }, []);
+
   const handleOpenInitialFlyout = useCallback(() => {
     openFlyout({
-      renderBody: renderStep1Content({ username }),
+      renderBody: renderStep1Content({ username$: usernameSubjectRef.current }),
       width: 400,
     });
-  }, [openFlyout, username]);
+  }, [openFlyout]);
 
   const handleOpenAnotherFreshFlyout = useCallback(() => {
     openFlyout({
-      renderBody: renderAnotherFlyoutContent({ username }),
+      renderBody: renderAnotherFlyoutContent({ username$: usernameSubjectRef.current }),
       width: 350,
     });
-  }, [openFlyout, username]);
+  }, [openFlyout]);
 
   const handleCheckFlyoutStatus = useCallback(() => {
     alert(`The flyout is currently ${isFlyoutOpen() ? 'open' : 'closed'}. (Synchronous check)`);
   }, [isFlyoutOpen]);
 
   const buttonContent = [
-    {
-      label: 'Open step-by-step flyout (step 1)',
-      href: '#',
-      onClick: handleOpenInitialFlyout,
-    },
-    {
-      label: 'Open fresh flyout',
-      href: '#',
-      onClick: handleOpenAnotherFreshFlyout,
-    },
-    {
-      label: 'Close flyout',
-      href: '#',
-      onClick: closeFlyout,
-    },
-    {
-      label: 'Check flyout status',
-      href: '#',
-      onClick: handleCheckFlyoutStatus,
-    },
+    { label: 'Open step-by-step flyout (step 1)', href: '#', onClick: handleOpenInitialFlyout },
+    { label: 'Open fresh flyout', href: '#', onClick: handleOpenAnotherFreshFlyout },
+    { label: 'Close flyout', href: '#', onClick: closeFlyout },
+    { label: 'Check flyout status', href: '#', onClick: handleCheckFlyoutStatus },
   ];
 
   return (
