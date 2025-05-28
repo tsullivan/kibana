@@ -9,23 +9,30 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BehaviorSubject, Subject, Observable } from 'rxjs';
-import type { UserProfileService } from '@kbn/core-user-profile-browser';
-import type { I18nStart } from '@kbn/core-i18n-browser';
-import type { IUiSettingsClient } from '@kbn/core-ui-settings-browser';
-import type { AnalyticsServiceStart } from '@kbn/core-analytics-browser';
-import type { ThemeServiceStart } from '@kbn/core-theme-browser';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
-import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser'; // Use generic ManagedFlyoutEntry
+import type { AnalyticsServiceStart } from '@kbn/core-analytics-browser';
+import type { I18nStart } from '@kbn/core-i18n-browser';
+import type { ThemeServiceStart } from '@kbn/core-theme-browser';
+import type { UserProfileService } from '@kbn/core-user-profile-browser';
+
+import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
+import { StateManager } from '@kbn/presentation-publishing';
 import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 import { FlyoutContainer } from './flyout_container';
 
 interface ManagedFlyoutServiceStartDeps {
+  /**
+   * Services needed to render the React entry point for the flyout.
+   */
   analytics: AnalyticsServiceStart;
   i18n: I18nStart;
   theme: ThemeServiceStart;
   userProfile: UserProfileService;
-  uiSettings: IUiSettingsClient;
+  /**
+   * The DOM element where the flyout will be rendered.
+   * This is typically a container element in the application where the flyout should appear.
+   */
   targetDomElement: HTMLElement;
 }
 
@@ -40,6 +47,7 @@ interface HistoryEntry {
 }
 
 export class ManagedFlyoutService {
+  private stateManager$ = new Subject<StateManager<any>>();
   private flyout$ = new Subject<FlyoutState>();
   private isOpen$ = new BehaviorSubject<boolean>(false);
   private targetElement: HTMLElement | null = null;
@@ -69,29 +77,19 @@ export class ManagedFlyoutService {
 
     this.targetElement = targetDomElement;
 
-    const managedFlyoutApi = {
-      openFlyout: this.openFlyout.bind(this),
-      closeFlyout: this.closeFlyout.bind(this),
-      isFlyoutOpen: this.isFlyoutOpen.bind(this),
-      nextFlyout: this.nextFlyout.bind(this),
-      goBack: this.goBack.bind(this),
-      canGoBack: this.canGoBack.bind(this),
-      openChildFlyout: this.openChildFlyout.bind(this),
-      closeChildFlyout: this.closeChildFlyout.bind(this),
-    };
-
     // need to use KibanaRenderContextProvider to provide the context for the flyout
     // because the RenderService isn't initialized yet
     ReactDOM.render(
       <KibanaRenderContextProvider {...startDeps}>
-        <FlyoutContainer managedFlyoutApi={managedFlyoutApi} />
+        <FlyoutContainer />
       </KibanaRenderContextProvider>,
       this.targetElement
     );
     this.isStarted = true;
   }
 
-  public openFlyout(entry: ManagedFlyoutEntry): void {
+  public openFlyout(entry: ManagedFlyoutEntry, stateManager: StateManager<any>): void {
+    this.stateManager$.next(stateManager);
     this.initializeFlyout(entry);
   }
 
@@ -99,17 +97,22 @@ export class ManagedFlyoutService {
     this.initializeFlyout(null);
   }
 
+  public nextFlyout(entry: ManagedFlyoutEntry, stateManager: StateManager<any>): void {
+    this.stateManager$.next(stateManager);
+    this.navigateToFlyout(entry);
+  }
+
+  public openChildFlyout(entry: ManagedFlyoutEntry, stateManager: StateManager<any>): void {
+    if (!this._currentMainEntry) {
+      return;
+    }
+    this.stateManager$.next(stateManager);
+    this._childFlyoutEntry = entry;
+    this._emitFlyoutState();
+  }
+
   public isFlyoutOpen(): boolean {
     return this.getIsFlyoutOpen();
-  }
-
-  public onFlyoutToggle(): Observable<boolean> {
-    const obs: Observable<boolean> = this.isOpen$.asObservable();
-    return obs;
-  }
-
-  public nextFlyout(entry: ManagedFlyoutEntry): void {
-    this.navigateToFlyout(entry);
   }
 
   public goBack(): void {
@@ -125,14 +128,6 @@ export class ManagedFlyoutService {
 
   public canGoBack(): boolean {
     return this._mainHistoryStack.length > 0;
-  }
-
-  public openChildFlyout(entry: ManagedFlyoutEntry): void {
-    if (!this._currentMainEntry) {
-      return;
-    }
-    this._childFlyoutEntry = entry;
-    this._emitFlyoutState();
   }
 
   public closeChildFlyout(): void {
@@ -167,6 +162,10 @@ export class ManagedFlyoutService {
     this._childFlyoutEntry = null;
     this._currentMainEntry = entry;
     this._emitFlyoutState();
+  }
+
+  public getStateManager$<StateType extends object>(): Observable<StateManager<StateType>> {
+    return this.stateManager$ as Observable<StateManager<StateType>>;
   }
 
   /**

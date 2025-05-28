@@ -7,13 +7,6 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  UseManagedFlyoutApi,
-  ManagedFlyoutEntry,
-  FlyoutPropsExpected,
-} from '@kbn/core-overlays-browser';
-import useObservable from 'react-use/lib/useObservable';
 import {
   EuiButtonEmpty,
   EuiFlexGroup,
@@ -24,11 +17,16 @@ import {
   EuiFlyoutHeader,
   EuiSpacer,
 } from '@elastic/eui';
-import { managedFlyoutService } from './managed_flyout_service'; // Use generic ManagedFlyoutEntry
+import {
+  FlyoutPropsEnhanced,
+  ManagedFlyoutEntry,
+  UseManagedFlyoutApi,
+} from '@kbn/core-overlays-browser';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import useObservable from 'react-use/lib/useObservable';
 
-interface FlyoutContainerProps {
-  managedFlyoutApi: UseManagedFlyoutApi;
-}
+import { managedFlyoutService } from './managed_flyout_service';
+import { useManagedFlyout } from './use_managed_flyout';
 
 interface FlyoutPanelProps {
   entry: ManagedFlyoutEntry | null;
@@ -55,7 +53,7 @@ const FlyoutPanel = React.memo(
       () => (entry && entry.renderHeader ? entry.renderHeader(managedFlyoutApi) : null),
       [entry, managedFlyoutApi]
     );
-    const flyoutProps = useMemo<FlyoutPropsExpected>(
+    const flyoutProps = useMemo<FlyoutPropsEnhanced>(
       () => (entry && entry.flyoutProps ? entry.flyoutProps(managedFlyoutApi) : { size: 400 }),
       [entry, managedFlyoutApi]
     );
@@ -117,7 +115,8 @@ const FlyoutPanel = React.memo(
   }
 );
 
-export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutApi }) => {
+export const FlyoutContainer: React.FC = () => {
+  const managedFlyoutApi = useManagedFlyout<any>();
   const flyout$ = managedFlyoutService.getFlyout$();
   const flyoutState = useObservable(flyout$, { main: null, child: null });
 

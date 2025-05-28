@@ -22,5 +22,5 @@ export interface OverlayStart {
   /** {@link OverlayModalStart#openConfirm} */
   openConfirm: OverlayModalStart['openConfirm'];
 
-  useManagedFlyout: () => UseManagedFlyoutApi;
+  useManagedFlyout: <StateType extends object>() => UseManagedFlyoutApi<StateType>;
 }

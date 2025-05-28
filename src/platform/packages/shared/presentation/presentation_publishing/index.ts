@@ -12,6 +12,7 @@ export { isEmbeddableApiContext, type EmbeddableApiContext } from './embeddable_
 export {
   type ComparatorFunction,
   type StateComparators,
+  type StateManager,
   type WithAllKeys,
   runComparator,
   areComparatorsEqual,
