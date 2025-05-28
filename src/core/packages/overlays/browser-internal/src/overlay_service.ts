@@ -57,6 +57,7 @@ export class OverlayService {
     targetDomElement.appendChild(managedFlyoutElement);
     managedFlyoutService.start({
       targetDomElement: managedFlyoutElement,
+      ...startDeps,
     });
 
     return {

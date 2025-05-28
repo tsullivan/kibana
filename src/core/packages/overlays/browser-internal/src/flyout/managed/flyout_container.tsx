@@ -18,9 +18,8 @@ import {
   EuiFlyoutBody,
   EuiFlyoutFooter,
   EuiFlyoutHeader,
-  EuiFlyoutProps,
+  type EuiFlyoutProps,
   EuiSpacer,
-  EuiTitle,
 } from '@elastic/eui';
 import { managedFlyoutService } from './managed_flyout_service'; // Use generic ManagedFlyoutEntry
 
@@ -77,7 +76,11 @@ const FlyoutPanel = React.memo(
         {...flyoutProps}
         onClose={handleCloseFlyout}
         hideCloseButton
-        css={{ right: positionRight + 'px' }}
+        css={({ euiTheme }) => ({
+          right: positionRight + 'px',
+          backgroundColor: level === 'child' ? euiTheme.colors.backgroundBaseSubdued : undefined,
+        })}
+        size={level === 'child' ? 's' : flyoutProps.size || 'm'}
         type={level === 'child' ? 'overlay' : flyoutProps.type}
         ownFocus={level === 'child' ? false : flyoutProps.ownFocus}
       >

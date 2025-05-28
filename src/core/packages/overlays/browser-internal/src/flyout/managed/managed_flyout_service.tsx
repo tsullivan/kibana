@@ -7,15 +7,25 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-// managed_flyout_service.ts
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
+import type { UserProfileService } from '@kbn/core-user-profile-browser';
+import type { I18nStart } from '@kbn/core-i18n-browser';
+import type { IUiSettingsClient } from '@kbn/core-ui-settings-browser';
+import type { AnalyticsServiceStart } from '@kbn/core-analytics-browser';
+import type { ThemeServiceStart } from '@kbn/core-theme-browser';
 
 import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser'; // Use generic ManagedFlyoutEntry
+import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 import { FlyoutContainer } from './flyout_container';
 
 interface ManagedFlyoutServiceStartDeps {
+  analytics: AnalyticsServiceStart;
+  i18n: I18nStart;
+  theme: ThemeServiceStart;
+  userProfile: UserProfileService;
+  uiSettings: IUiSettingsClient;
   targetDomElement: HTMLElement;
 }
 
@@ -52,7 +62,7 @@ export class ManagedFlyoutService {
     });
   }
 
-  public start({ targetDomElement }: ManagedFlyoutServiceStartDeps): void {
+  public start({ targetDomElement, ...startDeps }: ManagedFlyoutServiceStartDeps): void {
     if (this.isStarted) {
       return;
     }
@@ -69,7 +79,15 @@ export class ManagedFlyoutService {
       openChildFlyout: this.openChildFlyout.bind(this),
       closeChildFlyout: this.closeChildFlyout.bind(this),
     };
-    ReactDOM.render(<FlyoutContainer managedFlyoutApi={managedFlyoutApi} />, this.targetElement);
+
+    // need to use KibanaRenderContextProvider to provide the context for the flyout
+    // because the RenderService isn't initialized yet
+    ReactDOM.render(
+      <KibanaRenderContextProvider {...startDeps}>
+        <FlyoutContainer managedFlyoutApi={managedFlyoutApi} />
+      </KibanaRenderContextProvider>,
+      this.targetElement
+    );
     this.isStarted = true;
   }
 
