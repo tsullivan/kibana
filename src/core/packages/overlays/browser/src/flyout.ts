@@ -61,4 +61,5 @@ export interface ManagedFlyoutEntry {
   renderBody: (managedFlyoutApi: UseManagedFlyoutApi) => React.ReactElement;
   renderHeader?: (managedFlyoutApi: UseManagedFlyoutApi) => React.ReactElement;
   flyoutProps?: (managedFlyoutApi: UseManagedFlyoutApi) => FlyoutPropsExpected;
+  footerActions?: (managedFlyoutApi: UseManagedFlyoutApi) => Record<string, React.ReactElement>;
 }

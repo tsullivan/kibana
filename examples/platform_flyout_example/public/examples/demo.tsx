@@ -10,8 +10,6 @@
 import {
   EuiButton,
   EuiFieldText,
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiFormRow,
   EuiListGroup,
   EuiPanel,
@@ -49,12 +47,11 @@ const childFlyoutConfig = ({ isPushMode }: StepProps): ManagedFlyoutEntry => ({
       <h2>Child Flyout</h2>
     </EuiTitle>
   ),
-  renderBody: (managedFlyoutApi: UseManagedFlyoutApi) => {
+  renderBody: () => {
     return (
       <EuiText>
         <h4>Child Flyout Content!</h4>
         <p>This panel is aligned to the left of the main flyout.</p>
-        <EuiButton onClick={managedFlyoutApi.closeChildFlyout}>Close Child Flyout</EuiButton>
       </EuiText>
     );
   },
@@ -71,30 +68,17 @@ const step1Config = (props: StepProps): ManagedFlyoutEntry => ({
     </EuiTitle>
   ),
   renderBody: (managedFlyoutApi: UseManagedFlyoutApi) => {
-    const { nextFlyout, openChildFlyout } = managedFlyoutApi;
+    const { nextFlyout } = managedFlyoutApi;
     const handleGoToStep2 = () => {
       nextFlyout(step2Config(props));
-    };
-
-    const handleOpenChild = () => {
-      openChildFlyout(childFlyoutConfig(props));
     };
 
     return (
       <EuiText>
         <p>This is the first step in the flyout sequence.</p>
-        <EuiFlexGroup justifyContent="spaceBetween">
-          <EuiFlexItem>
-            <span>
-              <EuiButton onClick={handleGoToStep2}>Go to Step 2</EuiButton>
-            </span>
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <span>
-              <EuiButton onClick={handleOpenChild}>Open Child Flyout</EuiButton>
-            </span>
-          </EuiFlexItem>
-        </EuiFlexGroup>
+        <p>
+          <EuiButton onClick={handleGoToStep2}>Go to Step 2</EuiButton>
+        </p>
       </EuiText>
     );
   },
@@ -102,6 +86,17 @@ const step1Config = (props: StepProps): ManagedFlyoutEntry => ({
     ownFocus: false,
     size: 'm',
     type: props.isPushMode ? 'push' : 'overlay',
+  }),
+  footerActions: (managedFlyoutApi: UseManagedFlyoutApi) => ({
+    openChildFlyout: (
+      <EuiButton
+        key="openChildFlyout"
+        onClick={() => managedFlyoutApi.openChildFlyout(childFlyoutConfig(props))}
+        color="primary"
+      >
+        Open Child Flyout
+      </EuiButton>
+    ),
   }),
 });
 
@@ -111,17 +106,10 @@ const step2Config = (props: StepProps): ManagedFlyoutEntry => ({
       <h2>Step 2: The second flyout</h2>
     </EuiTitle>
   ),
-  renderBody: (managedFlyoutApi: UseManagedFlyoutApi) => {
+  renderBody: () => {
     return (
       <EuiText>
         <p>This is the second step in the flyout sequence.</p>
-        <EuiFlexGroup justifyContent="spaceBetween">
-          <EuiFlexItem>
-            <span>
-              <EuiButton onClick={managedFlyoutApi.closeFlyout}>Close Flyout</EuiButton>
-            </span>
-          </EuiFlexItem>
-        </EuiFlexGroup>
       </EuiText>
     );
   },
@@ -129,6 +117,28 @@ const step2Config = (props: StepProps): ManagedFlyoutEntry => ({
     ownFocus: false,
     size: 'm',
     type: props.isPushMode ? 'push' : 'overlay',
+  }),
+  footerActions: (managedFlyoutApi: UseManagedFlyoutApi) => ({
+    openChildFlyout: (
+      <EuiButton
+        key="openChildFlyout"
+        onClick={() => managedFlyoutApi.openChildFlyout(childFlyoutConfig(props))}
+        color="primary"
+      >
+        Open Child Flyout
+      </EuiButton>
+    ),
+    goBack: (
+      <EuiButton
+        key="goBack"
+        onClick={managedFlyoutApi.goBack}
+        color="text"
+        fill
+        data-test-subj="flyoutGoBackButton"
+      >
+        Go Back
+      </EuiButton>
+    ),
   }),
 });
 
@@ -214,8 +224,21 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
         ownFocus: false,
         type: isPushMode ? 'push' : 'overlay',
       }),
+      footerActions: (managedFlyoutApi: UseManagedFlyoutApi) => ({
+        openChildFlyout: (
+          <EuiButton
+            key="openChildFlyout"
+            onClick={() =>
+              managedFlyoutApi.openChildFlyout(childFlyoutConfig({ username, isPushMode }))
+            }
+            color="primary"
+          >
+            Open Child Flyout
+          </EuiButton>
+        ),
+      }),
     });
-  }, [openFlyout, isPushMode]);
+  }, [openFlyout, username, isPushMode]);
 
   const handleCheckFlyoutStatus = useCallback(() => {
     alert(`The flyout is currently ${isFlyoutOpen() ? 'open' : 'closed'}. (Synchronous check)`);

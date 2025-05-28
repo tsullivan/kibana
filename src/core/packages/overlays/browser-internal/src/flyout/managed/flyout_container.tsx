@@ -31,20 +31,11 @@ interface FlyoutPanelProps {
   entry: ManagedFlyoutEntry | null;
   level: 'main' | 'child';
   positionRight: number;
-  showMainControls?: boolean;
-  canGoBack?: boolean;
   managedFlyoutApi: UseManagedFlyoutApi;
 }
 
 const FlyoutPanel = React.memo(
-  ({
-    entry,
-    level,
-    positionRight,
-    showMainControls,
-    canGoBack,
-    managedFlyoutApi,
-  }: FlyoutPanelProps) => {
+  ({ entry, level, positionRight, managedFlyoutApi }: FlyoutPanelProps) => {
     const [isOpen, setIsOpen] = useState(!!entry);
 
     useEffect(() => {
@@ -52,7 +43,6 @@ const FlyoutPanel = React.memo(
     }, [entry]);
 
     const handleCloseFlyout = useCallback(() => managedFlyoutApi.closeFlyout(), [managedFlyoutApi]);
-    const handleGoBack = useCallback(() => managedFlyoutApi.goBack(), [managedFlyoutApi]);
 
     const bodyToRender = useMemo(
       () => (entry && entry.renderBody ? entry.renderBody(managedFlyoutApi) : null),
@@ -63,8 +53,12 @@ const FlyoutPanel = React.memo(
       [entry, managedFlyoutApi]
     );
     const flyoutProps = useMemo(
-      () => (entry && entry.flyoutProps ? entry.flyoutProps : {}),
-      [entry]
+      () => (entry && entry.flyoutProps ? entry.flyoutProps(managedFlyoutApi) : {}),
+      [entry, managedFlyoutApi]
+    );
+    const footerActions = useMemo(
+      () => (entry && entry.footerActions ? entry.footerActions(managedFlyoutApi) : {}),
+      [entry, managedFlyoutApi]
     );
 
     if (!isOpen) {
@@ -98,8 +92,14 @@ const FlyoutPanel = React.memo(
                 Close
               </EuiButtonEmpty>
             </EuiFlexItem>
-            {showMainControls && canGoBack && (
-              <EuiButtonEmpty onClick={handleGoBack}>Back</EuiButtonEmpty>
+            {footerActions && (
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup gutterSize="s" justifyContent="flexEnd">
+                  {Object.entries(footerActions).map(([key, action]) => (
+                    <EuiFlexItem key={key}>{action}</EuiFlexItem>
+                  ))}
+                </EuiFlexGroup>
+              </EuiFlexItem>
             )}
           </EuiFlexGroup>
         </EuiFlyoutFooter>
@@ -126,9 +126,10 @@ export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutA
   const flyout$ = managedFlyoutService.getFlyout$();
   const flyoutState = useObservable(flyout$, { main: null, child: null });
 
-  const mainFlyoutWidth = calculateMainFlyoutWidth(flyoutState.main?.flyoutProps?.size);
+  const mainFlyoutWidth = calculateMainFlyoutWidth(
+    flyoutState.main?.flyoutProps?.(managedFlyoutApi)?.size
+  );
   const childPanelRight = mainFlyoutWidth;
-  const canGoBack = managedFlyoutService.canGoBack();
 
   return (
     <>
@@ -136,8 +137,6 @@ export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutA
         entry={flyoutState.main}
         positionRight={0}
         level="main"
-        showMainControls={true}
-        canGoBack={canGoBack}
         managedFlyoutApi={managedFlyoutApi}
       />
 
@@ -146,7 +145,6 @@ export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutA
           entry={flyoutState.child}
           positionRight={childPanelRight}
           level="child"
-          showMainControls={false}
           managedFlyoutApi={managedFlyoutApi}
         />
       )}
