@@ -9,17 +9,27 @@
 
 import {
   EuiButton,
+  EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiForm,
+  EuiFormRow,
   EuiListGroup,
   EuiPanel,
   EuiSpacer,
+  EuiSwitch,
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { OverlayStart, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
-import React, { useCallback, useEffect, useRef, useState, type FC } from 'react';
+import { ManagedFlyoutEntry, OverlayStart, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FC,
+} from 'react';
 import useObservable from 'react-use/lib/useObservable';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -27,20 +37,13 @@ interface DemoDeps {
   overlays: OverlayStart;
 }
 
+// Non-reactive props for the flyout steps
 interface StepProps {
-  username$: Observable<string>;
+  username: string;
+  isPushMode: boolean;
 }
 
-const DataList: FC<StepProps> = ({ username$ }) => {
-  const username = useObservable(username$);
-  return (
-    <ul>
-      <li>Username: {username}</li>
-    </ul>
-  );
-};
-
-const childFlyoutConfig = (props: StepProps) => ({
+const childFlyoutConfig = ({ isPushMode }: StepProps): ManagedFlyoutEntry => ({
   renderHeader: () => (
     <EuiTitle size="s">
       <h2>Child Flyout</h2>
@@ -51,17 +54,17 @@ const childFlyoutConfig = (props: StepProps) => ({
       <EuiText>
         <h4>Child Flyout Content!</h4>
         <p>This panel is aligned to the left of the main flyout.</p>
-        <DataList {...props} />
         <EuiButton onClick={managedFlyoutApi.closeChildFlyout}>Close Child Flyout</EuiButton>
       </EuiText>
     );
   },
-  flyoutProps: {
+  flyoutProps: () => ({
     ownFocus: false,
-  },
+    type: isPushMode ? 'push' : 'overlay',
+  }),
 });
 
-const step1Config = (props: StepProps) => ({
+const step1Config = (props: StepProps): ManagedFlyoutEntry => ({
   renderHeader: () => (
     <EuiTitle size="m">
       <h2>Step 1: The initial flyout</h2>
@@ -80,7 +83,6 @@ const step1Config = (props: StepProps) => ({
     return (
       <EuiText>
         <p>This is the first step in the flyout sequence.</p>
-        <DataList {...props} />
         <EuiFlexGroup justifyContent="spaceBetween">
           <EuiFlexItem>
             <span>
@@ -96,34 +98,24 @@ const step1Config = (props: StepProps) => ({
       </EuiText>
     );
   },
-  flyoutProps: {
+  flyoutProps: () => ({
     ownFocus: false,
     size: 'm',
-    type: 'push' as const,
-  },
+    type: props.isPushMode ? 'push' : 'overlay',
+  }),
 });
 
-const step2Config = (props: StepProps) => ({
+const step2Config = (props: StepProps): ManagedFlyoutEntry => ({
   renderHeader: () => (
     <EuiTitle size="m">
       <h2>Step 2: The second flyout</h2>
     </EuiTitle>
   ),
   renderBody: (managedFlyoutApi: UseManagedFlyoutApi) => {
-    const handleGoToStep3 = () => {
-      managedFlyoutApi.nextFlyout(step3Config(props));
-    };
-
     return (
       <EuiText>
         <p>This is the second step in the flyout sequence.</p>
-        <DataList {...props} />
         <EuiFlexGroup justifyContent="spaceBetween">
-          <EuiFlexItem>
-            <span>
-              <EuiButton onClick={handleGoToStep3}>Go to Step 3</EuiButton>
-            </span>
-          </EuiFlexItem>
           <EuiFlexItem>
             <span>
               <EuiButton onClick={managedFlyoutApi.closeFlyout}>Close Flyout</EuiButton>
@@ -133,41 +125,66 @@ const step2Config = (props: StepProps) => ({
       </EuiText>
     );
   },
-  flyoutProps: {
+  flyoutProps: () => ({
     ownFocus: false,
     size: 'm',
-    type: 'push' as const,
-  },
+    type: props.isPushMode ? 'push' : 'overlay',
+  }),
 });
 
-const step3Config = (props: StepProps) => ({
-  renderHeader: () => (
-    <EuiTitle size="m">
-      <h2>Step 3: The final flyout</h2>
-    </EuiTitle>
-  ),
-  renderBody: () => (
-    <EuiText>
-      <p>This is the final step in the flyout sequence.</p>
-      <DataList {...props} />
-    </EuiText>
-  ),
-  flyoutProps: {
-    ownFocus: false,
-    size: 'm',
-    type: 'push' as const,
-  },
-});
+interface DemoFlyoutContextProps {
+  children: React.ReactNode;
+  username$: Observable<string>;
+  isPushMode$: Observable<boolean>;
+}
+interface DemoFlyoutContextValue {
+  children: React.ReactNode;
+  username: string;
+  isPushMode: boolean;
+}
+
+const DemoFlyoutContext = createContext<DemoFlyoutContextValue | null>(null);
+
+const DemoFlyoutProvider: FC<DemoFlyoutContextProps> = ({ children, username$, isPushMode$ }) => {
+  const username = useObservable(username$) || 'Guest';
+  const isPushMode = useObservable(isPushMode$) || true;
+  return (
+    <DemoFlyoutContext.Provider value={{ children, username, isPushMode }}>
+      {children}
+    </DemoFlyoutContext.Provider>
+  );
+};
+
+const useDemoFlyoutContext = (): DemoFlyoutContextValue => {
+  const context = useContext(DemoFlyoutContext);
+  if (!context) {
+    throw new Error('useDemoFlyoutContext must be used within a DemoFlyoutProvider');
+  }
+  return context;
+};
+
+const DataList: FC<{}> = () => {
+  const { username, isPushMode } = useDemoFlyoutContext();
+  return (
+    <ul>
+      <li>Username: {username}</li>
+      <li>Push Mode: {isPushMode ? 'Enabled' : 'Disabled'}</li>
+    </ul>
+  );
+};
 
 export const Demo: FC<DemoDeps> = ({ overlays }) => {
   const { openFlyout, closeFlyout, isFlyoutOpen } = overlays.useManagedFlyout();
   const [username, setUsername] = useState<string>('Guest');
+  const [isPushMode, setIsPushMode] = useState<boolean>(true);
 
   const usernameSubjectRef = useRef(new BehaviorSubject(username));
+  const isPushSubjectRef = useRef(new BehaviorSubject(isPushMode));
 
   useEffect(() => {
     usernameSubjectRef.current.next(username);
-  }, [username]);
+    isPushSubjectRef.current.next(isPushMode);
+  }, [username, isPushMode]);
 
   useEffect(() => {
     const currentSubject = usernameSubjectRef.current;
@@ -177,23 +194,28 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
   }, []);
 
   const handleOpenInitialFlyout = useCallback(() => {
-    openFlyout(step1Config({ username$: usernameSubjectRef.current.asObservable() }));
-  }, [openFlyout]);
+    openFlyout(step1Config({ username, isPushMode }));
+  }, [openFlyout, username, isPushMode]);
 
-  const handleOpenAnotherFreshFlyout = useCallback(() => {
+  const handleOpenAnotherDemoFlyout = useCallback(() => {
     openFlyout({
       renderBody: () => (
-        <EuiText>
-          <p>This is a fresh new flyout with no header!</p>
-          <DataList username$={usernameSubjectRef.current} />
-        </EuiText>
+        <DemoFlyoutProvider
+          username$={usernameSubjectRef.current.asObservable()}
+          isPushMode$={isPushSubjectRef.current.asObservable()}
+        >
+          <EuiText>
+            <p>This is a fresh new flyout with no header!</p>
+            <DataList />
+          </EuiText>
+        </DemoFlyoutProvider>
       ),
-      flyoutProps: {
+      flyoutProps: () => ({
         ownFocus: false,
-        type: 'push',
-      },
+        type: isPushMode ? 'push' : 'overlay',
+      }),
     });
-  }, [openFlyout]);
+  }, [openFlyout, isPushMode]);
 
   const handleCheckFlyoutStatus = useCallback(() => {
     alert(`The flyout is currently ${isFlyoutOpen() ? 'open' : 'closed'}. (Synchronous check)`);
@@ -201,7 +223,7 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
 
   const buttonContent = [
     { label: 'Open step-by-step flyout (step 1)', href: '#', onClick: handleOpenInitialFlyout },
-    { label: 'Open fresh flyout (push)', href: '#', onClick: handleOpenAnotherFreshFlyout },
+    { label: 'Open fresh flyout', href: '#', onClick: handleOpenAnotherDemoFlyout },
     { label: 'Close flyout', href: '#', onClick: closeFlyout },
     { label: 'Check flyout status', href: '#', onClick: handleCheckFlyoutStatus },
   ];
@@ -210,18 +232,23 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
     <EuiText>
       <h1>Demo</h1>
       <EuiPanel>
-        <EuiForm>
-          <label htmlFor="username-input" css={{ marginRight: '10px' }}>
-            Your Name:
-          </label>
-          <input
+        <EuiFormRow label="Username">
+          <EuiFieldText
             id="username-input"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter your name"
           />
-        </EuiForm>
+        </EuiFormRow>
+
+        <EuiFormRow>
+          <EuiSwitch
+            label="Enable push mode"
+            checked={isPushMode}
+            onChange={(e) => setIsPushMode(e.target.checked)}
+          />
+        </EuiFormRow>
       </EuiPanel>
 
       <EuiSpacer />

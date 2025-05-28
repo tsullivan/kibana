@@ -55,8 +55,10 @@ export interface UseManagedFlyoutApi {
   closeChildFlyout: () => void;
 }
 
+type FlyoutPropsExpected = Omit<EuiFlyoutProps, 'onClose' | 'hideCloseButton'>;
+
 export interface ManagedFlyoutEntry {
   renderBody: (managedFlyoutApi: UseManagedFlyoutApi) => React.ReactElement;
   renderHeader?: (managedFlyoutApi: UseManagedFlyoutApi) => React.ReactElement;
-  flyoutProps?: Omit<EuiFlyoutProps, 'onClose' | 'hideCloseButton'>;
+  flyoutProps?: (managedFlyoutApi: UseManagedFlyoutApi) => FlyoutPropsExpected;
 }
