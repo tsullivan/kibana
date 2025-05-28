@@ -16,6 +16,7 @@ import {
   EuiPanel,
   EuiSpacer,
   EuiText,
+  EuiTitle,
 } from '@elastic/eui';
 import { OverlayStart, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
 import React, { useCallback, useEffect, useRef, useState, type FC } from 'react';
@@ -44,6 +45,11 @@ const renderStep1Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 
   const handleGoToStep2 = () => {
     nextFlyout({
+      renderHeader: () => (
+        <EuiTitle size="m">
+          <h2>Step 2: Return of the Flyout</h2>
+        </EuiTitle>
+      ),
       renderBody: renderStep2Content(props),
       flyoutProps: { ownFocus: false, size: 'm' },
     });
@@ -51,6 +57,11 @@ const renderStep1Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 
   const handleOpenChild = () => {
     openChildFlyout({
+      renderHeader: () => (
+        <EuiTitle size="s">
+          <h2>Child Flyout</h2>
+        </EuiTitle>
+      ),
       renderBody: renderChildContent(props),
       flyoutProps: { ownFocus: false, size: 's' },
     });
@@ -58,7 +69,6 @@ const renderStep1Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 
   return (
     <EuiText>
-      <h3>Step 1: Initial Content</h3>
       <p>This is the first piece of content in the flyout.</p>
       <DataList {...props} />
       <EuiFlexGroup justifyContent="spaceBetween">
@@ -82,6 +92,11 @@ const renderStep2Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 
   const handleGoToStep3 = () => {
     nextFlyout({
+      renderHeader: () => (
+        <EuiTitle size="m">
+          <h2>Step 3: The Final Flyout</h2>
+        </EuiTitle>
+      ),
       renderBody: renderStep3Content(props),
       flyoutProps: { ownFocus: false, size: 'l' },
     });
@@ -89,6 +104,11 @@ const renderStep2Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 
   const handleOpenChild = () => {
     openChildFlyout({
+      renderHeader: () => (
+        <EuiTitle size="s">
+          <h2>Child Flyout</h2>
+        </EuiTitle>
+      ),
       renderBody: renderChildContent(props),
       flyoutProps: { ownFocus: false, size: 's' },
     });
@@ -96,7 +116,6 @@ const renderStep2Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 
   return (
     <EuiText>
-      <h3>Step 2: Next Content</h3>
       <p>You navigated from Step 1.</p>
       <DataList {...props} />
       <EuiFlexGroup justifyContent="spaceBetween">
@@ -120,6 +139,11 @@ const renderStep3Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 
   const handleOpenChild = () => {
     openChildFlyout({
+      renderHeader: () => (
+        <EuiTitle size="s">
+          <h2>Child Flyout</h2>
+        </EuiTitle>
+      ),
       renderBody: renderChildContent(props),
       flyoutProps: { ownFocus: false, size: 's' },
     });
@@ -127,7 +151,6 @@ const renderStep3Content = (props: StepProps) => (managedFlyoutApi: UseManagedFl
 
   return (
     <EuiText>
-      <h3>Step 3: Final Content</h3>
       <p>This is the last step in this sequence.</p>
       <p>Use the &quot;Back&quot; button to return.</p>
       <DataList {...props} />
@@ -163,8 +186,7 @@ const renderAnotherFlyoutContent = (props: StepProps) => () => {
   const FlyoutContent: React.FC = () => {
     return (
       <EuiText>
-        <h3>New</h3>
-        <p>This is a fresh new flyout.</p>
+        <p>This is a fresh new flyout. This flyout has no header!</p>
         <DataList {...props} />
       </EuiText>
     );
@@ -192,6 +214,11 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
 
   const handleOpenInitialFlyout = useCallback(() => {
     openFlyout({
+      renderHeader: () => (
+        <EuiTitle size="m">
+          <h2>Step 1</h2>
+        </EuiTitle>
+      ),
       renderBody: renderStep1Content({ username$: usernameSubjectRef.current }),
       flyoutProps: { ownFocus: false, size: 's' },
     });

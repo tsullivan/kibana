@@ -55,8 +55,12 @@ const FlyoutPanel = React.memo(
     const handleCloseFlyout = useCallback(() => managedFlyoutApi.closeFlyout(), [managedFlyoutApi]);
     const handleGoBack = useCallback(() => managedFlyoutApi.goBack(), [managedFlyoutApi]);
 
-    const contentToRender = useMemo(
+    const bodyToRender = useMemo(
       () => (entry && entry.renderBody ? entry.renderBody(managedFlyoutApi) : null),
+      [entry, managedFlyoutApi]
+    );
+    const headerToRender = useMemo(
+      () => (entry && entry.renderHeader ? entry.renderHeader(managedFlyoutApi) : null),
       [entry, managedFlyoutApi]
     );
     const flyoutProps = useMemo(
@@ -77,13 +81,13 @@ const FlyoutPanel = React.memo(
         type={level === 'child' ? 'overlay' : flyoutProps.type}
         ownFocus={level === 'child' ? false : flyoutProps.ownFocus}
       >
-        <EuiFlyoutHeader hasBorder>
-          <EuiTitle size="m">
-            <h2>Flyout header</h2>
-          </EuiTitle>
-          <EuiSpacer size="s" />
-        </EuiFlyoutHeader>
-        <EuiFlyoutBody>{contentToRender}</EuiFlyoutBody>
+        {headerToRender && (
+          <EuiFlyoutHeader hasBorder>
+            {headerToRender}
+            <EuiSpacer size="s" />
+          </EuiFlyoutHeader>
+        )}
+        <EuiFlyoutBody>{bodyToRender}</EuiFlyoutBody>
         <EuiFlyoutFooter>
           <EuiFlexGroup justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
