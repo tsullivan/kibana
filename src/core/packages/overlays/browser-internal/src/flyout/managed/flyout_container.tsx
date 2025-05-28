@@ -8,7 +8,11 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { UseManagedFlyoutApi, ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
+import {
+  UseManagedFlyoutApi,
+  ManagedFlyoutEntry,
+  FlyoutPropsExpected,
+} from '@kbn/core-overlays-browser';
 import useObservable from 'react-use/lib/useObservable';
 import {
   EuiButtonEmpty,
@@ -18,7 +22,6 @@ import {
   EuiFlyoutBody,
   EuiFlyoutFooter,
   EuiFlyoutHeader,
-  type EuiFlyoutProps,
   EuiSpacer,
 } from '@elastic/eui';
 import { managedFlyoutService } from './managed_flyout_service'; // Use generic ManagedFlyoutEntry
@@ -44,19 +47,19 @@ const FlyoutPanel = React.memo(
 
     const handleCloseFlyout = useCallback(() => managedFlyoutApi.closeFlyout(), [managedFlyoutApi]);
 
-    const bodyToRender = useMemo(
+    const bodyToRender = useMemo<React.ReactNode>(
       () => (entry && entry.renderBody ? entry.renderBody(managedFlyoutApi) : null),
       [entry, managedFlyoutApi]
     );
-    const headerToRender = useMemo(
+    const headerToRender = useMemo<React.ReactNode>(
       () => (entry && entry.renderHeader ? entry.renderHeader(managedFlyoutApi) : null),
       [entry, managedFlyoutApi]
     );
-    const flyoutProps = useMemo(
-      () => (entry && entry.flyoutProps ? entry.flyoutProps(managedFlyoutApi) : {}),
+    const flyoutProps = useMemo<FlyoutPropsExpected>(
+      () => (entry && entry.flyoutProps ? entry.flyoutProps(managedFlyoutApi) : { size: 400 }),
       [entry, managedFlyoutApi]
     );
-    const footerActions = useMemo(
+    const footerActions = useMemo<Record<string, React.ReactElement>>(
       () => (entry && entry.footerActions ? entry.footerActions(managedFlyoutApi) : {}),
       [entry, managedFlyoutApi]
     );
@@ -71,12 +74,18 @@ const FlyoutPanel = React.memo(
         onClose={handleCloseFlyout}
         hideCloseButton
         css={({ euiTheme }) => ({
-          right: positionRight + 'px',
+          right: positionRight,
           backgroundColor: level === 'child' ? euiTheme.colors.backgroundBaseSubdued : undefined,
         })}
-        size={level === 'child' ? 's' : flyoutProps.size || 'm'}
+        size={level === 'child' ? 's' : flyoutProps.size}
         type={level === 'child' ? 'overlay' : flyoutProps.type}
-        ownFocus={level === 'child' ? false : flyoutProps.ownFocus}
+        ownFocus={
+          level === 'child'
+            ? false
+            : typeof flyoutProps.ownFocus === 'undefined' && flyoutProps.type === 'push'
+            ? true
+            : flyoutProps.ownFocus
+        }
       >
         {headerToRender && (
           <EuiFlyoutHeader hasBorder>
@@ -108,43 +117,29 @@ const FlyoutPanel = React.memo(
   }
 );
 
-const calculateMainFlyoutWidth = (flyoutSize: EuiFlyoutProps['size'] = 'm') => {
-  if (flyoutSize && typeof flyoutSize === 'number') {
-    return flyoutSize;
-  }
-  switch (flyoutSize) {
-    case 'l':
-      return 1300;
-    case 'm':
-      return 870;
-    default:
-      return 435;
-  }
-};
-
 export const FlyoutContainer: React.FC<FlyoutContainerProps> = ({ managedFlyoutApi }) => {
   const flyout$ = managedFlyoutService.getFlyout$();
   const flyoutState = useObservable(flyout$, { main: null, child: null });
 
-  const mainFlyoutWidth = calculateMainFlyoutWidth(
-    flyoutState.main?.flyoutProps?.(managedFlyoutApi)?.size
+  const mainFlyoutWidth = useMemo(
+    () => flyoutState.main?.flyoutProps?.(managedFlyoutApi).size || 400,
+    [flyoutState.main, managedFlyoutApi]
   );
-  const childPanelRight = mainFlyoutWidth;
 
   return (
     <>
       <FlyoutPanel
         entry={flyoutState.main}
-        positionRight={0}
         level="main"
+        positionRight={0}
         managedFlyoutApi={managedFlyoutApi}
       />
 
       {flyoutState.main && (
         <FlyoutPanel
           entry={flyoutState.child}
-          positionRight={childPanelRight}
           level="child"
+          positionRight={mainFlyoutWidth}
           managedFlyoutApi={managedFlyoutApi}
         />
       )}

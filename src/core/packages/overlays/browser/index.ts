@@ -10,6 +10,7 @@
 export type { OverlayStart } from './src/overlays';
 export type { OverlayBannersStart } from './src/banners';
 export type {
+  FlyoutPropsExpected,
   OverlayFlyoutStart,
   OverlayFlyoutOpenOptions,
   ManagedFlyoutEntry,

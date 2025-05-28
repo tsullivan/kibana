@@ -42,11 +42,6 @@ interface StepProps {
 }
 
 const childFlyoutConfig = ({ isPushMode }: StepProps): ManagedFlyoutEntry => ({
-  renderHeader: () => (
-    <EuiTitle size="s">
-      <h2>Child Flyout</h2>
-    </EuiTitle>
-  ),
   renderBody: () => {
     return (
       <EuiText>
@@ -56,8 +51,8 @@ const childFlyoutConfig = ({ isPushMode }: StepProps): ManagedFlyoutEntry => ({
     );
   },
   flyoutProps: () => ({
-    ownFocus: false,
     type: isPushMode ? 'push' : 'overlay',
+    size: 300,
   }),
 });
 
@@ -83,8 +78,7 @@ const step1Config = (props: StepProps): ManagedFlyoutEntry => ({
     );
   },
   flyoutProps: () => ({
-    ownFocus: false,
-    size: 'm',
+    size: 400,
     type: props.isPushMode ? 'push' : 'overlay',
   }),
   footerActions: (managedFlyoutApi: UseManagedFlyoutApi) => ({
@@ -114,20 +108,10 @@ const step2Config = (props: StepProps): ManagedFlyoutEntry => ({
     );
   },
   flyoutProps: () => ({
-    ownFocus: false,
-    size: 'm',
+    size: 600,
     type: props.isPushMode ? 'push' : 'overlay',
   }),
   footerActions: (managedFlyoutApi: UseManagedFlyoutApi) => ({
-    openChildFlyout: (
-      <EuiButton
-        key="openChildFlyout"
-        onClick={() => managedFlyoutApi.openChildFlyout(childFlyoutConfig(props))}
-        color="primary"
-      >
-        Open Child Flyout
-      </EuiButton>
-    ),
     goBack: (
       <EuiButton
         key="goBack"
@@ -137,6 +121,15 @@ const step2Config = (props: StepProps): ManagedFlyoutEntry => ({
         data-test-subj="flyoutGoBackButton"
       >
         Go Back
+      </EuiButton>
+    ),
+    openChildFlyout: (
+      <EuiButton
+        key="openChildFlyout"
+        onClick={() => managedFlyoutApi.openChildFlyout(childFlyoutConfig(props))}
+        color="primary"
+      >
+        Open Child Flyout
       </EuiButton>
     ),
   }),
@@ -156,8 +149,8 @@ interface DemoFlyoutContextValue {
 const DemoFlyoutContext = createContext<DemoFlyoutContextValue | null>(null);
 
 const DemoFlyoutProvider: FC<DemoFlyoutContextProps> = ({ children, username$, isPushMode$ }) => {
-  const username = useObservable(username$) || 'Guest';
-  const isPushMode = useObservable(isPushMode$) || true;
+  const username = useObservable(username$, 'Guest');
+  const isPushMode = useObservable(isPushMode$, true);
   return (
     <DemoFlyoutContext.Provider value={{ children, username, isPushMode }}>
       {children}
@@ -193,13 +186,18 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
 
   useEffect(() => {
     usernameSubjectRef.current.next(username);
+  }, [username]);
+
+  useEffect(() => {
     isPushSubjectRef.current.next(isPushMode);
-  }, [username, isPushMode]);
+  }, [isPushMode]);
 
   useEffect(() => {
     const currentSubject = usernameSubjectRef.current;
+    const currentPushSubject = isPushSubjectRef.current;
     return () => {
       currentSubject.complete();
+      currentPushSubject.complete();
     };
   }, []);
 
@@ -207,7 +205,8 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
     openFlyout(step1Config({ username, isPushMode }));
   }, [openFlyout, username, isPushMode]);
 
-  const handleOpenAnotherDemoFlyout = useCallback(() => {
+  // Renders with a context provider, needs to set values from closure scope
+  const handleOpenReactiveDemoFlyout = useCallback(() => {
     openFlyout({
       renderBody: () => (
         <DemoFlyoutProvider
@@ -221,8 +220,8 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
         </DemoFlyoutProvider>
       ),
       flyoutProps: () => ({
-        ownFocus: false,
         type: isPushMode ? 'push' : 'overlay',
+        size: 800,
       }),
       footerActions: (managedFlyoutApi: UseManagedFlyoutApi) => ({
         openChildFlyout: (
@@ -245,10 +244,26 @@ export const Demo: FC<DemoDeps> = ({ overlays }) => {
   }, [isFlyoutOpen]);
 
   const buttonContent = [
-    { label: 'Open step-by-step flyout (step 1)', href: '#', onClick: handleOpenInitialFlyout },
-    { label: 'Open fresh flyout', href: '#', onClick: handleOpenAnotherDemoFlyout },
-    { label: 'Close flyout', href: '#', onClick: closeFlyout },
-    { label: 'Check flyout status', href: '#', onClick: handleCheckFlyoutStatus },
+    {
+      label: 'Open step-by-step flyout with header',
+      href: '#',
+      onClick: handleOpenInitialFlyout,
+    },
+    {
+      label: 'Open flyout with reactive state (no header)',
+      href: '#',
+      onClick: handleOpenReactiveDemoFlyout,
+    },
+    {
+      label: 'Close flyout',
+      href: '#',
+      onClick: closeFlyout,
+    },
+    {
+      label: 'Check flyout status (sync)',
+      href: '#',
+      onClick: handleCheckFlyoutStatus,
+    },
   ];
 
   return (
