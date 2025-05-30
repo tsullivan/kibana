@@ -11,7 +11,7 @@ import React from 'react';
 
 import type { EuiFlyoutProps, EuiFlyoutResizableProps } from '@elastic/eui';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
-import type { StateManager } from '@kbn/presentation-publishing';
+import type { StateManager } from '..';
 
 /**
  * APIs to open and manage fly-out dialogs.

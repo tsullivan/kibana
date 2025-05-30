@@ -7,6 +7,9 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import useObservable from 'react-use/lib/useObservable';
+
 import {
   EuiButtonEmpty,
   EuiFlexGroup,
@@ -17,13 +20,11 @@ import {
   EuiFlyoutHeader,
   EuiSpacer,
 } from '@elastic/eui';
-import {
+import type {
   FlyoutPropsEnhanced,
   ManagedFlyoutEntry,
   UseManagedFlyoutApi,
 } from '@kbn/core-overlays-browser';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import useObservable from 'react-use/lib/useObservable';
 
 import { managedFlyoutService } from './managed_flyout_service';
 import { useManagedFlyout } from './use_managed_flyout';

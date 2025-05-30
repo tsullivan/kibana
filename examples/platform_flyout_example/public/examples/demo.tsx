@@ -7,6 +7,8 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import React, { useCallback, useMemo, type FC } from 'react';
+
 import {
   EuiButton,
   EuiFieldText,
@@ -18,13 +20,11 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { ManagedFlyoutEntry, OverlayStart } from '@kbn/core-overlays-browser';
+import type { ManagedFlyoutEntry, OverlayStart, StateManager } from '@kbn/core-overlays-browser';
 import {
   initializeStateManager,
   useStateFromPublishingSubject,
-  type StateManager,
 } from '@kbn/presentation-publishing';
-import React, { useCallback, useMemo, type FC } from 'react';
 
 interface DemoDeps {
   overlays: OverlayStart;

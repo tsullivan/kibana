@@ -16,8 +16,11 @@ import type { I18nStart } from '@kbn/core-i18n-browser';
 import type { ThemeServiceStart } from '@kbn/core-theme-browser';
 import type { UserProfileService } from '@kbn/core-user-profile-browser';
 
-import { ManagedFlyoutEntry, ManagedFlyoutApi } from '@kbn/core-overlays-browser';
-import { StateManager } from '@kbn/presentation-publishing';
+import type {
+  ManagedFlyoutApi,
+  ManagedFlyoutEntry,
+  StateManager,
+} from '@kbn/core-overlays-browser';
 import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 import { FlyoutContainer } from './flyout_container';
 
