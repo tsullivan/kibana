@@ -57,47 +57,47 @@ const DataList: FC<StepProps> = ({ stateManager }) => {
 };
 
 const childFlyoutConfig: ManagedFlyoutEntry<StateType> = {
-  renderBody: ({ stateManager }) => {
+  renderBody: ({ getStateManager }) => {
     return (
       <EuiText>
         <h4>Child Flyout Content!</h4>
         <p>This panel is aligned to the left of the main flyout.</p>
-        <DataList stateManager={stateManager} />
+        <DataList stateManager={getStateManager()} />
       </EuiText>
     );
   },
 };
 
 const step1Config: ManagedFlyoutEntry<StateType> = {
-  flyoutProps: ({ stateManager }) => ({
+  flyoutProps: ({ getStateManager }) => ({
     size: 400,
-    type: stateManager.getLatestState().isPushMode ? 'push' : 'overlay',
+    type: getStateManager().getLatestState().isPushMode ? 'push' : 'overlay',
   }),
   renderHeader: () => (
     <EuiTitle size="m">
       <h2>Step 1: The initial flyout</h2>
     </EuiTitle>
   ),
-  renderBody: ({ nextFlyout, stateManager }) => {
+  renderBody: ({ nextFlyout, getStateManager }) => {
     const handleGoToStep2 = () => {
-      nextFlyout(step2Config, stateManager);
+      nextFlyout(step2Config);
     };
 
     return (
       <EuiText>
         <p>This is the first step in the flyout sequence.</p>
-        <DataList stateManager={stateManager} />
+        <DataList stateManager={getStateManager()} />
         <p>
           <EuiButton onClick={handleGoToStep2}>Go to Step 2</EuiButton>
         </p>
       </EuiText>
     );
   },
-  footerActions: ({ openChildFlyout, stateManager }) => ({
+  footerActions: ({ openChildFlyout }) => ({
     openChildFlyout: (
       <EuiButton
         key="openChildFlyout"
-        onClick={() => openChildFlyout(childFlyoutConfig, stateManager)}
+        onClick={() => openChildFlyout(childFlyoutConfig)}
         color="primary"
       >
         Open Child Flyout
@@ -107,24 +107,24 @@ const step1Config: ManagedFlyoutEntry<StateType> = {
 };
 
 const step2Config: ManagedFlyoutEntry<StateType> = {
-  flyoutProps: ({ stateManager }) => ({
+  flyoutProps: ({ getStateManager }) => ({
     size: 600,
-    type: stateManager.getLatestState().isPushMode ? 'push' : 'overlay',
+    type: getStateManager().getLatestState().isPushMode ? 'push' : 'overlay',
   }),
   renderHeader: () => (
     <EuiTitle size="m">
       <h2>Step 2: The second flyout</h2>
     </EuiTitle>
   ),
-  renderBody: ({ stateManager }) => {
+  renderBody: ({ getStateManager }) => {
     return (
       <EuiText>
         <p>This is the second step in the flyout sequence.</p>
-        <DataList stateManager={stateManager} />
+        <DataList stateManager={getStateManager()} />
       </EuiText>
     );
   },
-  footerActions: ({ goBack, openChildFlyout, stateManager }) => ({
+  footerActions: ({ goBack, openChildFlyout }) => ({
     goBack: (
       <EuiButton
         key="goBack"
@@ -139,7 +139,7 @@ const step2Config: ManagedFlyoutEntry<StateType> = {
     openChildFlyout: (
       <EuiButton
         key="openChildFlyout"
-        onClick={() => openChildFlyout(childFlyoutConfig, stateManager)}
+        onClick={() => openChildFlyout(childFlyoutConfig)}
         color="primary"
       >
         Open Child Flyout
@@ -149,8 +149,8 @@ const step2Config: ManagedFlyoutEntry<StateType> = {
 };
 
 const complexFlyoutConfig: ManagedFlyoutEntry<StateType> = {
-  flyoutProps: ({ stateManager }) => ({
-    type: stateManager.getLatestState().isPushMode ? 'push' : 'overlay',
+  flyoutProps: ({ getStateManager }) => ({
+    type: getStateManager().getLatestState().isPushMode ? 'push' : 'overlay',
     size: 800,
   }),
   renderBody: () => {
@@ -165,11 +165,11 @@ const complexFlyoutConfig: ManagedFlyoutEntry<StateType> = {
 
     return <ComplexComponent />;
   },
-  footerActions: ({ openChildFlyout, stateManager }) => ({
+  footerActions: ({ openChildFlyout }) => ({
     openChildFlyout: (
       <EuiButton
         key="openChildFlyout"
-        onClick={() => openChildFlyout(childFlyoutConfig, stateManager)}
+        onClick={() => openChildFlyout(childFlyoutConfig)}
         color="primary"
       >
         Open Child Flyout

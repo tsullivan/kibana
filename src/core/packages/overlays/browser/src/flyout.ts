@@ -45,19 +45,23 @@ export type OverlayFlyoutOpenOptions = Omit<
   isResizable?: boolean;
 };
 
-export interface UseManagedFlyoutApi<StateType extends object = {}> {
-  openFlyout: (entry: ManagedFlyoutEntry<StateType>, stateManager: StateManager<StateType>) => void;
-  nextFlyout: (entry: ManagedFlyoutEntry<StateType>, stateManager: StateManager<StateType>) => void;
-  openChildFlyout: (
+export interface ManagedFlyoutApi<StateType extends object = {}> {
+  openFlyout: (
     entry: ManagedFlyoutEntry<StateType>,
-    stateManager: StateManager<StateType>
+    stateManager?: StateManager<StateType>
   ) => void;
+  nextFlyout: (entry: ManagedFlyoutEntry<StateType>) => void;
+  openChildFlyout: (entry: ManagedFlyoutEntry<StateType>) => void;
   closeFlyout: () => void;
   isFlyoutOpen: () => boolean;
   goBack: () => void;
   canGoBack: () => boolean;
   closeChildFlyout: () => void;
-  stateManager: StateManager<StateType>;
+}
+
+export interface UseManagedFlyoutApi<StateType extends object = {}>
+  extends ManagedFlyoutApi<StateType> {
+  getStateManager: () => StateManager<StateType>;
 }
 
 export type FlyoutPropsEnhanced = Omit<EuiFlyoutProps, 'onClose' | 'hideCloseButton' | 'size'> & {

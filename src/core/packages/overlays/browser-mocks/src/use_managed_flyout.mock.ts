@@ -7,9 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
-
-export const useManagedFlyoutMock = jest.fn<UseManagedFlyoutApi, []>(() => ({
+export const useManagedFlyoutMock = jest.fn(() => ({
   openFlyout: jest.fn(),
   closeFlyout: jest.fn(),
   isFlyoutOpen: jest.fn(() => false),
@@ -18,4 +16,5 @@ export const useManagedFlyoutMock = jest.fn<UseManagedFlyoutApi, []>(() => ({
   canGoBack: jest.fn(() => false),
   openChildFlyout: jest.fn(),
   closeChildFlyout: jest.fn(),
+  getStateManager: jest.fn(),
 }));

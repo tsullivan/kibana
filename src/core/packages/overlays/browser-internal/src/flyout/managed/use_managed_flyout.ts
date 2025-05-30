@@ -7,15 +7,19 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
 import { useMemo } from 'react';
+import useObservable from 'react-use/lib/useObservable';
+import { filter } from 'rxjs';
+
+import type { StateManager, UseManagedFlyoutApi } from '@kbn/core-overlays-browser';
 
 // Get the singleton service instance
-import useObservable from 'react-use/lib/useObservable';
 import { managedFlyoutService as service } from './managed_flyout_service';
 
 export function useManagedFlyout<StateType extends object>(): UseManagedFlyoutApi<StateType> {
-  const stateManager = useObservable(service.getStateManager$<StateType>());
+  const stateManager = useObservable(
+    service.getStateManager$().pipe(filter(Boolean))
+  ) as StateManager<StateType> | null;
 
   return useMemo(
     () => ({
@@ -27,7 +31,12 @@ export function useManagedFlyout<StateType extends object>(): UseManagedFlyoutAp
       goBack: service.goBack.bind(service),
       canGoBack: service.canGoBack.bind(service),
       closeChildFlyout: service.closeChildFlyout.bind(service),
-      stateManager: stateManager!, // Fixme?
+      getStateManager: () => {
+        if (!stateManager) {
+          throw new Error('State manager not initialized');
+        }
+        return stateManager;
+      },
     }),
     [stateManager]
   );

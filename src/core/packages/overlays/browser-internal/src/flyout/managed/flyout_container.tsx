@@ -44,6 +44,10 @@ const FlyoutPanel = React.memo(
     }, [entry]);
 
     const handleCloseFlyout = useCallback(() => managedFlyoutApi.closeFlyout(), [managedFlyoutApi]);
+    const handleCloseChildFlyout = useCallback(
+      () => managedFlyoutApi.closeChildFlyout(),
+      [managedFlyoutApi]
+    );
 
     const bodyToRender = useMemo<React.ReactNode>(
       () => (entry && entry.renderBody ? entry.renderBody(managedFlyoutApi) : null),
@@ -95,7 +99,11 @@ const FlyoutPanel = React.memo(
         <EuiFlyoutFooter>
           <EuiFlexGroup justifyContent="spaceBetween">
             <EuiFlexItem grow={false}>
-              <EuiButtonEmpty iconType="cross" onClick={handleCloseFlyout} flush="left">
+              <EuiButtonEmpty
+                iconType="cross"
+                onClick={level === 'main' ? handleCloseFlyout : handleCloseChildFlyout}
+                flush="left"
+              >
                 Close
               </EuiButtonEmpty>
             </EuiFlexItem>

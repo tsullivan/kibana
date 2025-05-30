@@ -16,7 +16,7 @@ import type { I18nStart } from '@kbn/core-i18n-browser';
 import type { ThemeServiceStart } from '@kbn/core-theme-browser';
 import type { UserProfileService } from '@kbn/core-user-profile-browser';
 
-import { ManagedFlyoutEntry } from '@kbn/core-overlays-browser';
+import { ManagedFlyoutEntry, ManagedFlyoutApi } from '@kbn/core-overlays-browser';
 import { StateManager } from '@kbn/presentation-publishing';
 import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 import { FlyoutContainer } from './flyout_container';
@@ -46,7 +46,7 @@ interface HistoryEntry {
   child: ManagedFlyoutEntry | null;
 }
 
-export class ManagedFlyoutService {
+export class ManagedFlyoutService implements ManagedFlyoutApi<any> {
   private stateManager$ = new Subject<StateManager<any>>();
   private flyout$ = new Subject<FlyoutState>();
   private isOpen$ = new BehaviorSubject<boolean>(false);
@@ -88,8 +88,10 @@ export class ManagedFlyoutService {
     this.isStarted = true;
   }
 
-  public openFlyout(entry: ManagedFlyoutEntry, stateManager: StateManager<any>): void {
-    this.stateManager$.next(stateManager);
+  public openFlyout(entry: ManagedFlyoutEntry, stateManager?: StateManager<any>): void {
+    if (stateManager) {
+      this.stateManager$.next(stateManager);
+    }
     this.initializeFlyout(entry);
   }
 
@@ -97,16 +99,14 @@ export class ManagedFlyoutService {
     this.initializeFlyout(null);
   }
 
-  public nextFlyout(entry: ManagedFlyoutEntry, stateManager: StateManager<any>): void {
-    this.stateManager$.next(stateManager);
+  public nextFlyout(entry: ManagedFlyoutEntry): void {
     this.navigateToFlyout(entry);
   }
 
-  public openChildFlyout(entry: ManagedFlyoutEntry, stateManager: StateManager<any>): void {
+  public openChildFlyout(entry: ManagedFlyoutEntry): void {
     if (!this._currentMainEntry) {
       return;
     }
-    this.stateManager$.next(stateManager);
     this._childFlyoutEntry = entry;
     this._emitFlyoutState();
   }
