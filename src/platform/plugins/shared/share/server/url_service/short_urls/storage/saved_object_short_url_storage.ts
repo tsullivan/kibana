@@ -9,7 +9,7 @@
 
 import type { SerializableRecord } from '@kbn/utility-types';
 import { SavedObject, SavedObjectReference, SavedObjectsClientContract } from '@kbn/core/server';
-import { LEGACY_SHORT_URL_LOCATOR_ID } from '@kbn/shared-ux-utility';
+import { LEGACY_SHORT_URL_LOCATOR_ID } from '@kbn/shared-ux-locators';
 import { ShortUrlRecord } from '..';
 import { UrlServiceError } from '../..';
 import { ShortUrlData } from '../../../../common/url_service/short_urls/types';

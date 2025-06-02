@@ -13,7 +13,7 @@ import { CoreSetup, Plugin, PluginInitializerContext } from '@kbn/core/server';
 import {
   LegacyShortUrlLocatorDefinition,
   ShortUrlRedirectLocatorDefinition,
-} from '@kbn/shared-ux-utility';
+} from '@kbn/shared-ux-locators';
 import { CSV_SEPARATOR_SETTING, CSV_QUOTE_VALUES_SETTING } from '../common/constants';
 import { UrlService } from '../common/url_service';
 import {

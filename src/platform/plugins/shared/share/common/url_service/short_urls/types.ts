@@ -8,7 +8,7 @@
  */
 
 import type { SerializableRecord } from '@kbn/utility-types';
-import type { LocatorPublic, ILocatorClient, LocatorData } from '@kbn/shared-ux-utility';
+import type { LocatorPublic, ILocatorClient, LocatorData } from '@kbn/shared-ux-locators';
 
 /**
  * A factory for Short URL Service. We need this factory as the dependency
