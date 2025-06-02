@@ -8,8 +8,8 @@
  */
 
 import type { SerializableRecord } from '@kbn/utility-types';
-import type { KibanaLocation, LocatorDefinition } from '..';
 import { shortUrlAssertValid } from './short_url_assert_valid';
+import { KibanaLocation, LocatorDefinition } from './types';
 
 export const LEGACY_SHORT_URL_LOCATOR_ID = 'LEGACY_SHORT_URL_LOCATOR';
 

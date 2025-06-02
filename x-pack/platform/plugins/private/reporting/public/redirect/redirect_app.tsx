@@ -10,14 +10,15 @@ import type { FunctionComponent } from 'react';
 import React, { useEffect, useState } from 'react';
 
 import { EuiCallOut, EuiCodeBlock, UseEuiTheme } from '@elastic/eui';
-import { i18n } from '@kbn/i18n';
 import { css } from '@emotion/react';
+import { i18n } from '@kbn/i18n';
 
 import { REPORTING_REDIRECT_LOCATOR_STORE_KEY } from '@kbn/reporting-common';
 import { LocatorParams } from '@kbn/reporting-common/types';
-import type { ScreenshotModePluginSetup } from '@kbn/screenshot-mode-plugin/public';
-
 import { ReportingAPIClient } from '@kbn/reporting-public';
+import type { ScreenshotModePluginSetup } from '@kbn/screenshot-mode-plugin/public';
+import { LEGACY_SHORT_URL_LOCATOR_ID } from '@kbn/shared-ux-utility';
+
 import type { SharePluginSetup } from '../shared_imports';
 
 interface Props {
@@ -63,7 +64,7 @@ export const RedirectApp: FunctionComponent<Props> = ({ apiClient, screenshotMod
 
         // Do not allow locatorParams to use LEGACY_SHORT_URL_LOCATOR
         // See {@link src/platform/plugins/shared/share/common/url_service/locators/legacy_short_url_locator.ts}
-        if (locatorParams.id === 'LEGACY_SHORT_URL_LOCATOR') {
+        if (locatorParams.id === LEGACY_SHORT_URL_LOCATOR_ID) {
           throw new Error('The legacy short URL locator is not supported for opening report URLs.');
         }
 

@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { LocatorClient, LocatorClientDependencies } from './locators';
+import { LocatorClient, LocatorClientDependencies } from '@kbn/shared-ux-utility';
 import {
   IShortUrlClientFactoryProvider,
   IShortUrlClientFactory,

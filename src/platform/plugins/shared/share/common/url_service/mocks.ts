@@ -9,7 +9,7 @@
 
 /* eslint-disable max-classes-per-file */
 
-import type { LocatorDefinition, KibanaLocation } from '.';
+import type { LocatorDefinition, KibanaLocation } from '@kbn/shared-ux-utility';
 import { UrlService } from '.';
 
 export class MockUrlService extends UrlService {

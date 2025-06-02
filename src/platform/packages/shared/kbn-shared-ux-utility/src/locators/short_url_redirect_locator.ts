@@ -8,9 +8,9 @@
  */
 
 import type { SerializableRecord } from '@kbn/utility-types';
-import type { KibanaLocation, LocatorDefinition } from '..';
+import { KibanaLocation, LocatorDefinition } from './types';
 
-export const SHORT_URL_REDIRECT_LOCATOR = 'SHORT_URL_REDIRECT_LOCATOR';
+export const SHORT_URL_REDIRECT_LOCATOR_ID = 'SHORT_URL_REDIRECT_LOCATOR';
 
 export interface ShortUrlRedirectLocatorParams extends SerializableRecord {
   slug: string;
@@ -22,7 +22,7 @@ export interface ShortUrlRedirectLocatorParams extends SerializableRecord {
 export class ShortUrlRedirectLocatorDefinition
   implements LocatorDefinition<ShortUrlRedirectLocatorParams>
 {
-  public readonly id = SHORT_URL_REDIRECT_LOCATOR;
+  public readonly id = SHORT_URL_REDIRECT_LOCATOR_ID;
 
   public async getLocation(params: ShortUrlRedirectLocatorParams): Promise<KibanaLocation> {
     const { slug } = params;
