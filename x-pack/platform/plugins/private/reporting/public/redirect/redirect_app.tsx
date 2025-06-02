@@ -13,7 +13,6 @@ import { EuiCallOut, EuiCodeBlock, UseEuiTheme } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { css } from '@emotion/react';
 
-import type { ScopedHistory } from '@kbn/core/public';
 import { REPORTING_REDIRECT_LOCATOR_STORE_KEY } from '@kbn/reporting-common';
 import { LocatorParams } from '@kbn/reporting-common/types';
 import type { ScreenshotModePluginSetup } from '@kbn/screenshot-mode-plugin/public';
@@ -23,7 +22,6 @@ import type { SharePluginSetup } from '../shared_imports';
 
 interface Props {
   apiClient: ReportingAPIClient;
-  history: ScopedHistory;
   screenshotMode: ScreenshotModePluginSetup;
   share: SharePluginSetup;
 }
@@ -63,12 +61,17 @@ export const RedirectApp: FunctionComponent<Props> = ({ apiClient, screenshotMod
           throw new Error('Could not find locator params for report');
         }
 
+        // Do not allow locatorParams to use LEGACY_SHORT_URL_LOCATOR
+        // See {@link src/platform/plugins/shared/share/common/url_service/locators/legacy_short_url_locator.ts}
+        if (locatorParams.id === 'LEGACY_SHORT_URL_LOCATOR') {
+          throw new Error('The legacy short URL locator is not supported for opening report URLs.');
+        }
+
         share.navigate(locatorParams);
       } catch (e) {
         setError(e);
         // eslint-disable-next-line no-console
         console.error(i18nTexts.consoleMessagePrefix, e.message);
-        throw e;
       }
     })();
   }, [apiClient, screenshotMode, share]);
