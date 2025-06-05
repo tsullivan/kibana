@@ -7,6 +7,14 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { shouldLogStateDiff, logStateDiff } from './state_diff_logger';
-export { areComparatorsEqual, diffComparators, runComparator } from './state_comparators';
-export { initializeStateManager } from './state_manager';
+export const useManagedFlyoutMock = jest.fn(() => ({
+  openFlyout: jest.fn(),
+  closeFlyout: jest.fn(),
+  isFlyoutOpen: jest.fn(() => false),
+  nextFlyout: jest.fn(),
+  goBack: jest.fn(),
+  canGoBack: jest.fn(() => false),
+  openChildFlyout: jest.fn(),
+  closeChildFlyout: jest.fn(),
+  getStateManager: jest.fn(),
+}));

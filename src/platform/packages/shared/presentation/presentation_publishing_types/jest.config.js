@@ -7,6 +7,8 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { shouldLogStateDiff, logStateDiff } from './state_diff_logger';
-export { areComparatorsEqual, diffComparators, runComparator } from './state_comparators';
-export { initializeStateManager } from './state_manager';
+module.exports = {
+  preset: '@kbn/test/jest_node',
+  rootDir: '../../../../../..',
+  roots: ['<rootDir>/src/platform/packages/shared/presentation/presentation_publishing_types'],
+};

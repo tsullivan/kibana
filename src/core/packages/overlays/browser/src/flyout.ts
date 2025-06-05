@@ -7,8 +7,11 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import React from 'react';
+
 import type { EuiFlyoutProps, EuiFlyoutResizableProps } from '@elastic/eui';
 import type { MountPoint, OverlayRef } from '@kbn/core-mount-utils-browser';
+import type { StateManager } from '@kbn/presentation-publishing-types';
 
 /**
  * APIs to open and manage fly-out dialogs.
@@ -41,3 +44,35 @@ export type OverlayFlyoutOpenOptions = Omit<
   onClose?: (flyout: OverlayRef) => void;
   isResizable?: boolean;
 };
+
+export interface ManagedFlyoutApi<StateType extends object = {}> {
+  openFlyout: (
+    entry: ManagedFlyoutEntry<StateType>,
+    stateManager?: StateManager<StateType>
+  ) => void;
+  nextFlyout: (entry: ManagedFlyoutEntry<StateType>) => void;
+  openChildFlyout: (entry: ManagedFlyoutEntry<StateType>) => void;
+  closeFlyout: () => void;
+  isFlyoutOpen: () => boolean;
+  goBack: () => void;
+  canGoBack: () => boolean;
+  closeChildFlyout: () => void;
+}
+
+export interface UseManagedFlyoutApi<StateType extends object = {}>
+  extends ManagedFlyoutApi<StateType> {
+  getStateManager: () => StateManager<StateType>;
+}
+
+export type FlyoutPropsEnhanced = Omit<EuiFlyoutProps, 'onClose' | 'hideCloseButton' | 'size'> & {
+  size: number;
+};
+
+type FooterActions = Record<string, React.ReactElement>;
+
+export interface ManagedFlyoutEntry<StateType extends object = any> {
+  flyoutProps?: (managedFlyoutApi: UseManagedFlyoutApi<StateType>) => FlyoutPropsEnhanced;
+  renderBody: (managedFlyoutApi: UseManagedFlyoutApi<StateType>) => React.ReactElement;
+  renderHeader?: (managedFlyoutApi: UseManagedFlyoutApi<StateType>) => React.ReactElement;
+  footerActions?: (managedFlyoutApi: UseManagedFlyoutApi<StateType>) => FooterActions;
+}

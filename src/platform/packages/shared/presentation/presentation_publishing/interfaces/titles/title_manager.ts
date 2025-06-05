@@ -7,9 +7,8 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { WithAllKeys } from '../../state_manager';
+import { StateComparators, StateManager, WithAllKeys } from '@kbn/presentation-publishing-types';
 import { initializeStateManager } from '../../state_manager/state_manager';
-import { StateComparators, StateManager } from '../../state_manager/types';
 import { PublishesWritableDescription } from './publishes_description';
 import { PublishesTitle, PublishesWritableTitle } from './publishes_title';
 

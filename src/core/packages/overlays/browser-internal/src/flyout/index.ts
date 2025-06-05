@@ -8,3 +8,4 @@
  */
 
 export { FlyoutService } from './flyout_service';
+export { ManagedFlyoutService } from './managed';

@@ -6574,6 +6574,10 @@
   version "0.0.0"
   uid ""
 
+"@kbn/platform-flyout-examples-plugin@link:examples/platform_flyout_example":
+  version "0.0.0"
+  uid ""
+
 "@kbn/plugin-check@link:packages/kbn-plugin-check":
   version "0.0.0"
   uid ""
@@ -6599,6 +6603,10 @@
   uid ""
 
 "@kbn/presentation-panel-plugin@link:src/platform/plugins/private/presentation_panel":
+  version "0.0.0"
+  uid ""
+
+"@kbn/presentation-publishing-types@link:src/platform/packages/shared/presentation/presentation_publishing_types":
   version "0.0.0"
   uid ""
 

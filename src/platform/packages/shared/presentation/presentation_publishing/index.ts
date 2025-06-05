@@ -10,9 +10,6 @@
 export { isEmbeddableApiContext, type EmbeddableApiContext } from './embeddable_api_context';
 
 export {
-  type ComparatorFunction,
-  type StateComparators,
-  type WithAllKeys,
   runComparator,
   areComparatorsEqual,
   diffComparators,
@@ -157,5 +154,4 @@ export {
   useBatchedPublishingSubjects,
   usePublishingSubject,
   useStateFromPublishingSubject,
-  type PublishingSubject,
 } from './publishing_subject';

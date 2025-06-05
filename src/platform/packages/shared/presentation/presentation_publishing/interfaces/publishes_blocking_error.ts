@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { PublishingSubject } from '../publishing_subject';
+import { PublishingSubject } from '@kbn/presentation-publishing-types';
 
 export interface PublishesBlockingError {
   blockingError$: PublishingSubject<Error | undefined>;
