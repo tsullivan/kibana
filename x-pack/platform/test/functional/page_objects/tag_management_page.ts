@@ -451,6 +451,13 @@ export class TagManagementPageObject extends FtrService {
   async openActionMenu() {
     if (!(await this.isActionMenuOpened())) {
       await this.toggleActionMenu();
+
+      // Wait and retry until the menu is actually open
+      await this.retry.try(async () => {
+        if (!(await this.isActionMenuOpened())) {
+          throw new Error('Action menu did not open after clicking the menu button');
+        }
+      });
     }
   }
 
