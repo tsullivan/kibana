@@ -165,7 +165,8 @@ export function openSearchSessionsFlyout({
       title: 'Background searches',
       size: FLYOUT_WIDTH,
       type: 'overlay',
-      ownFocus: false,
+      ownFocus: true,
+      outsideClickCloses: true,
       onClose: () => {
         // Background searches flyout closed
       },
