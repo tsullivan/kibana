@@ -162,6 +162,7 @@ export function openSearchSessionsFlyout({
     };
 
     const flyout = coreStart.overlays.openSystemFlyout(<FlyoutContent />, {
+      id: 'searchSessionsMgmtFlyout',
       title: 'Background searches',
       size: FLYOUT_WIDTH,
       type: 'overlay',
