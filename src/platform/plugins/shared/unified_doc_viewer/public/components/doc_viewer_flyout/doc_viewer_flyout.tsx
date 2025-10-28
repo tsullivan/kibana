@@ -269,7 +269,7 @@ export function UnifiedDocViewerFlyout({
         type={flyoutType ?? 'push'}
         size={flyoutWidth}
         resizable={true}
-        session="never"
+        session="start"
         pushMinBreakpoint="xl"
         data-test-subj={dataTestSubj ?? 'docViewerFlyout'}
         onKeyDown={onKeyDown}
