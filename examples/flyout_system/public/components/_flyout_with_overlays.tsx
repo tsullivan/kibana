@@ -43,7 +43,7 @@ export interface FlyoutFromOverlaysProps {
   rendering: RenderingService;
 }
 
-interface FlyoutSessionProps {
+interface SessionFlyoutProps {
   title: string;
   mainSize: 's' | 'm' | 'l' | 'fill';
   mainMaxWidth?: number;
@@ -52,7 +52,7 @@ interface FlyoutSessionProps {
   overlays: OverlayStart;
 }
 
-const ChildFlyoutContent: React.FC<Pick<FlyoutSessionProps, 'childSize' | 'childMaxWidth'>> =
+const ChildFlyoutContent: React.FC<Pick<SessionFlyoutProps, 'childSize' | 'childMaxWidth'>> =
   React.memo((props) => {
     const { childSize, childMaxWidth } = props;
 
@@ -64,7 +64,7 @@ const ChildFlyoutContent: React.FC<Pick<FlyoutSessionProps, 'childSize' | 'child
             <EuiCode>openSystemFlyout</EuiCode> method.
           </p>
         </EuiText>
-        <EuiSpacer size="s" />
+        <EuiSpacer size="m" />
         <EuiDescriptionList
           type="column"
           listItems={createChildFlyoutDescriptionItems(
@@ -84,9 +84,9 @@ interface FlyoutContentProps {
   mainSize: 's' | 'm' | 'l' | 'fill';
   mainMaxWidth?: number;
   childSize?: 's' | 'm' | 'fill';
-  isChildFlyoutOpen: boolean;
-  handleCloseChildFlyout: () => void;
-  openChildFlyout: () => void;
+  childMaxWidth?: number;
+  overlays: OverlayStart;
+  childFlyoutRef: React.MutableRefObject<OverlayRef | null>;
   handleCloseFlyout: () => void;
 }
 
@@ -98,85 +98,13 @@ const FlyoutContent: React.FC<FlyoutContentProps> = React.memo((props) => {
     mainSize,
     mainMaxWidth,
     childSize,
-    isChildFlyoutOpen,
-    handleCloseChildFlyout,
-    openChildFlyout,
+    childMaxWidth,
+    overlays,
+    childFlyoutRef,
     handleCloseFlyout,
   } = props;
 
-  return (
-    <>
-      <EuiFlyoutHeader>
-        <EuiTitle>
-          <h2 id={`flyoutHeading-${title}`}>Flyout {title}</h2>
-        </EuiTitle>
-      </EuiFlyoutHeader>
-      <EuiFlyoutBody>
-        <EuiText>
-          <p>
-            This flyout uses the <EuiCode>openSystemFlyout</EuiCode> service with full EUI Flyout
-            Manager integration.
-          </p>
-        </EuiText>
-        <EuiSpacer size="s" />
-        <EuiDescriptionList
-          type="column"
-          listItems={createMainFlyoutDescriptionItems(
-            flyoutType,
-            flyoutOwnFocus,
-            mainSize,
-            mainMaxWidth,
-            <EuiCode>openSystemFlyout</EuiCode>
-          )}
-        />
-        <EuiSpacer />
-        {childSize && (
-          <EuiButton onClick={isChildFlyoutOpen ? handleCloseChildFlyout : openChildFlyout}>
-            {isChildFlyoutOpen ? 'Close child flyout' : 'Open child flyout'}
-          </EuiButton>
-        )}
-      </EuiFlyoutBody>
-      <EuiFlyoutFooter>
-        <EuiFlexGroup justifyContent="flexEnd">
-          <EuiFlexItem grow={false}>
-            <EuiButtonEmpty onClick={handleCloseFlyout} aria-label="Close">
-              Close
-            </EuiButtonEmpty>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-      </EuiFlyoutFooter>
-    </>
-  );
-});
-
-const FlyoutSession: React.FC<FlyoutSessionProps> = React.memo((props) => {
-  const { title, mainSize, childSize, mainMaxWidth, childMaxWidth, overlays } = props;
-
-  const [flyoutType, setFlyoutType] = useState<'overlay' | 'push'>('overlay');
-  const [flyoutOwnFocus, setFlyoutOwnFocus] = useState<boolean>(false);
-  const [isFlyoutOpen, setIsFlyoutOpen] = useState<boolean>(false);
   const [isChildFlyoutOpen, setIsChildFlyoutOpen] = useState<boolean>(false);
-  const flyoutRef = useRef<OverlayRef | null>(null);
-  const childFlyoutRef = useRef<OverlayRef | null>(null);
-
-  // Callbacks for state synchronization
-  const mainFlyoutOnActive = useCallback(() => {
-    console.log('activate main flyout', title); // eslint-disable-line no-console
-  }, [title]);
-
-  const mainFlyoutOnClose = useCallback(() => {
-    console.log('close main flyout', title); // eslint-disable-line no-console
-
-    // Close child flyout if it's open
-    if (childFlyoutRef.current) {
-      childFlyoutRef.current.close();
-      childFlyoutRef.current = null;
-      setIsChildFlyoutOpen(false);
-    }
-
-    flyoutRef.current = null;
-    setIsFlyoutOpen(false);
-  }, [title]);
 
   const handleCloseChildFlyout = useCallback(() => {
     if (childFlyoutRef.current) {
@@ -184,23 +112,7 @@ const FlyoutSession: React.FC<FlyoutSessionProps> = React.memo((props) => {
       childFlyoutRef.current = null;
       setIsChildFlyoutOpen(false);
     }
-  }, []);
-
-  const handleCloseFlyout = useCallback(() => {
-    // Close child flyout first if it's open
-    if (childFlyoutRef.current) {
-      childFlyoutRef.current.close();
-      childFlyoutRef.current = null;
-      setIsChildFlyoutOpen(false);
-    }
-
-    // Then close main flyout
-    if (flyoutRef.current) {
-      flyoutRef.current.close();
-      flyoutRef.current = null;
-      setIsFlyoutOpen(false);
-    }
-  }, []);
+  }, [childFlyoutRef]);
 
   const openChildFlyout = useCallback(() => {
     if (childSize) {
@@ -224,7 +136,143 @@ const FlyoutSession: React.FC<FlyoutSessionProps> = React.memo((props) => {
       );
       setIsChildFlyoutOpen(true);
     }
-  }, [childSize, childMaxWidth, overlays, title]);
+  }, [childSize, childMaxWidth, overlays, title, childFlyoutRef]);
+
+  return (
+    <>
+      <EuiFlyoutHeader hasBorder>
+        <EuiTitle>
+          <h2 id={`flyoutHeading-${title}`}>
+            Flyout with <EuiCode>openSystemFlyout</EuiCode>: {title}
+          </h2>
+        </EuiTitle>
+      </EuiFlyoutHeader>
+      <EuiFlyoutBody>
+        <EuiDescriptionList
+          type="column"
+          listItems={createMainFlyoutDescriptionItems(
+            flyoutType,
+            flyoutOwnFocus,
+            mainSize,
+            mainMaxWidth,
+            <EuiCode>openSystemFlyout</EuiCode>
+          )}
+        />
+        <EuiSpacer size="m" />
+        <EuiText>
+          <p>
+            Below is some filler content to demonstrate scrolling behavior.
+            {childSize && (
+              <>
+                {' '}
+                Scroll down to access the button to <strong>open the child flyout</strong>.
+              </>
+            )}
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          </p>
+          <p>
+            Sed vel lacus id magna laoreet aliquam. Praesent aliquam in tellus eu pellentesque.
+            Nulla facilisi. Sed pulvinar, massa vitae interdum pulvinar, risus lectus porta nunc,
+            vel efficitur turpis odio nec nisi. Donec nec justo eget felis facilisis fermentum.
+            Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis, non
+            volutpat arcu. Morbi a enim in magna semper bibendum. Etiam scelerisque, nunc ac egestas
+            consequat, odio nibh euismod nulla, eget auctor orci nibh vel nisi. Aliquam erat
+            volutpat. Mauris vel neque sit amet nunc gravida congue sed sit amet purus. Quisque
+            lacus quam, egestas ac tincidunt a, lacinia vel velit. Aenean facilisis nulla vitae urna
+            tincidunt congue sed ut dui. Morbi malesuada nulla nec purus convallis consequat.
+            Vivamus id mollis quam. Morbi ac commodo nulla.
+          </p>
+          <p>
+            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+            nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+            officia deserunt mollit anim id est laborum.
+          </p>
+          <p>
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
+            laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
+            architecto beatae vitae dicta sunt explicabo.
+          </p>
+          <p>
+            Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia
+            consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+          </p>
+          <p>
+            Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci
+            velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam
+            aliquam quaerat voluptatem. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+            do eiusmod tempor incididunt ut labore et dolore magna aliqua. Aliquam quaerat
+            voluptatem.
+          </p>
+          <p>
+            Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit
+            laboriosam, nisi ut aliquid ex ea commodi consequatur?
+          </p>
+        </EuiText>
+        <EuiSpacer />
+        {childSize && (
+          <EuiButton onClick={isChildFlyoutOpen ? handleCloseChildFlyout : openChildFlyout}>
+            {isChildFlyoutOpen ? 'Close child flyout' : 'Open child flyout'}
+          </EuiButton>
+        )}
+      </EuiFlyoutBody>
+      <EuiFlyoutFooter>
+        <EuiFlexGroup justifyContent="flexEnd">
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty onClick={handleCloseFlyout} aria-label="Close">
+              Close
+            </EuiButtonEmpty>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiFlyoutFooter>
+    </>
+  );
+});
+
+const SessionFlyout: React.FC<SessionFlyoutProps> = React.memo((props) => {
+  const { title, mainSize, childSize, mainMaxWidth, childMaxWidth, overlays } = props;
+
+  const [flyoutType, setFlyoutType] = useState<'overlay' | 'push'>('overlay');
+  const [flyoutOwnFocus, setFlyoutOwnFocus] = useState<boolean>(false);
+  const [isFlyoutOpen, setIsFlyoutOpen] = useState<boolean>(false);
+  const flyoutRef = useRef<OverlayRef | null>(null);
+  const childFlyoutRef = useRef<OverlayRef | null>(null);
+
+  // Callbacks for state synchronization
+  const mainFlyoutOnActive = useCallback(() => {
+    console.log('activate main flyout', title); // eslint-disable-line no-console
+  }, [title]);
+
+  const mainFlyoutOnClose = useCallback(() => {
+    console.log('close main flyout', title); // eslint-disable-line no-console
+
+    // Close child flyout if it's open
+    if (childFlyoutRef.current) {
+      childFlyoutRef.current.close();
+      childFlyoutRef.current = null;
+    }
+
+    flyoutRef.current = null;
+    setIsFlyoutOpen(false);
+  }, [title]);
+
+  const handleCloseFlyout = useCallback(() => {
+    // Close child flyout first if it's open
+    if (childFlyoutRef.current) {
+      childFlyoutRef.current.close();
+      childFlyoutRef.current = null;
+    }
+
+    // Then close main flyout
+    if (flyoutRef.current) {
+      flyoutRef.current.close();
+      flyoutRef.current = null;
+      setIsFlyoutOpen(false);
+    }
+  }, []);
 
   const openFlyout = useCallback(() => {
     flyoutRef.current = overlays.openSystemFlyout(
@@ -235,9 +283,9 @@ const FlyoutSession: React.FC<FlyoutSessionProps> = React.memo((props) => {
         mainSize={mainSize}
         mainMaxWidth={mainMaxWidth}
         childSize={childSize}
-        isChildFlyoutOpen={isChildFlyoutOpen}
-        handleCloseChildFlyout={handleCloseChildFlyout}
-        openChildFlyout={openChildFlyout}
+        childMaxWidth={childMaxWidth}
+        overlays={overlays}
+        childFlyoutRef={childFlyoutRef}
         handleCloseFlyout={handleCloseFlyout}
       />,
       {
@@ -260,9 +308,7 @@ const FlyoutSession: React.FC<FlyoutSessionProps> = React.memo((props) => {
     mainSize,
     mainMaxWidth,
     childSize,
-    isChildFlyoutOpen,
-    handleCloseChildFlyout,
-    openChildFlyout,
+    childMaxWidth,
     handleCloseFlyout,
     overlays,
     mainFlyoutOnActive,
@@ -301,7 +347,7 @@ const FlyoutSession: React.FC<FlyoutSessionProps> = React.memo((props) => {
   );
 });
 
-FlyoutSession.displayName = 'FlyoutSession';
+SessionFlyout.displayName = 'SessionFlyoutFromOverlaysService';
 
 const NonSessionFlyout: React.FC<FlyoutFromOverlaysProps> = React.memo(
   ({ overlays, rendering }) => {
@@ -392,78 +438,72 @@ const NonSessionFlyout: React.FC<FlyoutFromOverlaysProps> = React.memo(
   }
 );
 
-NonSessionFlyout.displayName = 'NonSessionFlyout';
+NonSessionFlyout.displayName = 'NonSessionFlyoutFromOverlaysService';
 
-export const FlyoutWithOverlays: React.FC<FlyoutFromOverlaysProps> = ({ overlays, rendering }) => {
-  return (
-    <>
-      <EuiTitle>
-        <h2>
-          Flyouts with <EuiCode>core.overlays</EuiCode> services
-        </h2>
+export const FlyoutWithOverlays: React.FC<FlyoutFromOverlaysProps> = ({ overlays, rendering }) => (
+  <>
+    <EuiTitle>
+      <h2>
+        Flyouts with <EuiCode>core.overlays</EuiCode> services
+      </h2>
+    </EuiTitle>
+    <EuiSpacer size="s" />
+    <EuiPanel>
+      <EuiTitle size="s">
+        <h3>
+          With <EuiCode>core.overlays.openSystemFlyout</EuiCode>
+        </h3>
       </EuiTitle>
       <EuiSpacer size="s" />
-      <EuiPanel>
-        <EuiTitle size="s">
-          <h3>
-            With <EuiCode>core.overlays.openSystemFlyout</EuiCode>
-          </h3>
-        </EuiTitle>
-        <EuiSpacer size="s" />
-        <EuiDescriptionList
-          type="column"
-          columnGutterSize="m"
-          listItems={[
-            {
-              title: 'Session X: main size = s, child size = s',
-              description: (
-                <FlyoutSession title="Session X" mainSize="s" childSize="s" overlays={overlays} />
-              ),
-            },
-            {
-              title: 'Session Y: main size = m, child size = s',
-              description: (
-                <FlyoutSession title="Session Y" mainSize="m" childSize="s" overlays={overlays} />
-              ),
-            },
-            {
-              title: 'Session Z: main size = fill',
-              description: <FlyoutSession title="Session Z" mainSize="fill" overlays={overlays} />,
-            },
-          ]}
-          css={css`
-            dt {
-              min-width: 25em;
-            }
-          `}
-        />
+      <EuiDescriptionList
+        type="column"
+        listItems={[
+          {
+            title: 'Session X: main size = s, child size = s',
+            description: (
+              <SessionFlyout title="Session X" mainSize="s" childSize="s" overlays={overlays} />
+            ),
+          },
+          {
+            title: 'Session Y: main size = m, child size = s',
+            description: (
+              <SessionFlyout title="Session Y" mainSize="m" childSize="s" overlays={overlays} />
+            ),
+          },
+          {
+            title: 'Session Z: main size = fill',
+            description: <SessionFlyout title="Session Z" mainSize="fill" overlays={overlays} />,
+          },
+        ]}
+        css={css`
+          dt {
+            min-width: 25em;
+          }
+        `}
+      />
 
-        <EuiSpacer size="m" />
+      <EuiSpacer size="m" />
 
-        <EuiTitle size="s">
-          <h3>
-            With <EuiCode>core.overlays.openFlyout</EuiCode>
-          </h3>
-        </EuiTitle>
-        <EuiSpacer size="s" />
-        <EuiDescriptionList
-          type="column"
-          columnGutterSize="m"
-          listItems={[
-            {
-              title: 'Non-session flyout: size = m',
-              description: <NonSessionFlyout overlays={overlays} rendering={rendering} />,
-            },
-          ]}
-          css={css`
-            dt {
-              min-width: 25em;
-            }
-          `}
-        />
-      </EuiPanel>
-    </>
-  );
-};
-
-FlyoutWithOverlays.displayName = 'FlyoutFromOverlays';
+      <EuiTitle size="s">
+        <h3>
+          With <EuiCode>core.overlays.openFlyout</EuiCode>
+        </h3>
+      </EuiTitle>
+      <EuiSpacer size="s" />
+      <EuiDescriptionList
+        type="column"
+        listItems={[
+          {
+            title: 'Non-session flyout: size = m',
+            description: <NonSessionFlyout overlays={overlays} rendering={rendering} />,
+          },
+        ]}
+        css={css`
+          dt {
+            min-width: 25em;
+          }
+        `}
+      />
+    </EuiPanel>
+  </>
+);
