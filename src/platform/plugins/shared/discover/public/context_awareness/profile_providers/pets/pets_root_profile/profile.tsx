@@ -11,6 +11,7 @@ import {
   EuiBadge,
   EuiFlyout,
   EuiFlyoutBody,
+  EuiFlyoutFooter,
   EuiFlyoutHeader,
   EuiTitle,
   EuiText,
@@ -63,6 +64,15 @@ const getRenderAppWrapper: RootProfileProvider['profile']['getRenderAppWrapper']
     const [currentMessage, setCurrentMessage] = useState<string | undefined>(undefined);
     const [showChildFlyout, setShowChildFlyout] = useState(false);
 
+    const handleCloseParentFlyout = () => {
+      setCurrentMessage(undefined);
+      setShowChildFlyout(false);
+    };
+
+    const handleCloseChildFlyout = () => {
+      setShowChildFlyout(false);
+    };
+
     return (
       <PrevWrapper>
         <PetsContextProvider value={{ currentMessage, setCurrentMessage }}>
@@ -71,7 +81,7 @@ const getRenderAppWrapper: RootProfileProvider['profile']['getRenderAppWrapper']
             <EuiFlyout
               type="push"
               size="m"
-              onClose={() => setCurrentMessage(undefined)}
+              onClose={handleCloseParentFlyout}
               data-test-subj="petsRootProfileFlyout"
               aria-labelledby="petsFlyoutTitle"
               session="start"
@@ -106,13 +116,14 @@ const getRenderAppWrapper: RootProfileProvider['profile']['getRenderAppWrapper']
                       onClick={() => setShowChildFlyout(true)}
                       iconType="documents"
                       size="s"
+                      disabled={showChildFlyout}
                     >
                       View Care Guide
                     </EuiButton>
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <EuiButtonEmpty
-                      onClick={() => setCurrentMessage(undefined)}
+                      onClick={handleCloseParentFlyout}
                       size="s"
                       aria-label="Close flyout"
                     >
@@ -121,77 +132,92 @@ const getRenderAppWrapper: RootProfileProvider['profile']['getRenderAppWrapper']
                   </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiFlyoutBody>
-            </EuiFlyout>
-          )}
-          {showChildFlyout && (
-            <EuiFlyout
-              type="push"
-              size="s"
-              onClose={() => setShowChildFlyout(false)}
-              data-test-subj="petsChildFlyout"
-              aria-labelledby="petsChildFlyoutTitle"
-              session="inherit"
-              flyoutMenuProps={{ title: 'Pet Care Guide' }}
-            >
-              <EuiFlyoutHeader hasBorder>
-                <EuiTitle size="s">
-                  <h2 id="petsChildFlyoutTitle">
-                    <span role="img" aria-label="clipboard">
-                      📋
-                    </span>{' '}
-                    Pet Care Guide
-                  </h2>
-                </EuiTitle>
-              </EuiFlyoutHeader>
-              <EuiFlyoutBody>
-                <EuiText size="s">
-                  <h4>General Care Tips:</h4>
-                  <ul>
-                    <li>
-                      <span role="img" aria-label="food">
-                        🥗
-                      </span>{' '}
-                      Provide fresh food and water daily
-                    </li>
-                    <li>
-                      <span role="img" aria-label="exercise">
-                        🏃
-                      </span>{' '}
-                      Regular exercise and playtime
-                    </li>
-                    <li>
-                      <span role="img" aria-label="vaccination">
-                        💉
-                      </span>{' '}
-                      Keep vaccinations up to date
-                    </li>
-                    <li>
-                      <span role="img" aria-label="love">
-                        ❤️
-                      </span>{' '}
-                      Lots of love and attention!
-                    </li>
-                    <li>
-                      <span role="img" aria-label="veterinarian">
-                        🏥
-                      </span>{' '}
-                      Annual vet checkups
-                    </li>
-                  </ul>
-                </EuiText>
-                <EuiSpacer />
-                <EuiText size="s" color="subdued">
-                  <p>
-                    This is a stacked flyout! It appears on top of the parent flyout thanks to the
-                    EUI Flyout System. You can have multiple levels of flyouts for complex
-                    workflows.
-                  </p>
-                </EuiText>
-                <EuiSpacer />
-                <EuiButton onClick={() => setShowChildFlyout(false)} fill size="s">
-                  Got it!
-                </EuiButton>
-              </EuiFlyoutBody>
+              {showChildFlyout && (
+                <EuiFlyout
+                  type="push"
+                  size="s"
+                  onClose={handleCloseChildFlyout}
+                  data-test-subj="petsChildFlyout"
+                  aria-labelledby="petsChildFlyoutTitle"
+                  flyoutMenuProps={{
+                    title: 'Pet Care Guide',
+                    titleId: 'petsChildFlyoutTitle',
+                  }}
+                >
+                  <EuiFlyoutHeader hasBorder>
+                    <EuiTitle size="s">
+                      <h2 id="petsChildFlyoutTitle">
+                        <span role="img" aria-label="clipboard">
+                          📋
+                        </span>{' '}
+                        Pet Care Guide
+                      </h2>
+                    </EuiTitle>
+                  </EuiFlyoutHeader>
+                  <EuiFlyoutBody>
+                    <EuiText size="s">
+                      <h4>General Care Tips:</h4>
+                      <ul>
+                        <li>
+                          <span role="img" aria-label="food">
+                            🥗
+                          </span>{' '}
+                          Provide fresh food and water daily
+                        </li>
+                        <li>
+                          <span role="img" aria-label="exercise">
+                            🏃
+                          </span>{' '}
+                          Regular exercise and playtime
+                        </li>
+                        <li>
+                          <span role="img" aria-label="vaccination">
+                            💉
+                          </span>{' '}
+                          Keep vaccinations up to date
+                        </li>
+                        <li>
+                          <span role="img" aria-label="love">
+                            ❤️
+                          </span>{' '}
+                          Lots of love and attention!
+                        </li>
+                        <li>
+                          <span role="img" aria-label="veterinarian">
+                            🏥
+                          </span>{' '}
+                          Annual vet checkups
+                        </li>
+                      </ul>
+                    </EuiText>
+                    <EuiSpacer />
+                    <EuiText size="s" color="subdued">
+                      <p>
+                        This is a stacked flyout! It appears on top of the parent flyout thanks to
+                        the EUI Flyout System. You can have multiple levels of flyouts for complex
+                        workflows.
+                      </p>
+                    </EuiText>
+                    <EuiSpacer />
+                    <EuiButton onClick={handleCloseChildFlyout} fill size="s">
+                      Got it!
+                    </EuiButton>
+                  </EuiFlyoutBody>
+                  <EuiFlyoutFooter>
+                    <EuiFlexGroup justifyContent="flexEnd">
+                      <EuiFlexItem grow={false}>
+                        <EuiButtonEmpty
+                          onClick={handleCloseChildFlyout}
+                          aria-label="Close"
+                          size="s"
+                        >
+                          Close
+                        </EuiButtonEmpty>
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  </EuiFlyoutFooter>
+                </EuiFlyout>
+              )}
             </EuiFlyout>
           )}
         </PetsContextProvider>
