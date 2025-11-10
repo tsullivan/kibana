@@ -12,11 +12,20 @@ export type {
   FieldAttribute,
   FieldMetadataPlain,
   FieldName,
+  FieldSource,
   IntegrationFieldName,
+  OtelFieldName,
   PartialFieldMetadataPlain,
   TEcsFields,
   TMetadataFields,
+  TOtelFields,
 } from './fields_metadata/types';
 
 export { FieldMetadata } from './fields_metadata/models/field_metadata';
 export { FieldsMetadataDictionary } from './fields_metadata/models/fields_metadata_dictionary';
+export {
+  createProxiedFieldsMap,
+  createProxiedPlainFields,
+  extractPrefixParts,
+  SUPPORTED_PREFIXES,
+} from './fields_metadata/utils/create_proxied_fields_map';

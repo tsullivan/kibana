@@ -16,16 +16,17 @@ import type {
 } from '@kbn/lens-plugin/public';
 import { useEffect, useMemo, useState } from 'react';
 import type { Observable } from 'rxjs';
-import { Subject, of } from 'rxjs';
+import { of } from 'rxjs';
 import useMount from 'react-use/lib/useMount';
-import { cloneDeep, pick } from 'lodash';
+import type { ESQLControlState, ESQLControlVariable } from '@kbn/esql-types';
+import type { ControlPanelsState } from '@kbn/controls-plugin/public';
+import { cloneDeep } from 'lodash';
 import type { DataView } from '@kbn/data-views-plugin/common';
 import useObservable from 'react-use/lib/useObservable';
 import useLatest from 'react-use/lib/useLatest';
 import type { UnifiedHistogramChartProps } from '../components/chart/chart';
 import type {
   UnifiedHistogramExternalVisContextStatus,
-  UnifiedHistogramInputMessage,
   UnifiedHistogramRequestContext,
   UnifiedHistogramServices,
   UnifiedHistogramSuggestionContext,
@@ -36,13 +37,10 @@ import type {
   UnifiedHistogramStateOptions,
   UnifiedHistogramStateService,
 } from '../services/state_service';
-import { createStateService } from '../services/state_service';
-import { useStateProps } from './use_state_props';
-import { useRequestParams } from './use_request_params';
 import { LensVisService } from '../services/lens_vis_service';
 import { checkChartAvailability } from '../components/chart';
 import type { UnifiedHistogramLayoutProps } from '../components/layout/layout';
-import { getBreakdownField } from '../utils/local_storage_utils';
+import { useServicesBootstrap } from './use_services_bootstrap';
 
 export type UseUnifiedHistogramProps = Omit<UnifiedHistogramStateOptions, 'services'> & {
   /**
@@ -78,6 +76,14 @@ export type UseUnifiedHistogramProps = Omit<UnifiedHistogramStateOptions, 'servi
    */
   breakdownField?: string;
   /**
+   * The ES|QL variables to use for the chart
+   */
+  esqlVariables?: ESQLControlVariable[];
+  /**
+   * The controls state to use for the chart
+   */
+  controlsState?: ControlPanelsState<ESQLControlState>;
+  /**
    * The external custom Lens vis
    */
   externalVisContext?: UnifiedHistogramVisContext;
@@ -89,6 +95,10 @@ export type UseUnifiedHistogramProps = Omit<UnifiedHistogramStateOptions, 'servi
    * The relative time range, used when timeRange is an absolute range (e.g. for edit visualization button)
    */
   relativeTimeRange?: TimeRange;
+  /**
+   * The timestamp of the last data request
+   */
+  lastReloadRequestTime?: number;
   /**
    * The current columns
    */
@@ -166,79 +176,34 @@ const EMPTY_SUGGESTION_CONTEXT: Observable<UnifiedHistogramSuggestionContext> = 
 });
 
 export const useUnifiedHistogram = (props: UseUnifiedHistogramProps): UseUnifiedHistogramResult => {
-  const [stateService] = useState(() => {
-    const { services, initialState, localStorageKeyPrefix } = props;
-    return createStateService({ services, initialState, localStorageKeyPrefix });
-  });
   const [lensVisService, setLensVisService] = useState<LensVisService>();
-  const [input$] = useState(() => new Subject<UnifiedHistogramInputMessage>());
-  const [api, setApi] = useState<UnifiedHistogramApi>();
+
+  const { stateProps, requestParams, api, input$ } = useServicesBootstrap(props);
 
   // Load async services and initialize API
   useMount(async () => {
     const apiHelper = await services.lens.stateHelperApi();
     setLensVisService(new LensVisService({ services, lensSuggestionsApi: apiHelper.suggestions }));
-    setApi({
-      fetch: () => {
-        input$.next({ type: 'fetch' });
-      },
-      ...pick(
-        stateService,
-        'state$',
-        'setChartHidden',
-        'setTopPanelHeight',
-        'setTimeInterval',
-        'setTotalHits'
-      ),
-    });
   });
 
   const {
     services,
     dataView,
-    query,
     columns,
-    searchSessionId,
-    requestAdapter,
     isChartLoading,
-    localStorageKeyPrefix,
-    filters,
     timeRange,
     table,
     externalVisContext,
+    controlsState,
   } = props;
-  const initialBreakdownField = useMemo(
-    () =>
-      localStorageKeyPrefix
-        ? getBreakdownField(services.storage, localStorageKeyPrefix)
-        : undefined,
-    [localStorageKeyPrefix, services.storage]
-  );
-  const stateProps = useStateProps({
-    services,
-    localStorageKeyPrefix,
-    stateService,
-    dataView,
-    query,
-    searchSessionId,
-    requestAdapter,
-    columns,
-    breakdownField: 'breakdownField' in props ? props.breakdownField : initialBreakdownField,
-    onBreakdownFieldChange: props.onBreakdownFieldChange,
-    onVisContextChanged: props.onVisContextChanged,
-  });
+
   const columnsMap = useMemo(() => {
     return columns?.reduce<Record<string, DatatableColumn>>((acc, column) => {
       acc[column.id] = column;
       return acc;
     }, {});
   }, [columns]);
-  const requestParams = useRequestParams({
-    services,
-    query,
-    filters,
-    timeRange,
-  });
+
   const lensVisServiceCurrentSuggestionContext = useObservable(
     lensVisService?.currentSuggestionContext$ ?? EMPTY_SUGGESTION_CONTEXT
   );
@@ -303,6 +268,7 @@ export const useUnifiedHistogram = (props: UseUnifiedHistogramProps): UseUnified
       ? {
           ...props,
           ...stateProps,
+          controlsState,
           input$,
           chart,
           isChartAvailable,
@@ -310,7 +276,16 @@ export const useUnifiedHistogram = (props: UseUnifiedHistogramProps): UseUnified
           lensVisService,
         }
       : undefined;
-  }, [chart, input$, isChartAvailable, lensVisService, props, requestParams, stateProps]);
+  }, [
+    chart,
+    input$,
+    isChartAvailable,
+    lensVisService,
+    props,
+    requestParams,
+    stateProps,
+    controlsState,
+  ]);
   const layoutProps = useMemo<UnifiedHistogramPartialLayoutProps>(
     () => ({
       chart,

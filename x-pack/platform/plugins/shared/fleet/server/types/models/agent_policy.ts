@@ -13,6 +13,8 @@ import { agentPolicyStatuses, dataTypes } from '../../../common/constants';
 import { isValidNamespace } from '../../../common/services';
 import { getSettingsAPISchema } from '../../services/form_settings';
 
+import { ProxyHeadersSchema } from '../rest_spec/fleet_proxies';
+
 import { PackagePolicySchema, PackagePolicyResponseSchema } from './package_policy';
 
 export const AgentPolicyNamespaceSchema = schema.string({
@@ -304,6 +306,7 @@ export const AgentPolicyResponseSchema = AgentPolicySchema.extends({
   revision: schema.number(),
   agents: schema.maybe(schema.number()),
   unprivileged_agents: schema.maybe(schema.number()),
+  fips_agents: schema.maybe(schema.number()),
   is_protected: schema.boolean({
     meta: {
       description:
@@ -336,6 +339,7 @@ export const GetAutoUpgradeAgentsStatusResponseSchema = schema.object({
       version: schema.string(),
       agents: schema.number(),
       failedUpgradeAgents: schema.number(),
+      failedUpgradeActionIds: schema.maybe(schema.arrayOf(schema.string())),
     })
   ),
   totalAgents: schema.number(),
@@ -382,7 +386,7 @@ export const FullAgentPolicyResponseSchema = schema.object({
         hosts: schema.maybe(schema.arrayOf(schema.string())),
         ca_sha256: schema.maybe(schema.oneOf([schema.literal(null), schema.string()])),
         proxy_url: schema.maybe(schema.string()),
-        proxy_headers: schema.maybe(schema.any()),
+        proxy_headers: schema.maybe(ProxyHeadersSchema),
       })
     )
     .extendsDeep({
@@ -396,7 +400,7 @@ export const FullAgentPolicyResponseSchema = schema.object({
       schema.object({
         hosts: schema.arrayOf(schema.string()),
         proxy_url: schema.maybe(schema.string()),
-        proxy_headers: schema.maybe(schema.any()),
+        proxy_headers: schema.maybe(ProxyHeadersSchema),
         ssl: schema.maybe(BaseSSLSchema),
         secrets: schema.maybe(BaseSecretsSchema),
       }),
@@ -479,11 +483,16 @@ export const FullAgentPolicyResponseSchema = schema.object({
         logs: schema.boolean(),
         traces: schema.boolean(),
         apm: schema.maybe(schema.any()),
+        _runtime_experimental: schema.maybe(schema.string()),
       }),
       download: schema.object({
         sourceURI: schema.string(),
         ssl: schema.maybe(BaseSSLSchema),
         secrets: schema.maybe(BaseSecretsSchema),
+        timeout: schema.maybe(schema.string()),
+        target_directory: schema.maybe(schema.string()),
+        proxy_url: schema.maybe(schema.string()),
+        proxy_headers: schema.maybe(ProxyHeadersSchema),
       }),
       features: schema.recordOf(
         schema.string(),
@@ -507,6 +516,11 @@ export const FullAgentPolicyResponseSchema = schema.object({
               rotateeverybytes: schema.maybe(schema.number()),
               keepfiles: schema.maybe(schema.number()),
               interval: schema.maybe(schema.string()),
+            })
+          ),
+          metrics: schema.maybe(
+            schema.object({
+              period: schema.maybe(schema.string()),
             })
           ),
         })

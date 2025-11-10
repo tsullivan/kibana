@@ -8,6 +8,7 @@
  */
 
 import { euiThemeVars } from '@kbn/ui-theme';
+import { getScrollDimensions, isAtBottomOfPage } from '@kbn/core-chrome-layout-utils';
 
 import type { ActivePanelEvent, GridPanelData } from '../../grid_panel';
 import type { GridLayoutStateManager, RuntimeGridSettings } from '../../types';
@@ -46,11 +47,13 @@ export const getResizePreviewRect = ({
   pointerPixel,
   runtimeSettings,
   resizeOptions,
+  maxRight,
 }: {
   pointerPixel: PointerPosition;
   activePanel: ActivePanelEvent;
   runtimeSettings: RuntimeGridSettings;
   resizeOptions: GridPanelData['resizeOptions'];
+  maxRight: number;
 }) => {
   const panelRect = activePanel.panelDiv.getBoundingClientRect();
   const { minWidth, maxWidth, minHeight, maxHeight } = {
@@ -72,8 +75,7 @@ export const getResizePreviewRect = ({
         pointerPixel.clientX - activePanel.sensorOffsets.right, // actual width based on mouse position
         panelRect.left + getColumnCountInPixels({ columnCount: maxWidth, runtimeSettings }), // max width of panel
         // cannot extend width past the right edge of the grid layout
-        getColumnCountInPixels({ columnCount: runtimeSettings.columnCount, runtimeSettings }) +
-          runtimeSettings.gutterSize
+        maxRight
       ),
       panelRect.left + getColumnCountInPixels({ columnCount: minWidth, runtimeSettings }) // min width of panel
     ),
@@ -133,6 +135,7 @@ export const getNextKeyboardPositionForPanel = (
   const stepX = columnPixelWidth + gutterSize;
   const stepY = rowHeight + gutterSize;
   const gridPosition = gridLayoutStateManager.layoutRef.current?.getBoundingClientRect();
+  const scrollContainer = gridLayoutStateManager.scrollContainer$.getValue();
 
   switch (ev.code) {
     case KeyboardCode.Right: {
@@ -158,18 +161,26 @@ export const getNextKeyboardPositionForPanel = (
 
     case KeyboardCode.Down: {
       // check if we are at the end of the scroll of the page
-      const bottomOfPageReached = window.innerHeight + window.scrollY >= document.body.scrollHeight;
+      const bottomOfPageReached = isAtBottomOfPage(scrollContainer);
+
       // check if next key will cross the bottom edge
       // if we're at the end of the scroll of the page, the dragged handle can go down even more so we can reorder with the last row
       const bottomMaxPosition = bottomOfPageReached
         ? panelPosition.bottom + stepY - (panelPosition.bottom - panelPosition.top) * 0.5
         : panelPosition.bottom + stepY + KEYBOARD_DRAG_BOTTOM_LIMIT;
 
-      const isCloseToBottom = bottomMaxPosition > window.innerHeight;
+      const { clientHeight } = getScrollDimensions(scrollContainer);
+      const isCloseToBottom = bottomMaxPosition > clientHeight;
 
       return {
         ...handlePosition,
-        clientY: updateClientY(handlePosition.clientY, stepY, isCloseToBottom, type),
+        clientY: updateClientY(
+          handlePosition.clientY,
+          stepY,
+          isCloseToBottom,
+          type,
+          scrollContainer
+        ),
       };
     }
     case KeyboardCode.Up: {
@@ -177,7 +188,7 @@ export const getNextKeyboardPositionForPanel = (
       const isCloseToTop = panelPosition.top - stepY - keyboardDragTopLimit < 0;
       return {
         ...handlePosition,
-        clientY: updateClientY(handlePosition.clientY, -stepY, isCloseToTop, type),
+        clientY: updateClientY(handlePosition.clientY, -stepY, isCloseToTop, type, scrollContainer),
       };
     }
     default:

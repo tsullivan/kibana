@@ -4,42 +4,40 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
+
 import type { CriteriaWithPagination } from '@elastic/eui';
 import { EuiInMemoryTable, EuiSkeletonText, EuiText, useEuiTheme } from '@elastic/eui';
 import { css } from '@emotion/react';
-import type { ToolDefinitionWithSchema } from '@kbn/onechat-common';
-import { isEsqlTool } from '@kbn/onechat-common/tools';
+import type { ToolDefinition } from '@kbn/onechat-common';
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { useToolsPreferences } from '../../../context/tools_preferences_provider';
 import { useToolsService } from '../../../hooks/tools/use_tools';
 import { labels } from '../../../utils/i18n';
 import { getToolsTableColumns } from './tools_table_columns';
 import { ToolsTableHeader } from './tools_table_header';
 import { toolQuickActionsHoverStyles } from './tools_table_quick_actions';
 import { useToolsTableSearch } from './tools_table_search';
+import { useUiPrivileges } from '../../../hooks/use_ui_privileges';
 
 export const OnechatToolsTable = memo(() => {
   const { euiTheme } = useEuiTheme();
-  const { includeSystemTools } = useToolsPreferences();
-  const {
-    tools,
-    isLoading: isLoadingTools,
-    error: toolsError,
-  } = useToolsService({
-    includeSystemTools,
-  });
+  const { tools, isLoading: isLoadingTools, error: toolsError } = useToolsService();
   const [tablePageIndex, setTablePageIndex] = useState(0);
-  const [selectedTools, setSelectedTools] = useState<ToolDefinitionWithSchema[]>([]);
+  const [selectedTools, setSelectedTools] = useState<ToolDefinition[]>([]);
   const { searchConfig, results: tableTools } = useToolsTableSearch();
+  const { manageTools } = useUiPrivileges();
 
   useEffect(() => {
     setTablePageIndex(0);
   }, [tableTools]);
 
-  const columns = useMemo(() => getToolsTableColumns(), []);
+  const columns = useMemo(
+    () => getToolsTableColumns({ canManageTools: manageTools }),
+    [manageTools]
+  );
 
   return (
     <EuiInMemoryTable
+      data-test-subj="agentBuilderToolsTable"
       css={css`
         border-top: 1px solid ${euiTheme.colors.borderBaseSubdued};
         table {
@@ -63,7 +61,7 @@ export const OnechatToolsTable = memo(() => {
       itemId="id"
       error={toolsError ? labels.tools.listToolsErrorMessage : undefined}
       search={searchConfig}
-      onTableChange={({ page: { index } }: CriteriaWithPagination<ToolDefinitionWithSchema>) => {
+      onTableChange={({ page: { index } }: CriteriaWithPagination<ToolDefinition>) => {
         setTablePageIndex(index);
       }}
       pagination={{
@@ -71,9 +69,12 @@ export const OnechatToolsTable = memo(() => {
         pageSize: 10,
         showPerPageOptions: false,
       }}
+      rowProps={(tool) => ({
+        'data-test-subj': `agentBuilderToolsTableRow-${tool.id}`,
+      })}
       selection={{
-        selectable: isEsqlTool,
-        onSelectionChange: (selectedItems: ToolDefinitionWithSchema[]) => {
+        selectable: (tool) => !tool.readonly,
+        onSelectionChange: (selectedItems: ToolDefinition[]) => {
           setSelectedTools(selectedItems);
         },
         selected: selectedTools,

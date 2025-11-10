@@ -24,7 +24,8 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
   const dataGrid = getService('dataGrid');
   const monacoEditor = getService('monacoEditor');
 
-  describe('has ES data but no custom data view', function () {
+  // This is currently stalling several CI runs
+  describe.skip('has ES data but no custom data view', function () {
     beforeEach(async () => {
       await common.navigateToApp('home');
       await kibanaServer.savedObjects.cleanStandardList();
@@ -76,7 +77,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
         expect(await unifiedTabs.isTabsBarVisible()).to.be(false);
         await testSubjects.click('tryESQLLink');
         await discover.waitUntilTabIsLoaded();
-        expect(await monacoEditor.getCodeEditorValue()).to.be('FROM logs* | LIMIT 10');
+        expect(await monacoEditor.getCodeEditorValue()).to.be('FROM logs*');
         expect((await dataGrid.getDocTableRows()).length).to.be.above(0);
         expect(await unifiedTabs.isTabsBarVisible()).to.be(true);
       });

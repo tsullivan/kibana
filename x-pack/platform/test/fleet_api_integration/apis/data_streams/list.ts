@@ -105,7 +105,8 @@ export default function (providerContext: FtrProviderContext) {
     return await supertest.get(`/api/fleet/data_streams`).set('kbn-xsrf', 'xxxx');
   };
 
-  describe('data_streams_list', () => {
+  // Failing: See https://github.com/elastic/kibana/issues/240001
+  describe.skip('data_streams_list', () => {
     skipIfNoDockerRegistry(providerContext);
 
     beforeEach(async () => {
@@ -122,7 +123,7 @@ export default function (providerContext: FtrProviderContext) {
         template: sourceIndexTemplate.template,
         _meta: sourceIndexTemplate._meta,
         data_stream: sourceIndexTemplate.data_stream,
-        composed_of: sourceIndexTemplate.composed_of.filter(
+        composed_of: sourceIndexTemplate.composed_of?.filter(
           (template) => template.includes('@settings') || template.includes('@package')
         ),
         index_patterns: [`${logsTemplateName}-testwithoutfinalpipeline`],

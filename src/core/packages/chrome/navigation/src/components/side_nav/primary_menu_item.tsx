@@ -13,19 +13,21 @@ import { css } from '@emotion/react';
 import type { IconType } from '@elastic/eui';
 import { EuiToolTip, useEuiTheme } from '@elastic/eui';
 
+import { i18n } from '@kbn/i18n';
 import type { MenuItem } from '../../../types';
 import { MenuItem as MenuItemComponent } from '../menu_item';
 import { useTooltip } from '../../hooks/use_tooltip';
 import { BetaBadge } from '../beta_badge';
+import { TOOLTIP_OFFSET } from '../../constants';
 
 export interface SideNavPrimaryMenuItemProps extends MenuItem {
   as?: 'a' | 'button';
   children: ReactNode;
   hasContent?: boolean;
   iconType: IconType;
-  isActive: boolean;
+  isHighlighted: boolean;
+  isCurrent?: boolean;
   isCollapsed: boolean;
-  isHorizontal?: boolean;
   onClick?: () => void;
 }
 
@@ -37,9 +39,9 @@ export const SideNavPrimaryMenuItem = forwardRef<HTMLAnchorElement, SideNavPrima
       href,
       iconType,
       id,
-      isActive,
+      isHighlighted,
+      isCurrent,
       isCollapsed,
-      isHorizontal,
       badgeType,
       ...props
     },
@@ -60,39 +62,45 @@ export const SideNavPrimaryMenuItem = forwardRef<HTMLAnchorElement, SideNavPrima
       gap: ${euiTheme.size.xs};
     `;
 
+    const badgeLabel =
+      badgeType === 'beta'
+        ? i18n.translate('core.ui.chrome.sideNavigation.betaTooltipLabel', {
+            defaultMessage: 'Beta',
+          })
+        : badgeType === 'techPreview'
+        ? i18n.translate('core.ui.chrome.sideNavigation.techPreviewTooltipLabel', {
+            defaultMessage: 'Tech preview',
+          })
+        : undefined;
+
     const getLabelWithBeta = (label: ReactNode) => (
       <div css={betaContentStyles}>
         <span>{label}</span>
-        {badgeType && <BetaBadge type={badgeType} isInverted={!isHorizontal} />}
+        {badgeType && <BetaBadge type={badgeType} isInverted />}
       </div>
     );
 
     const getTooltipContent = () => {
-      if (isHorizontal || (isCollapsed && hasContent)) return null;
+      if (hasContent) return null;
       if (isCollapsed) return badgeType ? getLabelWithBeta(children) : children;
-      // TODO: translate
-      if (!isCollapsed && badgeType)
-        return getLabelWithBeta(
-          badgeType === 'beta' ? 'Beta' : badgeType === 'techPreview' ? 'Tech preview' : children
-        );
+      if (!isCollapsed && badgeType) return getLabelWithBeta(badgeLabel ? badgeLabel : children);
 
       return null;
     };
-
-    const menuItemContent = isHorizontal && badgeType ? getLabelWithBeta(children) : children;
 
     const menuItem = (
       <MenuItemComponent
         data-test-subj={`sideNavPrimaryMenuItem-${id}`}
         href={href}
         iconType={iconType}
-        isActive={isActive}
-        isHorizontal={isHorizontal}
-        isLabelVisible={isHorizontal ? true : !isCollapsed}
+        id={id}
+        isCurrent={isCurrent}
+        isHighlighted={isHighlighted}
+        isLabelVisible={!isCollapsed}
         ref={ref}
         {...props}
       >
-        {menuItemContent}
+        {children}
       </MenuItemComponent>
     );
 
@@ -107,6 +115,8 @@ export const SideNavPrimaryMenuItem = forwardRef<HTMLAnchorElement, SideNavPrima
           disableScreenReaderOutput
           onMouseOut={handleMouseOut}
           position="right"
+          repositionOnScroll
+          offset={TOOLTIP_OFFSET}
         >
           {menuItem}
         </EuiToolTip>

@@ -9,6 +9,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { css } from '@emotion/react';
 import { useEuiTheme } from '@elastic/eui';
+import { useSignalIndexWithDefault } from '../../hooks/use_signal_index_with_default';
 import {
   type GetLensAttributes,
   VisualizationContextMenuActions,
@@ -34,9 +35,11 @@ const TimeSavedMetricComponent: React.FC<Props> = ({ from, to, minutesPerAlert }
     euiTheme: { colors },
   } = useEuiTheme();
   const timerange = useMemo(() => ({ from, to }), [from, to]);
+  const signalIndexName = useSignalIndexWithDefault();
+
   const getLensAttributes = useCallback<GetLensAttributes>(
-    (args) => getTimeSavedMetricLensAttributes({ ...args, minutesPerAlert }),
-    [minutesPerAlert]
+    (args) => getTimeSavedMetricLensAttributes({ ...args, minutesPerAlert, signalIndexName }),
+    [minutesPerAlert, signalIndexName]
   );
   return (
     <div
@@ -50,7 +53,26 @@ const TimeSavedMetricComponent: React.FC<Props> = ({ from, to, minutesPerAlert }
           fill: ${colors.vis.euiColorVis2};
         }
         .echMetricText {
-          padding: 8px 20px 60px;
+          padding: 8px 16px 60px;
+        }
+        .echMetricText {
+          display: grid !important;
+          grid-template-columns: auto auto 1fr !important;
+          gap: 8px !important;
+          align-items: center !important;
+        }
+        .echMetricText__titlesBlock--left {
+          grid-column: 1 !important;
+        }
+        .echMetricText__icon--right {
+          grid-column: 2 !important;
+        }
+        .euiPanel,
+        .embPanel,
+        .echMetric,
+        .echChartBackground,
+        .embPanel__hoverActions > span {
+          background-color: rgb(0, 0, 0, 0) !important;
         }
       `}
     >

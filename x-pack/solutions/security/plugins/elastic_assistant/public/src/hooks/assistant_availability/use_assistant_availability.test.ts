@@ -66,7 +66,7 @@ describe('useAssistantAvailability', () => {
           aiAssistantManagementSelection$: jest.fn(),
         },
         featureFlags: {
-          getBooleanValue: jest.fn().mockReturnValue(true),
+          getBooleanValue: jest.fn().mockReturnValue(undefined),
         },
       },
     } as unknown as ReturnType<typeof useKibana>);
@@ -124,7 +124,7 @@ describe('useAssistantAvailability', () => {
           aiAssistantManagementSelection$: jest.fn(),
         },
         featureFlags: {
-          getBooleanValue: jest.fn().mockReturnValue(true),
+          getBooleanValue: jest.fn().mockReturnValue(undefined),
         },
       },
     } as unknown as ReturnType<typeof useKibana>);
@@ -175,7 +175,7 @@ describe('useAssistantAvailability', () => {
           },
         },
         featureFlags: {
-          getBooleanValue: jest.fn().mockReturnValue(false),
+          getBooleanValue: jest.fn().mockReturnValue(undefined),
         },
       },
     } as unknown as ReturnType<typeof useKibana>);
@@ -218,15 +218,10 @@ describe('useAssistantAvailability', () => {
               save: false,
               delete: false,
             },
-            management: {
-              ai: {
-                aiAssistantManagementSelection: false,
-              },
-            },
           },
         },
         featureFlags: {
-          getBooleanValue: jest.fn().mockReturnValue(true),
+          getBooleanValue: jest.fn().mockReturnValue(undefined),
         },
       },
     } as unknown as ReturnType<typeof useKibana>);
@@ -240,7 +235,7 @@ describe('useAssistantAvailability', () => {
       hasConnectorsReadPrivilege: true,
       isAssistantEnabled: true,
       isAssistantVisible: true,
-      isAssistantManagementEnabled: false,
+      isAssistantManagementEnabled: true,
       hasUpdateAIAssistantAnonymization: false,
       hasManageGlobalKnowledgeBase: false,
     });
@@ -257,7 +252,7 @@ describe('useAssistantAvailability', () => {
           capabilities: {},
         },
         featureFlags: {
-          getBooleanValue: jest.fn().mockReturnValue(true),
+          getBooleanValue: jest.fn().mockReturnValue(undefined),
         },
       },
     } as unknown as ReturnType<typeof useKibana>);

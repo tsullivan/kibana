@@ -60,10 +60,16 @@ const InferenceAPIConnectorFields: React.FunctionComponent<ActionConnectorFields
 
   return (
     <InferenceServiceFormFields
+      config={{
+        isEdit,
+        enforceAdaptiveAllocations: isServerless,
+        currentSolution,
+        allowContextWindowLength: true,
+        enableCustomHeaders: true,
+        allowTemperature: true,
+        reenterSecretsOnEdit: true,
+      }}
       http={http}
-      isEdit={isEdit}
-      enforceAdaptiveAllocations={isServerless}
-      currentSolution={currentSolution}
       toasts={toasts}
     />
   );

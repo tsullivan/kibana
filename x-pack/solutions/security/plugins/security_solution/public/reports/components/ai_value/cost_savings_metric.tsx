@@ -17,6 +17,8 @@ import {
 import { SourcererScopeName } from '../../../sourcerer/store/model';
 import { VisualizationEmbeddable } from '../../../common/components/visualization_actions/visualization_embeddable';
 import { getCostSavingsMetricLensAttributes } from '../../../common/components/visualization_actions/lens_attributes/ai/cost_savings_metric';
+import { useMetricAnimation } from '../../hooks/use_metric_animation';
+import { useSignalIndexWithDefault } from '../../hooks/use_signal_index_with_default';
 
 interface Props {
   from: string;
@@ -42,6 +44,12 @@ const CostSavingsMetricComponent: React.FC<Props> = ({
     euiTheme: { colors },
   } = useEuiTheme();
 
+  // Apply animation to the metric value
+  useMetricAnimation({
+    animationDurationMs: 1500,
+    selector: '.echMetricText__value',
+  });
+  const signalIndexName = useSignalIndexWithDefault();
   const timerange = useMemo(() => ({ from, to }), [from, to]);
   const getLensAttributes = useCallback<GetLensAttributes>(
     (args) =>
@@ -50,8 +58,9 @@ const CostSavingsMetricComponent: React.FC<Props> = ({
         backgroundColor: colors.backgroundBaseSuccess,
         minutesPerAlert,
         analystHourlyRate,
+        signalIndexName,
       }),
-    [analystHourlyRate, colors.backgroundBaseSuccess, minutesPerAlert]
+    [analystHourlyRate, colors.backgroundBaseSuccess, minutesPerAlert, signalIndexName]
   );
 
   return (
@@ -65,10 +74,12 @@ const CostSavingsMetricComponent: React.FC<Props> = ({
           fill: ${colors.success};
         }
         .echMetricText {
-          padding: 8px 20px 60px;
+          padding: 8px 16px 60px;
         }
         p.echMetricText__value {
           color: ${colors.success};
+          font-size: 48px !important;
+          padding: 10px 0;
         }
         .euiPanel,
         .embPanel__hoverActions > span {
