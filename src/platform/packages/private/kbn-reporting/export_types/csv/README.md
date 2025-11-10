@@ -46,7 +46,7 @@ The original CSV export implementation (`csv_searchsource`) was tightly coupled 
 
 ### The Modern Solution: `csv_v2`
 
-The `csv_v2` implementation introduces a **locator-based architecture** that uses inline saved search data:
+The `csv_v2` implementation introduces a **locator-based architecture** that supports both saved and inline search expressions:
 
 ```typescript
 // Modern approach - locator-based abstraction
@@ -72,9 +72,22 @@ The `csv_v2` implementation introduces a **locator-based architecture** that use
 | Feature | csv_searchsource | csv_v2 |
 |---------|------------------|--------|
 | Saved search by ID | ❌ No | ✅ Yes |
+| Inline/unsaved searches | ✅ Yes | ✅ Yes |
 | ES\|QL support | ❌ No | ✅ Yes |
 | Future-proof | ❌ Brittle | ✅ Stable |
 | Maintenance burden | 🔴 High | 🟢 Low |
+
+## Key Capabilities
+
+### csv_v2 Supports Both Saved and Unsaved Searches
+
+The `csv_v2` API is **feature-complete** and provides full support for:
+
+1. **Saved Searches (by reference)** - Use `savedSearchId` to reference an existing saved search object. The search criteria are loaded from the saved object.
+
+2. **Inline/Ad-hoc Searches** - Provide search parameters directly in the API call using `dataViewId`, `columns`, `query`, `filters`, etc. This is the "unsaved" search functionality.
+
+Both approaches use the same locator-based architecture and are fully supported in production.
 
 ## Usage Examples
 
