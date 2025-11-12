@@ -29,6 +29,7 @@ import type { SearchSessionsConfigSchema } from '../../../../../server/config';
 import { Flyout } from './flyout';
 import type { BackgroundSearchOpenedHandler, UISession } from '../types';
 import { FLYOUT_WIDTH } from './constants';
+import type { ISearchSessionEBTManager } from '../../ebt_manager';
 
 interface InspectFlyoutProps {
   searchSession: UISession;
@@ -89,6 +90,7 @@ export function openSearchSessionsFlyout({
   coreStart,
   kibanaVersion,
   usageCollector,
+  ebtManager,
   config,
   sessionsClient,
   share,
@@ -96,13 +98,16 @@ export function openSearchSessionsFlyout({
   coreStart: CoreStart;
   kibanaVersion: string;
   usageCollector: SearchUsageCollector;
+  ebtManager: ISearchSessionEBTManager;
   config: SearchSessionsConfigSchema;
   sessionsClient: ISessionsClient;
   share: SharePluginStart;
 }) {
-  return (
-    attrs: { appId?: string; onBackgroundSearchOpened?: BackgroundSearchOpenedHandler } = {}
-  ) => {
+  return (attrs: {
+    appId: string;
+    trackingProps: { openedFrom: string };
+    onBackgroundSearchOpened?: BackgroundSearchOpenedHandler;
+  }) => {
     const api = new SearchSessionsMgmtAPI(sessionsClient, config, {
       notifications: coreStart.notifications,
       application: coreStart.application,

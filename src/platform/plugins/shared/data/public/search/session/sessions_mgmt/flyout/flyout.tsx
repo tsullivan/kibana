@@ -17,16 +17,19 @@ import { SearchSessionsMgmtTable } from '../components/table';
 import type { SearchUsageCollector } from '../../../collectors';
 import type { BackgroundSearchOpenedHandler, LocatorsStart, UISession } from '../types';
 import { getColumns } from './get_columns';
+import type { ISearchSessionEBTManager } from '../../ebt_manager';
 
 export const Flyout = ({
   onClose,
   api,
   coreStart,
   usageCollector,
+  ebtManager,
   config,
   kibanaVersion,
   locators,
   appId,
+  trackingProps,
   onBackgroundSearchOpened,
   onOpenChildFlyout,
 }: {
@@ -34,10 +37,12 @@ export const Flyout = ({
   api: SearchSessionsMgmtAPI;
   coreStart: CoreStart;
   usageCollector: SearchUsageCollector;
+  ebtManager: ISearchSessionEBTManager;
   config: SearchSessionsConfigSchema;
   kibanaVersion: string;
   locators: LocatorsStart;
   appId?: string;
+  trackingProps: { openedFrom: string };
   onBackgroundSearchOpened?: BackgroundSearchOpenedHandler;
   onOpenChildFlyout?: (session: UISession) => void;
 }) => {
@@ -68,6 +73,8 @@ export const Flyout = ({
           }
           appId={appId}
           onBackgroundSearchOpened={onBackgroundSearchOpened}
+          searchSessionEBTManager={ebtManager}
+          trackingProps={{ openedFrom: trackingProps.openedFrom, renderedIn: 'flyout' }}
         />
       </EuiFlyoutBody>
       <EuiFlyoutFooter>
