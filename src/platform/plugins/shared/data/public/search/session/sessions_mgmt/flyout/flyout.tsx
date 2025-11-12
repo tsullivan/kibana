@@ -66,10 +66,10 @@ export const Flyout = ({
           locators={locators}
           hideRefreshButton
           getColumns={(props) =>
-            getColumns({
+            getColumns!({
               ...props,
               onInspectSession: handleOpenChildFlyout,
-            })
+            } as any)
           }
           appId={appId}
           onBackgroundSearchOpened={onBackgroundSearchOpened}

@@ -140,9 +140,11 @@ export function openSearchSessionsFlyout({
             api={api}
             coreStart={coreStart}
             usageCollector={usageCollector}
+            ebtManager={ebtManager}
             config={config}
             kibanaVersion={kibanaVersion}
             locators={share.url.locators}
+            trackingProps={attrs.trackingProps}
           />
           {inspectSession && (
             <EuiFlyout
