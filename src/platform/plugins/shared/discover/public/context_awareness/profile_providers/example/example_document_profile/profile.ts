@@ -16,10 +16,14 @@ export const createExampleDocumentProfileProvider = (): DocumentProfileProvider 
   isExperimental: true,
   profile: {},
   resolve: (params) => {
-    if (getFieldValue(params.record, 'data_stream.type') !== 'example') {
+    const dataStreamType = getFieldValue(params.record, 'data_stream.type');
+
+    // Temporarily modified: match if data_stream.type is 'example' OR if it doesn't exist (for sample data)
+    if (dataStreamType !== 'example' && dataStreamType !== undefined) {
       return { isMatch: false };
     }
 
+    // Match all documents when using sample data (which doesn't have data_stream.type)
     return {
       isMatch: true,
       context: {

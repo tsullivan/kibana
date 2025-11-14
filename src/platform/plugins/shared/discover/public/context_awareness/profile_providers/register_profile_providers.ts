@@ -34,6 +34,8 @@ import type {
 import { createSecurityDocumentProfileProvider } from './security/security_document_profile';
 import { createSecurityRootProfileProvider } from './security/security_root_profile';
 import { createMetricsDataSourceProfileProviders } from './common/metrics_data_source_profile';
+import { createPetsRootProfileProvider } from './pets/pets_root_profile/profile';
+import { createPetsDataSourceProfileProvider } from './pets/pets_data_source_profile';
 
 /**
  * Register profile providers for root, data source, and document contexts to the profile profile services
@@ -105,6 +107,7 @@ export const registerProfileProviders = ({
  * @returns An array of available root profile providers
  */
 const createRootProfileProviders = (providerServices: ProfileProviderServices) => [
+  createPetsRootProfileProvider(),
   createExampleRootProfileProvider(),
   createExampleSolutionViewRootProfileProvider(),
   createClassicNavRootProfileProvider(providerServices),
@@ -118,6 +121,7 @@ const createRootProfileProviders = (providerServices: ProfileProviderServices) =
  * @returns An array of available data source profile providers
  */
 const createDataSourceProfileProviders = (providerServices: ProfileProviderServices) => [
+  createPetsDataSourceProfileProvider(),
   createExampleDataSourceProfileProvider(),
   createPatternsDataSourceProfileProvider(providerServices),
   createDeprecationLogsDataSourceProfileProvider(),

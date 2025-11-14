@@ -283,7 +283,12 @@ export const createExampleDataSourceProfileProvider = (): DataSourceProfileProvi
   resolve: (params) => {
     const indexPattern = extractIndexPatternFrom(params);
 
-    if (indexPattern !== 'my-example-logs' && indexPattern !== 'my-example-logs,logstash*') {
+    // Temporarily modified to work with Kibana sample web logs
+    if (
+      indexPattern !== 'my-example-logs' &&
+      indexPattern !== 'my-example-logs,logstash*' &&
+      indexPattern !== 'kibana_sample_data_logs'
+    ) {
       return { isMatch: false };
     }
 

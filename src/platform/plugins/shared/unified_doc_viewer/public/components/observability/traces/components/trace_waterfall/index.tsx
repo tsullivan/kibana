@@ -14,7 +14,8 @@ import React, { useCallback, useState } from 'react';
 import { EuiDelayRender } from '@elastic/eui';
 import { ContentFrameworkSection } from '../../../../..';
 import { getUnifiedDocViewerServices } from '../../../../../plugin';
-import { FullScreenWaterfall } from '../full_screen_waterfall';
+// TODO: Remove FullScreenWaterfall usage completely once flyout version is validated
+import { TraceWaterfallFlyout } from './flyout';
 import { TraceWaterfallTourStep } from './full_screen_waterfall_tour_step';
 
 interface Props {
@@ -39,7 +40,7 @@ const sectionTitle = i18n.translate('unifiedDocViewer.observability.traces.trace
 
 export function TraceWaterfall({ traceId, docId, serviceName, dataView }: Props) {
   const { data } = getUnifiedDocViewerServices();
-  const [showFullScreenWaterfall, setShowFullScreenWaterfall] = useState(false);
+  const [showFlyout, setShowFlyout] = useState(false);
   const { from: rangeFrom, to: rangeTo } = data.query.timefilter.timefilter.getAbsoluteTime();
   const getParentApi = useCallback(
     () => ({
@@ -60,16 +61,14 @@ export function TraceWaterfall({ traceId, docId, serviceName, dataView }: Props)
 
   return (
     <>
-      {showFullScreenWaterfall ? (
-        <FullScreenWaterfall
+      {showFlyout ? (
+        <TraceWaterfallFlyout
           traceId={traceId}
           rangeFrom={rangeFrom}
           rangeTo={rangeTo}
           dataView={dataView}
           serviceName={serviceName}
-          onExitFullScreen={() => {
-            setShowFullScreenWaterfall(false);
-          }}
+          onClose={() => setShowFlyout(false)}
         />
       ) : null}
       <ContentFrameworkSection
@@ -79,7 +78,7 @@ export function TraceWaterfall({ traceId, docId, serviceName, dataView }: Props)
         actions={[
           {
             icon: 'fullScreen',
-            onClick: () => setShowFullScreenWaterfall(true),
+            onClick: () => setShowFlyout(true),
             label: fullScreenButtonLabel,
             ariaLabel: fullScreenButtonLabel,
             id: actionId,
@@ -96,7 +95,7 @@ export function TraceWaterfall({ traceId, docId, serviceName, dataView }: Props)
           <TraceWaterfallTourStep
             actionId={actionId}
             fullScreenButtonLabel={fullScreenButtonLabel}
-            onFullScreenLinkClick={() => setShowFullScreenWaterfall(true)}
+            onFullScreenLinkClick={() => setShowFlyout(true)}
           />
         </EuiDelayRender>
       </ContentFrameworkSection>

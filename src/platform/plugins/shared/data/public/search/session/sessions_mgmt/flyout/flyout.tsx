@@ -7,28 +7,16 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import {
-  EuiBetaBadge,
-  EuiButtonEmpty,
-  EuiFlexGroup,
-  EuiFlyout,
-  EuiFlyoutBody,
-  EuiFlyoutFooter,
-  EuiFlyoutHeader,
-  EuiTitle,
-  useGeneratedHtmlId,
-} from '@elastic/eui';
+import { EuiButtonEmpty, EuiFlyoutBody, EuiFlyoutFooter } from '@elastic/eui';
 import { FormattedMessage } from '@kbn/i18n-react';
-import { i18n } from '@kbn/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 import type { CoreStart } from '@kbn/core/public';
 import type { SearchSessionsConfigSchema } from '../../../../../server/config';
 import type { SearchSessionsMgmtAPI } from '../lib/api';
 import { SearchSessionsMgmtTable } from '../components/table';
 import type { SearchUsageCollector } from '../../../collectors';
-import type { BackgroundSearchOpenedHandler, LocatorsStart } from '../types';
+import type { BackgroundSearchOpenedHandler, LocatorsStart, UISession } from '../types';
 import { getColumns } from './get_columns';
-import { FLYOUT_WIDTH } from './constants';
 import type { ISearchSessionEBTManager } from '../../ebt_manager';
 
 export const Flyout = ({
@@ -43,6 +31,7 @@ export const Flyout = ({
   appId,
   trackingProps,
   onBackgroundSearchOpened,
+  onOpenChildFlyout,
 }: {
   onClose: () => void;
   api: SearchSessionsMgmtAPI;
@@ -55,27 +44,17 @@ export const Flyout = ({
   appId?: string;
   trackingProps: { openedFrom: string };
   onBackgroundSearchOpened?: BackgroundSearchOpenedHandler;
+  onOpenChildFlyout?: (session: UISession) => void;
 }) => {
-  const flyoutId = useGeneratedHtmlId();
-  const technicalPreviewLabel = i18n.translate('data.session_mgmt.technical_preview_label', {
-    defaultMessage: 'Technical preview',
-  });
+  const handleOpenChildFlyout = useCallback(
+    (session: UISession) => {
+      onOpenChildFlyout?.(session);
+    },
+    [onOpenChildFlyout]
+  );
 
   return (
-    <EuiFlyout size={FLYOUT_WIDTH} aria-labelledby={flyoutId} onClose={onClose}>
-      <EuiFlyoutHeader hasBorder>
-        <EuiFlexGroup alignItems="center">
-          <EuiTitle id={flyoutId} size="m">
-            <h1>
-              <FormattedMessage
-                id="data.session_mgmt.flyout_title"
-                defaultMessage="Background searches"
-              />
-            </h1>
-          </EuiTitle>
-          <EuiBetaBadge label={technicalPreviewLabel}>{technicalPreviewLabel}</EuiBetaBadge>
-        </EuiFlexGroup>
-      </EuiFlyoutHeader>
+    <>
       <EuiFlyoutBody>
         <SearchSessionsMgmtTable
           core={coreStart}
@@ -86,7 +65,12 @@ export const Flyout = ({
           searchUsageCollector={usageCollector}
           locators={locators}
           hideRefreshButton
-          getColumns={getColumns}
+          getColumns={(props) =>
+            getColumns!({
+              ...props,
+              onInspectSession: handleOpenChildFlyout,
+            } as any)
+          }
           appId={appId}
           onBackgroundSearchOpened={onBackgroundSearchOpened}
           searchSessionEBTManager={ebtManager}
@@ -94,10 +78,10 @@ export const Flyout = ({
         />
       </EuiFlyoutBody>
       <EuiFlyoutFooter>
-        <EuiButtonEmpty onClick={onClose}>
+        <EuiButtonEmpty onClick={onClose} aria-label="Close background searches flyout">
           <FormattedMessage id="data.session_mgmt.close_flyout" defaultMessage="Close" />
         </EuiButtonEmpty>
       </EuiFlyoutFooter>
-    </EuiFlyout>
+    </>
   );
 };

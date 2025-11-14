@@ -98,6 +98,7 @@ export function WaterfallFlyout({
       onClose={onCloseFlyout}
       aria-labelledby={flyoutId}
       id={flyoutId}
+      session="start"
     >
       <EuiFlyoutHeader hasBorder>
         <EuiSkeletonTitle isLoading={loading}>

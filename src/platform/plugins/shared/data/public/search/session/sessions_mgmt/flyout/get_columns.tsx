@@ -23,6 +23,7 @@ export const getColumns: GetColumnsFn = ({
   timezone,
   onActionComplete,
   onBackgroundSearchOpened,
+  onInspectSession,
 }: any) => [
   columns.nameColumn({
     core,
@@ -35,6 +36,7 @@ export const getColumns: GetColumnsFn = ({
     core,
     api,
     onActionComplete,
+    onInspectSession,
     allowedActions: [ACTION.INSPECT, ACTION.EXTEND, ACTION.RENAME, ACTION.DELETE],
   }),
 ];
