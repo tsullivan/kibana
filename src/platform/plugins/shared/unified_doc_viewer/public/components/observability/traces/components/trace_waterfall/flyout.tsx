@@ -98,12 +98,19 @@ export function TraceWaterfallFlyout({
   return (
     <>
       <EuiFlyout
-        session="inherit"
-        size="fill"
+        session="start"
+        size="m"
         ownFocus={false}
         onClose={onClose}
         data-test-subj="unifiedDocViewerObservabilityTracesTraceWaterfallFlyout"
         aria-labelledby="traceWaterfallFlyoutTitle"
+        flyoutMenuProps={{
+          title: i18n.translate('unifiedDocViewer.observability.traces.waterfallFlyout.menuTitle', {
+            defaultMessage: 'Trace timeline',
+          }),
+          titleId: 'traceWaterfallFlyoutTitle',
+        }}
+        resizable
       >
         <EuiFlyoutHeader hasBorder>
           <EuiTitle size="m">
