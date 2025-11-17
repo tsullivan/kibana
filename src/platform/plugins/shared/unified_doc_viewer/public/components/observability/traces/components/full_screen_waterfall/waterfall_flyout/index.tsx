@@ -17,7 +17,6 @@ import {
   EuiTab,
   EuiTabs,
   EuiTitle,
-  useEuiTheme,
 } from '@elastic/eui';
 import type { DataTableRecord } from '@kbn/discover-utils';
 import { i18n } from '@kbn/i18n';
@@ -88,16 +87,17 @@ export function WaterfallFlyout({
   flyoutId,
 }: Props) {
   const [selectedTabId, setSelectedTabId] = useState(tabIds.OVERVIEW);
-  const { euiTheme } = useEuiTheme();
 
   return (
     <EuiFlyout
       includeFixedHeadersInFocusTrap={false}
       ownFocus={false}
-      css={{ zIndex: (euiTheme.levels.mask as number) + 1, top: '0' }}
+      css={{ top: '0' }}
       onClose={onCloseFlyout}
       aria-labelledby={flyoutId}
       id={flyoutId}
+      flyoutMenuProps={{ title, titleId: flyoutId }}
+      resizable
     >
       <EuiFlyoutHeader hasBorder>
         <EuiSkeletonTitle isLoading={loading}>
