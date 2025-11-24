@@ -5,12 +5,13 @@
  * 2.0.
  */
 
-import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
-import React from 'react';
+import { EuiButton, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import React, { useState } from 'react';
 import { ConversationAgentSelector } from '../conversation_agent_selector';
 import { ConversationActionButton } from './conversation_action_button';
 import { useSendMessage } from '../../../context/send_message/send_message_context';
 import { ConnectorSelector } from '../../connector_selector';
+import { PromptsController } from '../../prompts/prompts_controller';
 
 interface ConversationInputActionsProps {
   onSubmit: () => void;
@@ -26,6 +27,7 @@ export const ConversationInputActions: React.FC<ConversationInputActionsProps> =
   agentId,
 }) => {
   const { connectorSelection } = useSendMessage();
+  const [isPromptsControllerOpen, setIsPromptsControllerOpen] = useState(false);
 
   return (
     <EuiFlexItem grow={false}>
@@ -46,6 +48,15 @@ export const ConversationInputActions: React.FC<ConversationInputActionsProps> =
           <EuiFlexGroup gutterSize="s" responsive={false} alignItems="center">
             <EuiFlexItem grow={false}>
               <ConversationAgentSelector agentId={agentId} />
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <PromptsController
+                isOpen={isPromptsControllerOpen}
+                onClose={() => setIsPromptsControllerOpen(false)}
+              />
+              <EuiButton iconType="plus" onClick={() => setIsPromptsControllerOpen(true)}>
+                Add Prompt
+              </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <ConversationActionButton
