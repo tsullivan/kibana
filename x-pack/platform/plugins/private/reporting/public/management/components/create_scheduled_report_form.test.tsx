@@ -29,38 +29,17 @@ import { userProfileServiceMock } from '@kbn/core-user-profile-browser-mocks';
 import { transformScheduledReport } from '../utils';
 
 jest.mock('@kbn/kibana-react-plugin/public');
-jest.mock('@kbn/reporting-public', () => {
-  // Import the actual ReportingAPIClient to use its real implementation
-  const actualReportingPublic = jest.requireActual('@kbn/reporting-public/reporting_api_client');
-  return {
-    ReportingAPIClient: actualReportingPublic.ReportingAPIClient,
-    useKibana: jest.fn(),
-  };
-});
-
-jest.mock('@kbn/reporting-public/share', () => {
-  return {
-    getPdfReportParams: jest.fn(({ sharingData }) => ({
-      objectType: 'printablePdfV2',
-      layout: {
-        id: 'preserve_layout',
-        dimensions: { height: 768, width: 1024 },
-      },
-      locatorParams: [sharingData.locatorParams],
-    })),
-    getPngReportParams: jest.fn(({ sharingData }) => ({
-      objectType: 'pngV2',
-      layout: {
-        id: 'preserve_layout',
-        dimensions: { height: 768, width: 1024 },
-      },
-      locatorParams: sharingData.locatorParams,
-    })),
-    getCsvReportParams: jest.fn(({ sharingData }) => ({
-      locatorParams: sharingData.locatorParams,
-    })),
-  };
-});
+jest.mock('@kbn/reporting-public', () => ({
+  useKibana: jest.fn(),
+  ReportingAPIClient: jest.fn().mockImplementation(() => ({
+    getDecoratedJobParams: jest.fn().mockResolvedValue({
+      browserTimezone: 'UTC',
+      version: 'x.x.x',
+      title: 'Scheduled report 2',
+      objectType: 'dashboard',
+    }),
+  })),
+}));
 
 jest.mock('../hooks/use_get_user_profile_query');
 jest.mock('../apis/get_reporting_health');
