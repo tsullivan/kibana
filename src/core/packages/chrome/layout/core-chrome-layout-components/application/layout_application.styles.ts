@@ -16,10 +16,8 @@ const root: EmotionFn = (useEuiTheme) =>
   css`
     grid-area: application;
 
-    height: calc(100% - ${layoutVar('application.marginBottom')});
-    width: calc(100% - ${layoutVar('application.marginRight')});
-    margin-bottom: ${layoutVar('application.marginBottom')};
-    margin-right: ${layoutVar('application.marginRight')};
+    height: 100%;
+    width: 100%;
 
     z-index: ${layoutLevels.content};
 
@@ -34,8 +32,6 @@ const root: EmotionFn = (useEuiTheme) =>
     // only restrict overflow scroll on screen (not print) to allow for full page printing
     @media screen {
       ${euiOverflowScroll(useEuiTheme, { direction: 'y' })};
-      // reset the height back to respect the margin bottom
-      height: calc(100% - ${layoutVar('application.marginBottom')});
     }
   `;
 

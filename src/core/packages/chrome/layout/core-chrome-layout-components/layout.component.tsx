@@ -8,6 +8,7 @@
  */
 
 import React from 'react';
+import { css } from '@emotion/react';
 import { LayoutApplication } from './application';
 import { LayoutBanner } from './banner';
 import { LayoutNavigation } from './navigation';
@@ -70,12 +71,39 @@ export const ChromeLayoutComponent = ({ children, ...props }: ChromeLayoutCompon
     </LayoutApplication>
   );
 
+  const applicationGapLeft = (
+    <div
+      css={css`
+        grid-area: application-gap-left;
+      `}
+    />
+  );
+
+  const applicationGapRight = (
+    <div
+      css={css`
+        grid-area: application-gap-right;
+      `}
+    />
+  );
+
+  const gapBottom = (
+    <div
+      css={css`
+        grid-area: gap-bottom;
+      `}
+    />
+  );
+
   return (
     <div css={styles.css} style={styles.style}>
       {banner}
       {header}
       {navigation}
+      {applicationGapLeft}
       {application}
+      {applicationGapRight}
+      {gapBottom}
       {footer}
       {sidebar}
     </div>

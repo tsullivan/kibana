@@ -24,11 +24,14 @@ const cssProp = css`
   display: grid;
 
   grid-template-areas:
-    'banner banner banner'
-    'header header header'
-    'navigation application sidebar'
-    'footer footer footer';
+    'banner banner banner banner banner'
+    'header header header header header'
+    'navigation application-gap-left application application-gap-right sidebar'
+    'gap-bottom gap-bottom gap-bottom gap-bottom gap-bottom'
+    'footer footer footer footer footer';
 `;
+
+const gap = 8;
 
 // TODO: clintandrewhall - Handle smaller screens using `useEuiBreakpoints`.
 export const useLayoutStyles = (layoutState: LayoutState) => {
@@ -37,13 +40,16 @@ export const useLayoutStyles = (layoutState: LayoutState) => {
   const style = {
     gridTemplateColumns: `
       ${navigationWidth}px
+      ${gap}px
       1fr
+      ${gap}px
       ${sidebarWidth}px
     `,
     gridTemplateRows: `
       ${bannerHeight}px
       ${headerHeight}px
       1fr
+      ${gap}px
       ${footerHeight}px
     `,
   };
