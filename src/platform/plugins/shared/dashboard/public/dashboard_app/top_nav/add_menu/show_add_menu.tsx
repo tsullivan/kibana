@@ -99,6 +99,9 @@ export const AddMenu = ({ dashboardApi, anchorElement }: AddMenuProps) => {
       flyoutProps: {
         'data-test-subj': 'dashboardPanelSelectionFlyout',
         triggerId: 'dashboardAddTopNavButton',
+        title: i18n.translate('dashboard.solutionToolbar.addPanelFlyout.headingText', {
+          defaultMessage: 'Add panel',
+        }),
       },
     });
   }, [dashboardApi]);
