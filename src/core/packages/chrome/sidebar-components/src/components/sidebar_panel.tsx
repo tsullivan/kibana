@@ -55,11 +55,7 @@ export const SidebarPanel: FC<SidebarPanelProps> = ({ children }) => {
   const { chromeStyle } = useLayoutConfig();
 
   return (
-    <aside
-      css={sidebarWrapperStyles}
-      data-test-subj="sidebarPanel"
-      aria-label={sidebarAriaLabel}
-    >
+    <aside css={sidebarWrapperStyles} data-test-subj="sidebarPanel" aria-label={sidebarAriaLabel}>
       <PanelResizeHandle />
       <EuiPanel
         paddingSize="none"
