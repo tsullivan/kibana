@@ -46,27 +46,29 @@ export const SidebarHeader: FC<SidebarHeaderProps> = ({ title, children, onClose
   );
 
   return (
-    <EuiFlexGroup css={headerStyles} gutterSize="s">
-      <EuiFlexItem>{titleContent}</EuiFlexItem>
-      {(actions || onClose) && (
-        <EuiFlexItem grow={false}>
-          <EuiFlexGroup gutterSize="xs" alignItems="center">
-            {actions && <EuiFlexItem grow={false}>{actions}</EuiFlexItem>}
-            {onClose && (
-              <EuiFlexItem grow={false}>
-                <EuiButtonIcon
-                  iconType="cross"
-                  onClick={onClose}
-                  aria-label={i18n.translate('core.ui.chrome.sidebar.closeSidebarAriaLabel', {
-                    defaultMessage: 'Close Sidebar',
-                  })}
-                  color="text"
-                />
-              </EuiFlexItem>
-            )}
-          </EuiFlexGroup>
-        </EuiFlexItem>
-      )}
-    </EuiFlexGroup>
+    <header data-test-subj="sidebarHeader">
+      <EuiFlexGroup css={headerStyles} gutterSize="s">
+        <EuiFlexItem>{titleContent}</EuiFlexItem>
+        {(actions || onClose) && (
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup gutterSize="xs" alignItems="center">
+              {actions && <EuiFlexItem grow={false}>{actions}</EuiFlexItem>}
+              {onClose && (
+                <EuiFlexItem grow={false}>
+                  <EuiButtonIcon
+                    iconType="cross"
+                    onClick={onClose}
+                    aria-label={i18n.translate('core.ui.chrome.sidebar.closeSidebarAriaLabel', {
+                      defaultMessage: 'Close side panel',
+                    })}
+                    color="text"
+                  />
+                </EuiFlexItem>
+              )}
+            </EuiFlexGroup>
+          </EuiFlexItem>
+        )}
+      </EuiFlexGroup>
+    </header>
   );
 };

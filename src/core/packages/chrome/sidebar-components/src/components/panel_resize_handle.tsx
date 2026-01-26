@@ -106,8 +106,9 @@ export const PanelResizeHandle: FC<{}> = () => {
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onKeyDown={handleKeyDown}
+      data-test-subj="sidebarResizeHandle"
       aria-label={i18n.translate('core.ui.chrome.sidebar.resizePanelAriaLabel', {
-        defaultMessage: 'Resize panel',
+        defaultMessage: 'Resize side panel. Use left and right arrow keys to adjust width.',
       })}
     />
   );

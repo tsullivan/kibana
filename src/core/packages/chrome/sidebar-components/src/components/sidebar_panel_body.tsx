@@ -30,7 +30,7 @@ export interface SidebarBodyProps {
 /** Scrollable body component for sidebar apps */
 export const SidebarBody: FC<SidebarBodyProps> = ({ children }) => {
   return (
-    <EuiPanel css={bodyStyles} hasShadow={false} paddingSize="none">
+    <EuiPanel css={bodyStyles} hasShadow={false} paddingSize="none" data-test-subj="sidebarBody">
       {children}
     </EuiPanel>
   );

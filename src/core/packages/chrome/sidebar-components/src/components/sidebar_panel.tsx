@@ -10,10 +10,11 @@
 import type { FC, ReactNode } from 'react';
 import React from 'react';
 import type { UseEuiTheme } from '@elastic/eui';
+import { EuiPanel, euiShadow } from '@elastic/eui';
 import { getHighContrastBorder } from '@kbn/core-chrome-layout-utils';
 import { useLayoutConfig } from '@kbn/core-chrome-layout-components';
-import { EuiPanel, euiShadow } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { i18n } from '@kbn/i18n';
 import { PanelResizeHandle } from './panel_resize_handle';
 
 const sidebarWrapperStyles = (theme: UseEuiTheme) => css`
@@ -42,14 +43,23 @@ export interface SidebarPanelProps {
   children: ReactNode;
 }
 
+const sidebarAriaLabel = i18n.translate('core.ui.chrome.sidebar.sidebarAriaLabel', {
+  defaultMessage: 'Side panel',
+});
+
 /**
  * Minimal container for sidebar app content.
  * Apps are responsible for rendering their own header using SidebarHeader component.
  */
 export const SidebarPanel: FC<SidebarPanelProps> = ({ children }) => {
   const { chromeStyle } = useLayoutConfig();
+
   return (
-    <div css={sidebarWrapperStyles}>
+    <aside
+      css={sidebarWrapperStyles}
+      data-test-subj="sidebarPanel"
+      aria-label={sidebarAriaLabel}
+    >
       <PanelResizeHandle />
       <EuiPanel
         paddingSize="none"
@@ -60,6 +70,6 @@ export const SidebarPanel: FC<SidebarPanelProps> = ({ children }) => {
       >
         {children}
       </EuiPanel>
-    </div>
+    </aside>
   );
 };
