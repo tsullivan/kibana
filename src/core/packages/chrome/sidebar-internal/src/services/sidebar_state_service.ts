@@ -16,8 +16,8 @@ import type { SidebarRegistryService } from './sidebar_registry_service';
 import type { SidebarAppStateService } from './sidebar_app_state_service';
 import type { StorageHelper } from './storage_helper';
 
-const DEFAULT_WIDTH = 400;
-const MIN_WIDTH = 200;
+const DEFAULT_WIDTH = 460;
+const MIN_WIDTH = 320;
 const MAX_WIDTH_PERCENT = 0.5;
 
 function getMaxWidth(): number {
@@ -125,11 +125,14 @@ export class SidebarStateService {
   }
 
   setWidth(width: number): void {
+    width = Math.floor(width);
     const maxWidth = getMaxWidth();
     width = Math.max(MIN_WIDTH, Math.min(maxWidth, width));
 
-    this.width$.next(width);
-    this.storage.set('width', width);
+    if (this.getWidth() !== width) {
+      this.width$.next(width);
+      this.storage.set('width', width);
+    }
   }
 
   getWidth(): number {
