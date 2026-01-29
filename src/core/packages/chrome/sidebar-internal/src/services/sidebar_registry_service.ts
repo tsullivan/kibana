@@ -9,7 +9,7 @@
 
 import type { Observable } from 'rxjs';
 import { map, startWith, Subject, distinctUntilChanged } from 'rxjs';
-import { memoize } from 'decko';
+import { bind, memoize } from 'decko';
 import type { SidebarAppDefinition, SidebarAppId } from '@kbn/core-chrome-sidebar';
 import { isValidSidebarAppId } from '@kbn/core-chrome-sidebar';
 
@@ -17,6 +17,7 @@ export class SidebarRegistryService {
   private readonly registeredApps = new Map<string, SidebarAppDefinition>();
   private readonly changed$ = new Subject<void>();
 
+  @bind
   registerApp<TParams = {}>(app: SidebarAppDefinition<TParams>): void {
     if (!isValidSidebarAppId(app.appId)) {
       throw new Error(
@@ -36,6 +37,7 @@ export class SidebarRegistryService {
     this.changed$.next();
   }
 
+  @bind
   getApp(appId: SidebarAppId): SidebarAppDefinition {
     const app = this.registeredApps.get(appId);
     if (!app) {
@@ -44,6 +46,7 @@ export class SidebarRegistryService {
     return app;
   }
 
+  @bind
   hasApp(appId: SidebarAppId): boolean {
     return this.registeredApps.has(appId);
   }

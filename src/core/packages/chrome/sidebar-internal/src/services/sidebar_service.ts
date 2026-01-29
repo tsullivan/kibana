@@ -13,7 +13,7 @@ import type {
   SidebarApp,
   SidebarAppId,
 } from '@kbn/core-chrome-sidebar';
-import { memoize } from 'decko';
+import { bind, memoize } from 'decko';
 import { SidebarRegistryService } from './sidebar_registry_service';
 import { SidebarStateService } from './sidebar_state_service';
 import { SidebarAppStateService } from './sidebar_app_state_service';
@@ -37,7 +37,7 @@ export class SidebarService {
 
   setup(): SidebarSetup {
     return {
-      registerApp: this.registry.registerApp.bind(this.registry),
+      registerApp: this.registry.registerApp,
     };
   }
 
@@ -45,20 +45,21 @@ export class SidebarService {
     this.state.start();
 
     return {
-      isOpen$: this.state.isOpen$.bind(this.state),
-      isOpen: this.state.isOpen.bind(this.state),
-      close: this.state.close.bind(this.state),
-      getWidth$: this.state.getWidth$.bind(this.state),
-      getWidth: this.state.getWidth.bind(this.state),
-      setWidth: this.state.setWidth.bind(this.state),
-      getCurrentAppId$: this.state.getCurrentAppId$.bind(this.state),
-      getCurrentAppId: this.state.getCurrentAppId.bind(this.state),
-      hasApp: this.registry.hasApp.bind(this.registry),
-      getApp: this.getApp.bind(this),
-      getAppDefinition: this.registry.getApp.bind(this.registry),
+      isOpen$: this.state.isOpen$,
+      isOpen: this.state.isOpen,
+      close: this.state.close,
+      getWidth$: this.state.getWidth$,
+      getWidth: this.state.getWidth,
+      setWidth: this.state.setWidth,
+      getCurrentAppId$: this.state.getCurrentAppId$,
+      getCurrentAppId: this.state.getCurrentAppId,
+      hasApp: this.registry.hasApp,
+      getApp: this.getApp,
+      getAppDefinition: this.registry.getApp,
     };
   }
 
+  @bind
   @memoize()
   private getApp<TParams = unknown>(appId: SidebarAppId): SidebarApp<TParams> {
     return {

@@ -9,7 +9,7 @@
 
 import type { Observable, Subscription } from 'rxjs';
 import { BehaviorSubject, filter, map, take } from 'rxjs';
-import { memoize } from 'decko';
+import { bind, memoize } from 'decko';
 import type { SidebarAppId } from '@kbn/core-chrome-sidebar';
 import { isValidSidebarAppId } from '@kbn/core-chrome-sidebar';
 import type { SidebarRegistryService } from './sidebar_registry_service';
@@ -35,16 +35,19 @@ export class SidebarStateService {
     private readonly storage: StorageHelper
   ) {}
 
+  @bind
   @memoize
   isOpen$(): Observable<boolean> {
     return this.currentAppId$.pipe(map((appId) => appId !== null));
   }
 
+  @bind
   @memoize
   getWidth$(): Observable<number> {
     return this.width$.asObservable();
   }
 
+  @bind
   @memoize
   getCurrentAppId$(): Observable<SidebarAppId | null> {
     return this.currentAppId$.asObservable();
@@ -95,6 +98,7 @@ export class SidebarStateService {
       });
   }
 
+  @bind
   open<TParams = {}>(appId: SidebarAppId, params?: Partial<TParams>): void {
     if (!this.registry.hasApp(appId)) {
       throw new Error(`[Sidebar State] Cannot open sidebar. App not registered: ${appId}`);
@@ -115,15 +119,18 @@ export class SidebarStateService {
     this.storage.set('currentAppId', appId, 'session');
   }
 
+  @bind
   close(): void {
     this.currentAppId$.next(null);
     this.storage.set('currentAppId', null, 'session');
   }
 
+  @bind
   isOpen(): boolean {
     return this.currentAppId$.getValue() !== null;
   }
 
+  @bind
   setWidth(width: number): void {
     width = Math.floor(width);
     const maxWidth = getMaxWidth();
@@ -135,10 +142,12 @@ export class SidebarStateService {
     }
   }
 
+  @bind
   getWidth(): number {
     return this.width$.getValue();
   }
 
+  @bind
   getCurrentAppId(): SidebarAppId | null {
     return this.currentAppId$.getValue();
   }
