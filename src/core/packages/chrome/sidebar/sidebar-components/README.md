@@ -1,12 +1,7 @@
 # @kbn/core-chrome-sidebar-components
 
-React components and hooks for the Chrome Sidebar.
-
-This package contains:
-- **Components**: `Sidebar`, `SidebarHeader`, `SidebarBody`
-- **Hooks**: `useSidebar`, `useSidebarWidth`, `useSidebarApp`
+Public React components and hooks for interacting with the Chrome Sidebar in plugins. Provides `Sidebar`, `SidebarHeader`, `SidebarBody`, and hooks such as `useSidebar`, `useSidebarApp`, and `useSidebarWidth`.
 
 ```tsx
-import type { SidebarComponentProps } from '@kbn/core-chrome-sidebar';
-import { SidebarHeader, SidebarBody, useSidebar } from '@kbn/core-chrome-sidebar-components';
+import { SidebarHeader, SidebarBody, useSidebarApp } from '@kbn/core-chrome-sidebar-components';
 ```

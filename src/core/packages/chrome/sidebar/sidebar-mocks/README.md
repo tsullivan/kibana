@@ -1,10 +1,7 @@
 # @kbn/core-chrome-sidebar-mocks
 
-Jest mocks for the Chrome Sidebar service.
+Jest mocks for the Chrome Sidebar service, including setup and start contract helpers.
 
-```tsx
+```ts
 import { sidebarServiceMock } from '@kbn/core-chrome-sidebar-mocks';
-
-const setupMock = sidebarServiceMock.createSetupContract();
-const startMock = sidebarServiceMock.createStartContract();
 ```

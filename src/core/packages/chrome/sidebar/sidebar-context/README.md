@@ -1,13 +1,3 @@
 # @kbn/core-chrome-sidebar-context
 
-React context for the Sidebar service.
-
-This package is part of Kibana's shared dependencies (`kbn-ui-shared-deps-src`), ensuring all plugins share the same context instance at runtime.
-
-```tsx
-import { useSidebarService } from '@kbn/core-chrome-sidebar-context';
-
-const sidebar = useSidebarService();
-const myApp = sidebar.getApp('myApp');
-myApp.open();
-```
+React context and provider for the Sidebar service, shipped via `kbn-ui-shared-deps-src` so all plugins share the same instance. Most consumers should use `@kbn/core-chrome-sidebar-components` instead of this package directly.
