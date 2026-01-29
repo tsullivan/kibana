@@ -2658,12 +2658,10 @@
     chroma-js "^2.4.2"
     lodash "^4.17.21"
 
-"@elastic/eui@112.1.0":
+"@elastic/eui@file:./eui_112.1.0-flyout-offset-001.tgz":
   version "112.1.0"
-  resolved "https://registry.yarnpkg.com/@elastic/eui/-/eui-112.1.0.tgz#2c1fe3d426e5f40036fa1ac8fd5f2cb96a537193"
-  integrity sha512-tWM6E6iQ+yqxhOBApvsOzdQKR0u4SYSaj7LFi334grUARXWNsYbZOqJoqXcacpkjE0aw20BtdM7OC19AhVB+bw==
+  resolved "file:./eui_112.1.0-flyout-offset-001.tgz#1ec88b6f079fbe79ec52216f4411001f00e3e25f"
   dependencies:
-    "@elastic/eui-theme-common" "7.3.0"
     "@elastic/prismjs-esql" "^1.1.2"
     "@hello-pangea/dnd" "^16.6.0"
     "@types/lodash" "^4.14.202"
