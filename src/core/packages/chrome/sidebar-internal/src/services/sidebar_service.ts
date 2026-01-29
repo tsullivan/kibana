@@ -13,11 +13,11 @@ import type {
   SidebarApp,
   SidebarAppId,
 } from '@kbn/core-chrome-sidebar';
-import { bind, memoize } from 'decko';
 import { SidebarRegistryService } from './sidebar_registry_service';
 import { SidebarStateService } from './sidebar_state_service';
 import { SidebarAppStateService } from './sidebar_app_state_service';
 import { StorageHelper } from './storage_helper';
+import { bind, memoize } from './utils';
 
 /** Composite service for sidebar: registry, UI state, and app params */
 export class SidebarService {
@@ -60,7 +60,7 @@ export class SidebarService {
   }
 
   @bind
-  @memoize()
+  @memoize
   private getApp<TParams = unknown>(appId: SidebarAppId): SidebarApp<TParams> {
     return {
       open: (params?: Partial<TParams>) => this.state.open(appId, params),

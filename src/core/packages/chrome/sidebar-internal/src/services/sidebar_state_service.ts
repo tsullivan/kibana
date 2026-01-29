@@ -9,12 +9,12 @@
 
 import type { Observable, Subscription } from 'rxjs';
 import { BehaviorSubject, filter, map, take } from 'rxjs';
-import { bind, memoize } from 'decko';
 import type { SidebarAppId } from '@kbn/core-chrome-sidebar';
 import { isValidSidebarAppId } from '@kbn/core-chrome-sidebar';
 import type { SidebarRegistryService } from './sidebar_registry_service';
 import type { SidebarAppStateService } from './sidebar_app_state_service';
 import type { StorageHelper } from './storage_helper';
+import { bind, memoize } from './utils';
 
 const DEFAULT_WIDTH = 460;
 const MIN_WIDTH = 320;
