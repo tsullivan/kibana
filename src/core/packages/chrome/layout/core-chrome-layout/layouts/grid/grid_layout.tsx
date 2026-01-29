@@ -8,7 +8,7 @@
  */
 
 import type { ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { combineLatest, map } from 'rxjs';
 import type { ChromeLayoutConfig } from '@kbn/core-chrome-layout-components';
 import {
@@ -16,6 +16,7 @@ import {
   ChromeLayoutConfigProvider,
   SimpleDebugOverlay,
 } from '@kbn/core-chrome-layout-components';
+import { useEuiThemeCSSVariables } from '@elastic/eui';
 import useObservable from 'react-use/lib/useObservable';
 import { GridLayoutGlobalStyles } from './grid_global_app_style';
 import type {
@@ -110,6 +111,15 @@ export class GridLayout implements LayoutService {
         ...layoutConfigs[chromeStyle],
         sidebarWidth,
       };
+
+      // Set EUI CSS variable for flyout offset to account for sidebar
+      // This enables EUI flyouts to position correctly when sidebar is visible
+      const { setGlobalCSSVariables } = useEuiThemeCSSVariables();
+      useEffect(() => {
+        setGlobalCSSVariables({
+          '--euiFlyoutOffsetInlineEnd': sidebarWidth > 0 ? `${sidebarWidth}px` : '0px',
+        });
+      }, [sidebarWidth, setGlobalCSSVariables]);
 
       // Assign main layout parts first
       let header: ReactNode;
