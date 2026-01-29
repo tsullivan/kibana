@@ -9,6 +9,6 @@
 
 module.exports = {
   preset: '@kbn/test',
-  rootDir: '../../../../..',
-  roots: ['<rootDir>/src/core/packages/chrome/sidebar-components'],
+  rootDir: '../../../../../..',
+  roots: ['<rootDir>/src/core/packages/chrome/sidebar/sidebar-components'],
 };
