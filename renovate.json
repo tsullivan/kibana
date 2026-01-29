@@ -4486,6 +4486,7 @@
         "@opentelemetry/exporter-trace-otlp-http",
         "@opentelemetry/exporter-trace-otlp-proto",
         "@opentelemetry/instrumentation",
+        "@opentelemetry/instrumentation-hapi",
         "@opentelemetry/instrumentation-http",
         "@opentelemetry/instrumentation-undici",
         "@opentelemetry/otlp-exporter-base",

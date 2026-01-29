@@ -2236,6 +2236,27 @@ paths:
                     visualizations:
                       description: When true, allows the agent to render tabular data from tool results as interactive visualizations using custom XML elements in responses.
                       type: boolean
+                configuration_overrides:
+                  additionalProperties: false
+                  description: Runtime configuration overrides. These override the stored agent configuration for this execution only.
+                  type: object
+                  properties:
+                    instructions:
+                      description: Custom instructions for the agent.
+                      type: string
+                    tools:
+                      description: Tool selection to enable for this execution.
+                      items:
+                        additionalProperties: false
+                        type: object
+                        properties:
+                          tool_ids:
+                            items:
+                              type: string
+                            type: array
+                        required:
+                          - tool_ids
+                      type: array
                 connector_id:
                   description: Optional connector ID for the agent to use for external integrations.
                   type: string
@@ -2553,6 +2574,27 @@ paths:
                     visualizations:
                       description: When true, allows the agent to render tabular data from tool results as interactive visualizations using custom XML elements in responses.
                       type: boolean
+                configuration_overrides:
+                  additionalProperties: false
+                  description: Runtime configuration overrides. These override the stored agent configuration for this execution only.
+                  type: object
+                  properties:
+                    instructions:
+                      description: Custom instructions for the agent.
+                      type: string
+                    tools:
+                      description: Tool selection to enable for this execution.
+                      items:
+                        additionalProperties: false
+                        type: object
+                        properties:
+                          tool_ids:
+                            items:
+                              type: string
+                            type: array
+                        required:
+                          - tool_ids
+                      type: array
                 connector_id:
                   description: Optional connector ID for the agent to use for external integrations.
                   type: string
@@ -21810,6 +21852,11 @@ paths:
                                                       - beta
                                                       - experimental
                                                     type: string
+                                                  var_group_selections:
+                                                    additionalProperties:
+                                                      type: string
+                                                    description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                    type: object
                                                   vars:
                                                     additionalProperties:
                                                       additionalProperties: false
@@ -21868,6 +21915,11 @@ paths:
                                                   enabled:
                                                     description: Enable or disable that stream. Defaults to `true` (enabled).
                                                     type: boolean
+                                                  var_group_selections:
+                                                    additionalProperties:
+                                                      type: string
+                                                    description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                    type: object
                                                   vars:
                                                     additionalProperties:
                                                       anyOf:
@@ -22035,6 +22087,11 @@ paths:
                                     type: string
                                   updated_by:
                                     type: string
+                                  var_group_selections:
+                                    additionalProperties:
+                                      type: string
+                                    description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                    type: object
                                   vars:
                                     anyOf:
                                       - additionalProperties:
@@ -22797,6 +22854,11 @@ paths:
                                                     - beta
                                                     - experimental
                                                   type: string
+                                                var_group_selections:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                  type: object
                                                 vars:
                                                   additionalProperties:
                                                     additionalProperties: false
@@ -22855,6 +22917,11 @@ paths:
                                                 enabled:
                                                   description: Enable or disable that stream. Defaults to `true` (enabled).
                                                   type: boolean
+                                                var_group_selections:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                  type: object
                                                 vars:
                                                   additionalProperties:
                                                     anyOf:
@@ -23022,6 +23089,11 @@ paths:
                                   type: string
                                 updated_by:
                                   type: string
+                                var_group_selections:
+                                  additionalProperties:
+                                    type: string
+                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                  type: object
                                 vars:
                                   anyOf:
                                     - additionalProperties:
@@ -23566,6 +23638,11 @@ paths:
                                                       - beta
                                                       - experimental
                                                     type: string
+                                                  var_group_selections:
+                                                    additionalProperties:
+                                                      type: string
+                                                    description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                    type: object
                                                   vars:
                                                     additionalProperties:
                                                       additionalProperties: false
@@ -23624,6 +23701,11 @@ paths:
                                                   enabled:
                                                     description: Enable or disable that stream. Defaults to `true` (enabled).
                                                     type: boolean
+                                                  var_group_selections:
+                                                    additionalProperties:
+                                                      type: string
+                                                    description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                    type: object
                                                   vars:
                                                     additionalProperties:
                                                       anyOf:
@@ -23791,6 +23873,11 @@ paths:
                                     type: string
                                   updated_by:
                                     type: string
+                                  var_group_selections:
+                                    additionalProperties:
+                                      type: string
+                                    description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                    type: object
                                   vars:
                                     anyOf:
                                       - additionalProperties:
@@ -24314,6 +24401,11 @@ paths:
                                                     - beta
                                                     - experimental
                                                   type: string
+                                                var_group_selections:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                  type: object
                                                 vars:
                                                   additionalProperties:
                                                     additionalProperties: false
@@ -24372,6 +24464,11 @@ paths:
                                                 enabled:
                                                   description: Enable or disable that stream. Defaults to `true` (enabled).
                                                   type: boolean
+                                                var_group_selections:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                  type: object
                                                 vars:
                                                   additionalProperties:
                                                     anyOf:
@@ -24539,6 +24636,11 @@ paths:
                                   type: string
                                 updated_by:
                                   type: string
+                                var_group_selections:
+                                  additionalProperties:
+                                    type: string
+                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                  type: object
                                 vars:
                                   anyOf:
                                     - additionalProperties:
@@ -25300,6 +25402,11 @@ paths:
                                                     - beta
                                                     - experimental
                                                   type: string
+                                                var_group_selections:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                  type: object
                                                 vars:
                                                   additionalProperties:
                                                     additionalProperties: false
@@ -25358,6 +25465,11 @@ paths:
                                                 enabled:
                                                   description: Enable or disable that stream. Defaults to `true` (enabled).
                                                   type: boolean
+                                                var_group_selections:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                  type: object
                                                 vars:
                                                   additionalProperties:
                                                     anyOf:
@@ -25525,6 +25637,11 @@ paths:
                                   type: string
                                 updated_by:
                                   type: string
+                                var_group_selections:
+                                  additionalProperties:
+                                    type: string
+                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                  type: object
                                 vars:
                                   anyOf:
                                     - additionalProperties:
@@ -26161,6 +26278,11 @@ paths:
                                                     - beta
                                                     - experimental
                                                   type: string
+                                                var_group_selections:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                  type: object
                                                 vars:
                                                   additionalProperties:
                                                     additionalProperties: false
@@ -26219,6 +26341,11 @@ paths:
                                                 enabled:
                                                   description: Enable or disable that stream. Defaults to `true` (enabled).
                                                   type: boolean
+                                                var_group_selections:
+                                                  additionalProperties:
+                                                    type: string
+                                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                  type: object
                                                 vars:
                                                   additionalProperties:
                                                     anyOf:
@@ -26386,6 +26513,11 @@ paths:
                                   type: string
                                 updated_by:
                                   type: string
+                                var_group_selections:
+                                  additionalProperties:
+                                    type: string
+                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                  type: object
                                 vars:
                                   anyOf:
                                     - additionalProperties:
@@ -27904,6 +28036,11 @@ paths:
                             enabled:
                               description: Enable or disable that stream. Defaults to `true` (enabled).
                               type: boolean
+                            var_group_selections:
+                              additionalProperties:
+                                type: string
+                              description: Variable group selections. Maps var_group name to the selected option name within that group.
+                              type: object
                             vars:
                               additionalProperties:
                                 anyOf:
@@ -28014,6 +28151,11 @@ paths:
                 policy_template:
                   description: The policy template to use for the agentless package policy. If not provided, the default policy template will be used.
                   type: string
+                var_group_selections:
+                  additionalProperties:
+                    type: string
+                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                  type: object
                 vars:
                   additionalProperties:
                     anyOf:
@@ -28329,6 +28471,11 @@ paths:
                                           - beta
                                           - experimental
                                         type: string
+                                      var_group_selections:
+                                        additionalProperties:
+                                          type: string
+                                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                        type: object
                                       vars:
                                         additionalProperties:
                                           additionalProperties: false
@@ -28387,6 +28534,11 @@ paths:
                                       enabled:
                                         description: Enable or disable that stream. Defaults to `true` (enabled).
                                         type: boolean
+                                      var_group_selections:
+                                        additionalProperties:
+                                          type: string
+                                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                        type: object
                                       vars:
                                         additionalProperties:
                                           anyOf:
@@ -28554,6 +28706,11 @@ paths:
                         type: string
                       updated_by:
                         type: string
+                      var_group_selections:
+                        additionalProperties:
+                          type: string
+                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                        type: object
                       vars:
                         anyOf:
                           - additionalProperties:
@@ -33771,7 +33928,7 @@ paths:
                     required:
                       - id
                       - type
-                  maxItems: 1000
+                  maxItems: 10000
                   type: array
               required:
                 - assetIds
@@ -34661,6 +34818,56 @@ paths:
                                 - content
                               type: string
                             - type: string
+                        var_groups:
+                          items:
+                            additionalProperties: true
+                            type: object
+                            properties:
+                              description:
+                                type: string
+                              name:
+                                type: string
+                              options:
+                                items:
+                                  additionalProperties: true
+                                  type: object
+                                  properties:
+                                    description:
+                                      type: string
+                                    hide_in_deployment_modes:
+                                      items:
+                                        enum:
+                                          - default
+                                          - agentless
+                                        type: string
+                                      maxItems: 2
+                                      type: array
+                                    name:
+                                      type: string
+                                    title:
+                                      type: string
+                                    vars:
+                                      items:
+                                        type: string
+                                      maxItems: 100
+                                      type: array
+                                  required:
+                                    - name
+                                    - title
+                                    - vars
+                                maxItems: 20
+                                type: array
+                              selector_title:
+                                type: string
+                              title:
+                                type: string
+                            required:
+                              - name
+                              - title
+                              - selector_title
+                              - options
+                          maxItems: 20
+                          type: array
                         vars:
                           items:
                             additionalProperties: {}
@@ -36201,6 +36408,56 @@ paths:
                               - content
                             type: string
                           - type: string
+                      var_groups:
+                        items:
+                          additionalProperties: true
+                          type: object
+                          properties:
+                            description:
+                              type: string
+                            name:
+                              type: string
+                            options:
+                              items:
+                                additionalProperties: true
+                                type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  hide_in_deployment_modes:
+                                    items:
+                                      enum:
+                                        - default
+                                        - agentless
+                                      type: string
+                                    maxItems: 2
+                                    type: array
+                                  name:
+                                    type: string
+                                  title:
+                                    type: string
+                                  vars:
+                                    items:
+                                      type: string
+                                    maxItems: 100
+                                    type: array
+                                required:
+                                  - name
+                                  - title
+                                  - vars
+                              maxItems: 20
+                              type: array
+                            selector_title:
+                              type: string
+                            title:
+                              type: string
+                          required:
+                            - name
+                            - title
+                            - selector_title
+                            - options
+                        maxItems: 20
+                        type: array
                       vars:
                         items:
                           additionalProperties: {}
@@ -36908,6 +37165,56 @@ paths:
                               - content
                             type: string
                           - type: string
+                      var_groups:
+                        items:
+                          additionalProperties: true
+                          type: object
+                          properties:
+                            description:
+                              type: string
+                            name:
+                              type: string
+                            options:
+                              items:
+                                additionalProperties: true
+                                type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  hide_in_deployment_modes:
+                                    items:
+                                      enum:
+                                        - default
+                                        - agentless
+                                      type: string
+                                    maxItems: 2
+                                    type: array
+                                  name:
+                                    type: string
+                                  title:
+                                    type: string
+                                  vars:
+                                    items:
+                                      type: string
+                                    maxItems: 100
+                                    type: array
+                                required:
+                                  - name
+                                  - title
+                                  - vars
+                              maxItems: 20
+                              type: array
+                            selector_title:
+                              type: string
+                            title:
+                              type: string
+                          required:
+                            - name
+                            - title
+                            - selector_title
+                            - options
+                        maxItems: 20
+                        type: array
                       vars:
                         items:
                           additionalProperties: {}
@@ -44358,6 +44665,11 @@ paths:
                                             - beta
                                             - experimental
                                           type: string
+                                        var_group_selections:
+                                          additionalProperties:
+                                            type: string
+                                          description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                          type: object
                                         vars:
                                           additionalProperties:
                                             additionalProperties: false
@@ -44416,6 +44728,11 @@ paths:
                                         enabled:
                                           description: Enable or disable that stream. Defaults to `true` (enabled).
                                           type: boolean
+                                        var_group_selections:
+                                          additionalProperties:
+                                            type: string
+                                          description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                          type: object
                                         vars:
                                           additionalProperties:
                                             anyOf:
@@ -44583,6 +44900,11 @@ paths:
                           type: string
                         updated_by:
                           type: string
+                        var_group_selections:
+                          additionalProperties:
+                            type: string
+                          description: Variable group selections. Maps var_group name to the selected option name within that group.
+                          type: object
                         vars:
                           anyOf:
                             - additionalProperties:
@@ -44827,6 +45149,11 @@ paths:
                                     - beta
                                     - experimental
                                   type: string
+                                var_group_selections:
+                                  additionalProperties:
+                                    type: string
+                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                  type: object
                                 vars:
                                   additionalProperties:
                                     additionalProperties: false
@@ -44958,6 +45285,11 @@ paths:
                       description: Indicates whether the package policy supports cloud connectors.
                       nullable: true
                       type: boolean
+                    var_group_selections:
+                      additionalProperties:
+                        type: string
+                      description: Variable group selections. Maps var_group name to the selected option name within that group.
+                      type: object
                     vars:
                       additionalProperties:
                         additionalProperties: false
@@ -45010,6 +45342,11 @@ paths:
                                 enabled:
                                   description: Enable or disable that stream. Defaults to `true` (enabled).
                                   type: boolean
+                                var_group_selections:
+                                  additionalProperties:
+                                    type: string
+                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                  type: object
                                 vars:
                                   additionalProperties:
                                     anyOf:
@@ -45137,6 +45474,11 @@ paths:
                       description: Indicates whether the package policy belongs to an agentless agent policy. Deprecated in favor of the Fleet agentless policies API.
                       nullable: true
                       type: boolean
+                    var_group_selections:
+                      additionalProperties:
+                        type: string
+                      description: Variable group selections. Maps var_group name to the selected option name within that group.
+                      type: object
                     vars:
                       additionalProperties:
                         anyOf:
@@ -45313,6 +45655,11 @@ paths:
                                           - beta
                                           - experimental
                                         type: string
+                                      var_group_selections:
+                                        additionalProperties:
+                                          type: string
+                                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                        type: object
                                       vars:
                                         additionalProperties:
                                           additionalProperties: false
@@ -45371,6 +45718,11 @@ paths:
                                       enabled:
                                         description: Enable or disable that stream. Defaults to `true` (enabled).
                                         type: boolean
+                                      var_group_selections:
+                                        additionalProperties:
+                                          type: string
+                                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                        type: object
                                       vars:
                                         additionalProperties:
                                           anyOf:
@@ -45538,6 +45890,11 @@ paths:
                         type: string
                       updated_by:
                         type: string
+                      var_group_selections:
+                        additionalProperties:
+                          type: string
+                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                        type: object
                       vars:
                         anyOf:
                           - additionalProperties:
@@ -45833,6 +46190,11 @@ paths:
                                             - beta
                                             - experimental
                                           type: string
+                                        var_group_selections:
+                                          additionalProperties:
+                                            type: string
+                                          description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                          type: object
                                         vars:
                                           additionalProperties:
                                             additionalProperties: false
@@ -45891,6 +46253,11 @@ paths:
                                         enabled:
                                           description: Enable or disable that stream. Defaults to `true` (enabled).
                                           type: boolean
+                                        var_group_selections:
+                                          additionalProperties:
+                                            type: string
+                                          description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                          type: object
                                         vars:
                                           additionalProperties:
                                             anyOf:
@@ -46058,6 +46425,11 @@ paths:
                           type: string
                         updated_by:
                           type: string
+                        var_group_selections:
+                          additionalProperties:
+                            type: string
+                          description: Variable group selections. Maps var_group name to the selected option name within that group.
+                          type: object
                         vars:
                           anyOf:
                             - additionalProperties:
@@ -46402,6 +46774,11 @@ paths:
                                           - beta
                                           - experimental
                                         type: string
+                                      var_group_selections:
+                                        additionalProperties:
+                                          type: string
+                                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                        type: object
                                       vars:
                                         additionalProperties:
                                           additionalProperties: false
@@ -46460,6 +46837,11 @@ paths:
                                       enabled:
                                         description: Enable or disable that stream. Defaults to `true` (enabled).
                                         type: boolean
+                                      var_group_selections:
+                                        additionalProperties:
+                                          type: string
+                                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                        type: object
                                       vars:
                                         additionalProperties:
                                           anyOf:
@@ -46627,6 +47009,11 @@ paths:
                         type: string
                       updated_by:
                         type: string
+                      var_group_selections:
+                        additionalProperties:
+                          type: string
+                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                        type: object
                       vars:
                         anyOf:
                           - additionalProperties:
@@ -46875,6 +47262,11 @@ paths:
                                     - beta
                                     - experimental
                                   type: string
+                                var_group_selections:
+                                  additionalProperties:
+                                    type: string
+                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                  type: object
                                 vars:
                                   additionalProperties:
                                     additionalProperties: false
@@ -47004,6 +47396,11 @@ paths:
                       description: Indicates whether the package policy supports cloud connectors.
                       nullable: true
                       type: boolean
+                    var_group_selections:
+                      additionalProperties:
+                        type: string
+                      description: Variable group selections. Maps var_group name to the selected option name within that group.
+                      type: object
                     vars:
                       additionalProperties:
                         additionalProperties: false
@@ -47055,6 +47452,11 @@ paths:
                                 enabled:
                                   description: Enable or disable that stream. Defaults to `true` (enabled).
                                   type: boolean
+                                var_group_selections:
+                                  additionalProperties:
+                                    type: string
+                                  description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                  type: object
                                 vars:
                                   additionalProperties:
                                     anyOf:
@@ -47182,6 +47584,11 @@ paths:
                       description: Indicates whether the package policy belongs to an agentless agent policy. Deprecated in favor of the Fleet agentless policies API.
                       nullable: true
                       type: boolean
+                    var_group_selections:
+                      additionalProperties:
+                        type: string
+                      description: Variable group selections. Maps var_group name to the selected option name within that group.
+                      type: object
                     vars:
                       additionalProperties:
                         anyOf:
@@ -47357,6 +47764,11 @@ paths:
                                           - beta
                                           - experimental
                                         type: string
+                                      var_group_selections:
+                                        additionalProperties:
+                                          type: string
+                                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                        type: object
                                       vars:
                                         additionalProperties:
                                           additionalProperties: false
@@ -47415,6 +47827,11 @@ paths:
                                       enabled:
                                         description: Enable or disable that stream. Defaults to `true` (enabled).
                                         type: boolean
+                                      var_group_selections:
+                                        additionalProperties:
+                                          type: string
+                                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                        type: object
                                       vars:
                                         additionalProperties:
                                           anyOf:
@@ -47582,6 +47999,11 @@ paths:
                         type: string
                       updated_by:
                         type: string
+                      var_group_selections:
+                        additionalProperties:
+                          type: string
+                        description: Variable group selections. Maps var_group name to the selected option name within that group.
+                        type: object
                       vars:
                         anyOf:
                           - additionalProperties:
@@ -48221,6 +48643,11 @@ paths:
                                                   - beta
                                                   - experimental
                                                 type: string
+                                              var_group_selections:
+                                                additionalProperties:
+                                                  type: string
+                                                description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                type: object
                                               vars:
                                                 additionalProperties:
                                                   additionalProperties: false
@@ -48279,6 +48706,11 @@ paths:
                                               enabled:
                                                 description: Enable or disable that stream. Defaults to `true` (enabled).
                                                 type: boolean
+                                              var_group_selections:
+                                                additionalProperties:
+                                                  type: string
+                                                description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                                type: object
                                               vars:
                                                 additionalProperties:
                                                   anyOf:
@@ -48446,6 +48878,11 @@ paths:
                                 type: string
                               updated_by:
                                 type: string
+                              var_group_selections:
+                                additionalProperties:
+                                  type: string
+                                description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                type: object
                               vars:
                                 anyOf:
                                   - additionalProperties:
@@ -48648,6 +49085,11 @@ paths:
                                               - beta
                                               - experimental
                                             type: string
+                                          var_group_selections:
+                                            additionalProperties:
+                                              type: string
+                                            description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                            type: object
                                           vars:
                                             additionalProperties:
                                               additionalProperties: false
@@ -48797,6 +49239,11 @@ paths:
                                 type: string
                               updated_by:
                                 type: string
+                              var_group_selections:
+                                additionalProperties:
+                                  type: string
+                                description: Variable group selections. Maps var_group name to the selected option name within that group.
+                                type: object
                               vars:
                                 additionalProperties:
                                   additionalProperties: false
@@ -57943,6 +58390,12 @@ paths:
                                                           - type: number
                                                           - type: boolean
                                                         description: Greater-than-or-equal comparison value.
+                                                      includes:
+                                                        anyOf:
+                                                          - type: string
+                                                          - type: number
+                                                          - type: boolean
+                                                        description: Checks if multivalue field includes the value.
                                                       lt:
                                                         anyOf:
                                                           - type: string
@@ -58306,6 +58759,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -58504,6 +58963,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -58714,6 +59179,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -58897,6 +59368,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -59088,6 +59565,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -59285,6 +59768,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -59481,6 +59970,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -59675,6 +60170,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -59890,6 +60391,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -60088,6 +60595,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -60282,6 +60795,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -60474,6 +60993,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -60666,6 +61191,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -60862,6 +61393,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -61066,6 +61603,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -61286,6 +61829,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -61577,6 +62126,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -61745,6 +62300,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -62039,6 +62600,12 @@ paths:
                                                                       - type: number
                                                                       - type: boolean
                                                                     description: Greater-than-or-equal comparison value.
+                                                                  includes:
+                                                                    anyOf:
+                                                                      - type: string
+                                                                      - type: number
+                                                                      - type: boolean
+                                                                    description: Checks if multivalue field includes the value.
                                                                   lt:
                                                                     anyOf:
                                                                       - type: string
@@ -62286,6 +62853,12 @@ paths:
                                                           - type: number
                                                           - type: boolean
                                                         description: Greater-than-or-equal comparison value.
+                                                      includes:
+                                                        anyOf:
+                                                          - type: string
+                                                          - type: number
+                                                          - type: boolean
+                                                        description: Checks if multivalue field includes the value.
                                                       lt:
                                                         anyOf:
                                                           - type: string
@@ -62649,6 +63222,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -62847,6 +63426,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -63057,6 +63642,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -63240,6 +63831,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -63431,6 +64028,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -63628,6 +64231,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -63824,6 +64433,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -64018,6 +64633,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -64233,6 +64854,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -64431,6 +65058,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -64625,6 +65258,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -64817,6 +65456,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -65009,6 +65654,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -65205,6 +65856,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -65409,6 +66066,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -65629,6 +66292,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -65920,6 +66589,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -66088,6 +66763,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -66386,6 +67067,12 @@ paths:
                                                           - type: number
                                                           - type: boolean
                                                         description: Greater-than-or-equal comparison value.
+                                                      includes:
+                                                        anyOf:
+                                                          - type: string
+                                                          - type: number
+                                                          - type: boolean
+                                                        description: Checks if multivalue field includes the value.
                                                       lt:
                                                         anyOf:
                                                           - type: string
@@ -66749,6 +67436,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -66947,6 +67640,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -67157,6 +67856,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -67340,6 +68045,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -67531,6 +68242,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -67728,6 +68445,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -67924,6 +68647,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -68118,6 +68847,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -68333,6 +69068,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -68531,6 +69272,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -68725,6 +69472,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -68917,6 +69670,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -69109,6 +69868,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -69305,6 +70070,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -69509,6 +70280,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -69729,6 +70506,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -70020,6 +70803,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -70188,6 +70977,12 @@ paths:
                                                                               - type: number
                                                                               - type: boolean
                                                                             description: Greater-than-or-equal comparison value.
+                                                                          includes:
+                                                                            anyOf:
+                                                                              - type: string
+                                                                              - type: number
+                                                                              - type: boolean
+                                                                            description: Checks if multivalue field includes the value.
                                                                           lt:
                                                                             anyOf:
                                                                               - type: string
@@ -70547,6 +71342,12 @@ paths:
                                                           - type: number
                                                           - type: boolean
                                                         description: Greater-than-or-equal comparison value.
+                                                      includes:
+                                                        anyOf:
+                                                          - type: string
+                                                          - type: number
+                                                          - type: boolean
+                                                        description: Checks if multivalue field includes the value.
                                                       lt:
                                                         anyOf:
                                                           - type: string
@@ -70910,6 +71711,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -71108,6 +71915,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -71318,6 +72131,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -71501,6 +72320,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -71692,6 +72517,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -71889,6 +72720,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -72085,6 +72922,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -72279,6 +73122,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -72494,6 +73343,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -72692,6 +73547,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -72886,6 +73747,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -73078,6 +73945,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -73270,6 +74143,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -73466,6 +74345,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -73670,6 +74555,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -73890,6 +74781,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -74181,6 +75078,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -74349,6 +75252,12 @@ paths:
                                                                           - type: number
                                                                           - type: boolean
                                                                         description: Greater-than-or-equal comparison value.
+                                                                      includes:
+                                                                        anyOf:
+                                                                          - type: string
+                                                                          - type: number
+                                                                          - type: boolean
+                                                                        description: Checks if multivalue field includes the value.
                                                                       lt:
                                                                         anyOf:
                                                                           - type: string
@@ -74625,6 +75534,12 @@ paths:
                                 - type: number
                                 - type: boolean
                               description: Greater-than-or-equal comparison value.
+                            includes:
+                              anyOf:
+                                - type: string
+                                - type: number
+                                - type: boolean
+                              description: Checks if multivalue field includes the value.
                             lt:
                               anyOf:
                                 - type: string
@@ -75008,6 +75923,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -75206,6 +76127,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -75416,6 +76343,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -75599,6 +76532,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -75790,6 +76729,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -75987,6 +76932,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -76183,6 +77134,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -76377,6 +77334,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -76592,6 +77555,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -76790,6 +77759,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -76984,6 +77959,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -77176,6 +78157,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -77368,6 +78355,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -77564,6 +78557,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -77768,6 +78767,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -77988,6 +78993,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -78279,6 +79290,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -78447,6 +79464,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -78739,6 +79762,12 @@ paths:
                                                       - type: number
                                                       - type: boolean
                                                     description: Greater-than-or-equal comparison value.
+                                                  includes:
+                                                    anyOf:
+                                                      - type: string
+                                                      - type: number
+                                                      - type: boolean
+                                                    description: Checks if multivalue field includes the value.
                                                   lt:
                                                     anyOf:
                                                       - type: string
@@ -79051,6 +80080,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -79249,6 +80284,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -79459,6 +80500,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -79642,6 +80689,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -79833,6 +80886,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -80030,6 +81089,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -80226,6 +81291,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -80420,6 +81491,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -80635,6 +81712,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -80833,6 +81916,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -81027,6 +82116,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -81219,6 +82314,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -81411,6 +82512,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -81607,6 +82714,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -81811,6 +82924,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -82031,6 +83150,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -82322,6 +83447,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -82490,6 +83621,12 @@ paths:
                                                               - type: number
                                                               - type: boolean
                                                             description: Greater-than-or-equal comparison value.
+                                                          includes:
+                                                            anyOf:
+                                                              - type: string
+                                                              - type: number
+                                                              - type: boolean
+                                                            description: Checks if multivalue field includes the value.
                                                           lt:
                                                             anyOf:
                                                               - type: string
@@ -83025,6 +84162,12 @@ paths:
                                                       - type: number
                                                       - type: boolean
                                                     description: Greater-than-or-equal comparison value.
+                                                  includes:
+                                                    anyOf:
+                                                      - type: string
+                                                      - type: number
+                                                      - type: boolean
+                                                    description: Checks if multivalue field includes the value.
                                                   lt:
                                                     anyOf:
                                                       - type: string
@@ -83328,6 +84471,12 @@ paths:
                                     - type: number
                                     - type: boolean
                                   description: Greater-than-or-equal comparison value.
+                                includes:
+                                  anyOf:
+                                    - type: string
+                                    - type: number
+                                    - type: boolean
+                                  description: Checks if multivalue field includes the value.
                                 lt:
                                   anyOf:
                                     - type: string
@@ -83643,6 +84792,12 @@ paths:
                                     - type: number
                                     - type: boolean
                                   description: Greater-than-or-equal comparison value.
+                                includes:
+                                  anyOf:
+                                    - type: string
+                                    - type: number
+                                    - type: boolean
+                                  description: Checks if multivalue field includes the value.
                                 lt:
                                   anyOf:
                                     - type: string
@@ -83877,6 +85032,12 @@ paths:
                                         - type: number
                                         - type: boolean
                                       description: Greater-than-or-equal comparison value.
+                                    includes:
+                                      anyOf:
+                                        - type: string
+                                        - type: number
+                                        - type: boolean
+                                      description: Checks if multivalue field includes the value.
                                     lt:
                                       anyOf:
                                         - type: string
@@ -87777,13 +88938,6 @@ components:
                     "cost": 2,
                     "status": {
                       "idle": 1
-                    }
-                  },
-                  "logs-data-telemetry": {
-                    "count": 1,
-                    "cost": 2,
-                    "status": {
-                      "running": 1
                     }
                   },
                   "session_cleanup": {
@@ -98756,6 +99910,7 @@ components:
         - createdBy
         - updatedAt
         - updatedBy
+        - fileSize
       example: updatedAt
       type: string
     Security_Endpoint_Management_API_Cancel:
