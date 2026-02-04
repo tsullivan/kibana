@@ -9,11 +9,9 @@
 
 import React, { Component } from 'react';
 import { FormattedMessage } from '@kbn/i18n-react';
-import { METRIC_TYPE } from '@kbn/analytics';
 import { i18n } from '@kbn/i18n';
 import { KibanaPageTemplate } from '@kbn/shared-ux-page-kibana-template';
 import { OverviewPageFooter } from '@kbn/kibana-react-plugin/public';
-import { HOME_APP_BASE_PATH } from '../../../common/constants';
 import type {
   FeatureCatalogueEntry,
   FeatureCatalogueSolution,
@@ -129,7 +127,7 @@ export class Home extends Component<HomeProps, State> {
 
   private renderNormal() {
     const { addBasePath, solutions, isCloudEnabled } = this.props;
-    const { application, trackUiMetric } = getServices();
+    const { application, overlays } = getServices();
     const isDarkMode = getServices().theme?.getTheme().darkMode ?? false;
     const devTools = this.findDirectoryById('console');
     const manageDataFeatures = this.getFeaturesByCategory('admin');
@@ -163,16 +161,7 @@ export class Home extends Component<HomeProps, State> {
           features={manageDataFeatures}
         />
 
-        <OverviewPageFooter
-          addBasePath={addBasePath}
-          path={HOME_APP_BASE_PATH}
-          onSetDefaultRoute={() => {
-            trackUiMetric(METRIC_TYPE.CLICK, 'set_home_as_default_route');
-          }}
-          onChangeDefaultRoute={() => {
-            trackUiMetric(METRIC_TYPE.CLICK, 'change_to_different_default_route');
-          }}
-        />
+        <OverviewPageFooter overlays={overlays} />
       </KibanaPageTemplate>
     );
   }
