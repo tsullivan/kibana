@@ -132,12 +132,14 @@ const SessionFlyout: React.FC<SessionFlyoutProps> = React.memo((props) => {
           aria-labelledby="sessionFlyoutTitle"
           size={mainSize}
           maxWidth={mainMaxWidth}
+          minWidth={200}
           type={flyoutType}
           ownFocus={flyoutOwnFocus}
           pushAnimation={true}
           onActive={mainFlyoutOnActive}
           onClose={handleCloseFlyout}
           flyoutMenuProps={{ title }}
+          resizable={true}
         >
           <EuiFlyoutHeader hasBorder>
             <EuiTitle>
@@ -232,6 +234,7 @@ const SessionFlyout: React.FC<SessionFlyoutProps> = React.memo((props) => {
           aria-labelledby="childFlyoutATitle"
           size={childSize}
           maxWidth={childMaxWidth}
+          minWidth={200}
           onActive={childFlyoutAOnActive}
           onClose={handleCloseChildFlyoutA}
           flyoutMenuProps={{
@@ -268,11 +271,12 @@ const SessionFlyout: React.FC<SessionFlyoutProps> = React.memo((props) => {
       )}
       {isChildFlyoutBOpen && (
         <EuiFlyout
-          id={`childFlyout-${title}-a`}
+          id={`childFlyout-${title}-b`}
           session="inherit"
           aria-labelledby="childFlyoutBTitle"
           size={childSize}
           maxWidth={childMaxWidth}
+          minWidth={200}
           onActive={childFlyoutAOnActive}
           onClose={handleCloseChildFlyoutB}
           flyoutMenuProps={{
@@ -313,9 +317,7 @@ const SessionFlyout: React.FC<SessionFlyoutProps> = React.memo((props) => {
 
 SessionFlyout.displayName = 'SessionFlyoutFromComponents';
 
-const NonSessionFlyout: React.FC = React.memo(() => {
-  const [flyoutType, setFlyoutType] = useState<'overlay' | 'push'>('overlay');
-  const [flyoutOwnFocus, setFlyoutOwnFocus] = useState<boolean>(false);
+const GlobalFlyout: React.FC = React.memo(() => {
   const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
 
   const handleOpenFlyout = () => {
@@ -324,11 +326,11 @@ const NonSessionFlyout: React.FC = React.memo(() => {
 
   // BUG: EuiFlyout does not call onActive when session={false}
   const flyoutOnActive = useCallback(() => {
-    console.log('activate non-session flyout'); // eslint-disable-line no-console
+    console.log('activate global flyout'); // eslint-disable-line no-console
   }, []);
 
   const flyoutOnClose = useCallback(() => {
-    console.log('close non-session flyout'); // eslint-disable-line no-console
+    console.log('close global flyout'); // eslint-disable-line no-console
     setIsFlyoutVisible(false);
   }, []);
 
@@ -336,45 +338,27 @@ const NonSessionFlyout: React.FC = React.memo(() => {
     <>
       <EuiFlexGroup alignItems="center" gutterSize="s">
         <EuiFlexItem grow={false}>
-          <EuiFlexGroup gutterSize="s">
-            <EuiFlexItem grow={false}>
-              <FlyoutTypeSwitch
-                // switch for flyout type: push or overlay
-                flyoutType={flyoutType}
-                onChange={setFlyoutType}
-              />
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <FlyoutOwnFocusSwitch
-                // switch for ownFocus behavior
-                flyoutOwnFocus={flyoutOwnFocus}
-                onChange={setFlyoutOwnFocus}
-                disabled={flyoutType === 'push'}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
           <EuiText>
             <EuiButton disabled={isFlyoutVisible} onClick={handleOpenFlyout}>
-              Open Non-session Flyout
+              Open Global Flyout
             </EuiButton>
           </EuiText>
         </EuiFlexItem>
       </EuiFlexGroup>
       {isFlyoutVisible && (
         <EuiFlyout
-          aria-labelledby="nonSessionFlyoutTitle"
+          aria-labelledby="globalFlyoutTitle"
           onActive={flyoutOnActive}
           onClose={flyoutOnClose}
-          type={flyoutType}
+          type="overlay"
           size="m"
-          ownFocus={flyoutOwnFocus}
+          ownFocus={true}
+          container={null}
           session="never"
         >
           <EuiFlyoutHeader hasBorder>
             <EuiText>
-              <h2 id="nonSessionFlyoutTitle">Non-session flyout</h2>
+              <h2 id="globalFlyoutTitle">Global flyout</h2>
             </EuiText>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
@@ -400,7 +384,7 @@ const NonSessionFlyout: React.FC = React.memo(() => {
   );
 });
 
-NonSessionFlyout.displayName = 'NonSessionFlyoutFromComponents';
+GlobalFlyout.displayName = 'GlobalFlyoutFromComponents';
 
 export const FlyoutWithComponent: React.FC = () => (
   <>
@@ -425,8 +409,8 @@ export const FlyoutWithComponent: React.FC = () => (
             description: <SessionFlyout title="Session J" mainSize="s" childSize="s" />,
           },
           {
-            title: 'Session K: main size = m, child size = s',
-            description: <SessionFlyout title="Session K" mainSize="m" childSize="s" />,
+            title: 'Session K: main size = m, child size = fill',
+            description: <SessionFlyout title="Session K" mainSize="m" childSize="fill" />,
           },
           {
             title: 'Session L: main size = fill',
@@ -452,8 +436,8 @@ export const FlyoutWithComponent: React.FC = () => (
         type="column"
         listItems={[
           {
-            title: 'Non-session flyout: size = m',
-            description: <NonSessionFlyout />,
+            title: 'Global flyout: size = m',
+            description: <GlobalFlyout />,
           },
         ]}
         css={css`
