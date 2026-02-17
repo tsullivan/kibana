@@ -130,22 +130,6 @@ const globalTempHackStyles = (_euiTheme: UseEuiTheme['euiTheme']) => css`
       ${logicalCSS('right', layoutVar('application.right', '0px'))};
       ${logicalCSS('bottom', layoutVar('application.bottom', '0px'))};
     }
-
-    // adjust position of all the right flyouts relative to the application area
-    .euiFlyout[class*='right'] {
-      ${logicalCSS('top', layoutVar('application.top', '0px'))};
-      ${logicalCSS('right', layoutVar('application.right', '0px'))};
-      ${logicalCSS('bottom', layoutVar('application.bottom', '0px'))};
-    }
-
-    // if the overlay mask exists that is above the header, set the top, right and bottom of the right flyouts to 0
-    .euiOverlayMask[data-relative-to-header='above']
-      + [data-euiportal='true']
-      .euiFlyout[class*='right'] {
-      ${logicalCSS('top', 0)};
-      ${logicalCSS('right', 0)};
-      ${logicalCSS('bottom', 0)};
-    }
   }
 
   #${APP_MAIN_SCROLL_CONTAINER_ID} {
