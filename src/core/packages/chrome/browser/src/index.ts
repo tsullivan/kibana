@@ -60,3 +60,5 @@ export type {
   SidebarSetup,
   SidebarStart,
 } from './sidebar';
+
+export type { GlobalSearchConfig } from './chrome_next/global_search';
