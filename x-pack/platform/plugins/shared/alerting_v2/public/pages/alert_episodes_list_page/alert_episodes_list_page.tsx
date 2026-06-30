@@ -322,9 +322,7 @@ export const AlertEpisodesListPage = () => {
         // Anchor the page to a determinate height (like Discover does on its EuiPage) so the
         // virtualized UnifiedDataTable always has a bounded height to fill. Without this, the
         // grid's intrinsic pixel height drives the layout bottom-up and overflows the
-        // application scroll container (phantom scrollbar). The offset subtracts the Management
-        // page template's main padding ('l' on both sides) that sits between this element and
-        // the application scroll container.
+        // application scroll container (creating a phantom scrollbar).
         ${kbnFullBodyHeightCss(`calc(${euiTheme.size.l} * 2)`)}
       `}
     >
