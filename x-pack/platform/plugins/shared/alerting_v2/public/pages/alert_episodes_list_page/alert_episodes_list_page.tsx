@@ -32,6 +32,7 @@ import type { DataTableRecord } from '@kbn/discover-utils/types';
 import type { RowControlColumn, RowControlRowProps } from '@kbn/discover-utils';
 import { AlertEpisodeDetailsFlyout } from '@kbn/alerting-v2-episodes-ui/components/details/details_flyout';
 import { css } from '@emotion/react';
+import { kbnFullBodyHeightCss } from '@kbn/css-utils/public/full_body_height_css';
 import { useQueryClient } from '@kbn/react-query';
 import { useKibana } from '@kbn/kibana-react-plugin/public';
 import { useFetchAlertingEpisodesQuery } from '@kbn/alerting-v2-episodes-ui/hooks/use_fetch_alerting_episodes_query';
@@ -318,6 +319,13 @@ export const AlertEpisodesListPage = () => {
         flex-grow: 1;
         ${logicalCSS('min-height')}: 0;
         min-width: 0;
+        // Anchor the page to a determinate height (like Discover does on its EuiPage) so the
+        // virtualized UnifiedDataTable always has a bounded height to fill. Without this, the
+        // grid's intrinsic pixel height drives the layout bottom-up and overflows the
+        // application scroll container (phantom scrollbar). The offset subtracts the Management
+        // page template's main padding ('l' on both sides) that sits between this element and
+        // the application scroll container.
+        ${kbnFullBodyHeightCss(`calc(${euiTheme.size.l} * 2)`)}
       `}
     >
       <EuiPageHeader
@@ -352,6 +360,7 @@ export const AlertEpisodesListPage = () => {
         css={css`
           flex: 1;
           min-width: 0;
+          min-height: 0;
         `}
       >
         <EuiFlexItem grow={false}>
@@ -385,6 +394,7 @@ export const AlertEpisodesListPage = () => {
           grow
           css={css`
             min-width: 0;
+            min-height: 0;
           `}
         >
           <CellActionsProvider
