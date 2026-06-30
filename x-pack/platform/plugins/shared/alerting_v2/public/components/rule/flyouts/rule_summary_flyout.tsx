@@ -66,6 +66,9 @@ export const RuleSummaryFlyout = ({
         hasAnimation
         size="s"
         ownFocus
+        /* FIXME: Do not create your own close button - use EUI flyoutMenuProps to set actions into a menu bar with a close button.
+         * See: https://eui.elastic.co/docs/components/containers/flyout/#flyout-menu
+         */
         hideCloseButton
         paddingSize="none"
         onClose={onClose}
