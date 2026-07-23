@@ -58,6 +58,39 @@ describe('FlyoutTemplate', () => {
     expect(title).toBeInTheDocument();
   });
 
+  it('renders Header.InfoBlock parts via the info blocks layout', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.InfoBlock title="Owner">Security</FlyoutTemplate.Header.InfoBlock>
+          <FlyoutTemplate.Header.InfoBlock title="Risk score">90</FlyoutTemplate.Header.InfoBlock>
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('Owner')).toBeInTheDocument();
+    expect(screen.getByText('Security')).toBeInTheDocument();
+    expect(screen.getByText('Risk score')).toBeInTheDocument();
+    expect(screen.getByText('90')).toBeInTheDocument();
+    expect(screen.getAllByTestId('infoBlock')).toHaveLength(2);
+  });
+
+  it('renders no info blocks layout when the header has no InfoBlock parts', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="No info blocks" />
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.queryByTestId('infoBlock')).not.toBeInTheDocument();
+  });
+
   it('renders section titles as H4', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">

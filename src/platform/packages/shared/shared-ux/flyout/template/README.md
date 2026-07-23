@@ -38,7 +38,10 @@ render context). Configure the menu bar with the passthrough props `session`,
 
 ## Zones and parts (current slice)
 
-- `FlyoutTemplate.Header` — required `title` (rendered as an H3).
+- `FlyoutTemplate.Header` — required `title` (rendered as an H3). Accepts:
+  - `FlyoutTemplate.Header.InfoBlock` — `title` plus a `children` value,
+    resolved into `@kbn/shared-ux-info-blocks` and compressed to match the
+    header's collapsed state.
 - `FlyoutTemplate.Body` — the only required zone. Accepts:
   - `FlyoutTemplate.Body.Section` — `title` (H4) plus content.
   - passthrough children (callouts, announcements, search, filters).
@@ -46,13 +49,20 @@ render context). Configure the menu bar with the passthrough props `session`,
   - `FlyoutTemplate.Footer.PrimaryAction` — right-aligned, filled button.
   - `FlyoutTemplate.Footer.SecondaryAction` — empty button, left of primary.
 
+```tsx
+<FlyoutTemplate.Header title="Alert details">
+  <FlyoutTemplate.Header.InfoBlock title="Risk score">{riskScore}</FlyoutTemplate.Header.InfoBlock>
+  <FlyoutTemplate.Header.InfoBlock title="Latency">
+    <EuiHealth color="success">Healthy</EuiHealth>
+  </FlyoutTemplate.Header.InfoBlock>
+</FlyoutTemplate.Header>
+```
+
 Zones render in PRD order (header, body, footer) regardless of JSX order.
 Invalid combinations and duplicate singleton zones warn in development and no-op
 in production; they never throw.
 
 ## Not yet implemented
 
-Header `Metadata` / `Badge` / `InfoBlock` / `Tab`, `Body.Accordion`, all
-`Subsection`s, `Footer.Left`, and a dedicated `Menu` assembly are planned
-follow-ups. Info blocks will resolve into the existing
-`@kbn/shared-ux-info-blocks` package.
+Header `Metadata` / `Badge` / `Tab`, `Body.Accordion`, all `Subsection`s,
+`Footer.Left`, and a dedicated `Menu` assembly are planned follow-ups.
