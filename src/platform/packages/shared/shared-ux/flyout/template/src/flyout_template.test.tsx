@@ -91,6 +91,37 @@ describe('FlyoutTemplate', () => {
     expect(screen.queryByTestId('infoBlock')).not.toBeInTheDocument();
   });
 
+  it('accepts resizable/minWidth/onResize/ownFocus/onActive without altering zone rendering', () => {
+    // These are pure passthrough props forwarded as-is to `EuiFlyout` (verified
+    // by the `Resizable` story against the real component); this test guards
+    // against the template's own rendering breaking when they're supplied.
+    const onResize = jest.fn();
+    const onActive = jest.fn();
+    renderTemplate(
+      <FlyoutTemplate
+        onClose={noop}
+        session="never"
+        resizable
+        minWidth={400}
+        onResize={onResize}
+        ownFocus={false}
+        onActive={onActive}
+        data-test-subj="resizableFlyout"
+      >
+        <FlyoutTemplate.Header title="Resizable" />
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('resizableFlyoutHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('resizableFlyoutBody')).toBeInTheDocument();
+    expect(screen.getByText('content')).toBeInTheDocument();
+    expect(onResize).not.toHaveBeenCalled();
+    expect(onActive).not.toHaveBeenCalled();
+  });
+
   it('renders section titles as H4', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">

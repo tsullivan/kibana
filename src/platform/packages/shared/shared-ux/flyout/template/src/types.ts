@@ -104,11 +104,16 @@ export type FlyoutTemplateProps = Pick<
   EuiFlyoutProps,
   | 'onClose'
   | 'size'
+  | 'minWidth'
   | 'type'
   | 'maxWidth'
   | 'paddingSize'
+  | 'ownFocus'
+  | 'resizable'
+  | 'onResize'
   | 'session'
   | 'historyKey'
+  | 'onActive'
   | 'flyoutMenuProps'
   | 'flyoutMenuDisplayMode'
 > & {

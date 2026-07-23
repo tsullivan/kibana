@@ -45,18 +45,24 @@ const pickZone = (items: ParsedItem[], partName: string): ParsedPart | undefined
  * (header, body, footer) regardless of JSX order.
  *
  * Defaults to a managed flyout (`session="start"`) so EUI auto-provides the menu
- * bar. `session`, `historyKey`, `flyoutMenuProps`, and `flyoutMenuDisplayMode`
- * are passthrough overrides.
+ * bar. `session`, `historyKey`, `onActive`, `flyoutMenuProps`, and
+ * `flyoutMenuDisplayMode` are passthrough overrides, as are the sizing/behavior
+ * props `minWidth`, `ownFocus`, `resizable`, and `onResize`.
  */
 const FlyoutTemplateRoot = ({
   children,
   onClose,
   size = 'm',
+  minWidth,
   type,
   maxWidth,
   paddingSize,
+  ownFocus,
+  resizable,
+  onResize,
   session = 'start',
   historyKey,
+  onActive,
   flyoutMenuProps,
   flyoutMenuDisplayMode = 'auto',
   'aria-label': ariaLabel,
@@ -90,11 +96,16 @@ const FlyoutTemplateRoot = ({
     <EuiFlyout
       onClose={onClose}
       size={size}
+      minWidth={minWidth}
       type={type}
       maxWidth={maxWidth}
       paddingSize={paddingSize}
+      ownFocus={ownFocus}
+      resizable={resizable}
+      onResize={onResize}
       session={session}
       historyKey={historyKey}
+      onActive={onActive}
       flyoutMenuDisplayMode={flyoutMenuDisplayMode}
       flyoutMenuProps={hasMenuProps ? mergedMenuProps : undefined}
       aria-label={ariaLabel ?? menuTitleString}
