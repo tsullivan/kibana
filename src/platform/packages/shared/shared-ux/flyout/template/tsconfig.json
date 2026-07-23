@@ -11,6 +11,7 @@
     "target/**/*"
   ],
   "kbn_references": [
-    "@kbn/content-list-assembly"
+    "@kbn/content-list-assembly",
+    "@kbn/shared-ux-info-blocks"
   ]
 }
