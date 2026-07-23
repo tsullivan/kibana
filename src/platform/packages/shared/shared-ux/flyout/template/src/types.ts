@@ -9,19 +9,39 @@
 
 import type { MouseEventHandler, ReactNode } from 'react';
 import type { EuiButtonProps, EuiFlyoutProps } from '@elastic/eui';
+import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
 
 /**
  * Props for the declarative `FlyoutTemplate.Header` zone.
  *
- * Only `title` is supported in this slice; metadata, badges, info blocks, and
- * tabs are added as declarative parts in a follow-up.
+ * `title` and `Header.InfoBlock` are supported in this slice; metadata, badges,
+ * and tabs are added as declarative parts in a follow-up.
  */
 export interface FlyoutHeaderProps {
   /** Title rendered by the header. Rendered as an H3 (heading level is owned by the template). */
   title: ReactNode;
   'data-test-subj'?: string;
-  /** Reserved for future header parts (Metadata, Badge, InfoBlock, Tab). */
+  /** `Header.InfoBlock` parts (Metadata, Badge, and Tab parts land in a follow-up). */
   children?: ReactNode;
+}
+
+/**
+ * Props for the declarative `FlyoutTemplate.Header.InfoBlock` part.
+ *
+ * Resolves into an `InfoBlockItem` rendered by `@kbn/shared-ux-info-blocks`;
+ * `children` supplies the block's value, mirroring `Body.Section`'s content
+ * children.
+ */
+export interface FlyoutHeaderInfoBlockProps {
+  /** Optional explicit instance id; auto-generated when omitted. */
+  id?: string;
+  /** Fixed-style text label rendered above the value. */
+  title: string;
+  /** The block's value content. */
+  children: ReactNode;
+  size?: InfoBlockItem['size'];
+  color?: InfoBlockItem['color'];
+  'data-test-subj'?: string;
 }
 
 /**
