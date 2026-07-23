@@ -120,6 +120,25 @@ export const WithFooterActions: Story = {
   ),
 };
 
+export const Resizable: Story = {
+  render: () => (
+    <OpenableFlyout flyoutProps={{ resizable: true, minWidth: 400 }}>
+      <FlyoutTemplate.Header title="Resizable flyout" />
+      <FlyoutTemplate.Body>
+        <FlyoutTemplate.Body.Section title="Summary">
+          <EuiText size="s">
+            <p>
+              Drag the resize handle at the edge of the flyout. <code>minWidth</code>,{' '}
+              <code>resizable</code>, and <code>onResize</code> are forwarded to the underlying{' '}
+              <code>EuiFlyout</code>.
+            </p>
+          </EuiText>
+        </FlyoutTemplate.Body.Section>
+      </FlyoutTemplate.Body>
+    </OpenableFlyout>
+  ),
+};
+
 export const WithMenuBarActions: Story = {
   render: () => (
     <OpenableFlyout

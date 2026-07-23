@@ -33,8 +33,15 @@ import { FlyoutTemplate } from '@kbn/shared-ux-flyout-template';
 flyout manager auto-provides the top menu bar. This requires an
 `EuiFlyoutManager`, which `EuiProvider` supplies (Kibana apps get this via the
 render context). Configure the menu bar with the passthrough props `session`,
-`historyKey`, `flyoutMenuProps`, and `flyoutMenuDisplayMode`. Pass
+`historyKey`, `onActive`, `flyoutMenuProps`, and `flyoutMenuDisplayMode`. Pass
 `session="never"` to render a standard (unmanaged) flyout.
+
+## Other passthrough props
+
+`onClose`, `size`, `minWidth`, `type`, `maxWidth`, `paddingSize`, `ownFocus`,
+`resizable`, and `onResize` are forwarded to the underlying `EuiFlyout` as-is.
+Structural close-button and `side` props are intentionally not exposed; the
+template and (in managed mode) the EUI menu bar own the close affordance.
 
 ## Zones and parts (current slice)
 
