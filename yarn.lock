@@ -9362,6 +9362,10 @@
   version "0.0.0"
   uid ""
 
+"@kbn/shared-ux-flyout-template@link:src/platform/packages/shared/shared-ux/flyout/template":
+  version "0.0.0"
+  uid ""
+
 "@kbn/shared-ux-info-blocks@link:src/platform/packages/shared/shared-ux/info-blocks":
   version "0.0.0"
   uid ""

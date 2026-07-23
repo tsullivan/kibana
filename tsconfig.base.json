@@ -2431,6 +2431,8 @@
       "@kbn/shared-ux-file-upload/*": ["./src/platform/packages/shared/shared-ux/file/file_upload/impl/*"],
       "@kbn/shared-ux-file-util": ["./src/platform/packages/shared/shared-ux/file/util"],
       "@kbn/shared-ux-file-util/*": ["./src/platform/packages/shared/shared-ux/file/util/*"],
+      "@kbn/shared-ux-flyout-template": ["./src/platform/packages/shared/shared-ux/flyout/template"],
+      "@kbn/shared-ux-flyout-template/*": ["./src/platform/packages/shared/shared-ux/flyout/template/*"],
       "@kbn/shared-ux-info-blocks": ["./src/platform/packages/shared/shared-ux/info-blocks"],
       "@kbn/shared-ux-info-blocks/*": ["./src/platform/packages/shared/shared-ux/info-blocks/*"],
       "@kbn/shared-ux-label-formatter": ["./src/platform/packages/shared/shared-ux/label_formatter"],
