@@ -13,76 +13,120 @@ import { EuiCallOut, EuiHealth, EuiText } from '@elastic/eui';
 import { FlyoutTemplate } from './flyout_template';
 import type { FlyoutTemplateProps } from './types';
 
-const meta: Meta<typeof FlyoutTemplate> = {
-  title: 'Flyout/Flyout Template',
-  component: FlyoutTemplate,
-};
-export default meta;
-
-type Story = StoryObj<typeof FlyoutTemplate>;
-
 const noop = () => {};
 
-const OpenableFlyout: React.FC<{
-  children: React.ReactNode;
-  label?: string;
-  flyoutProps?: Omit<FlyoutTemplateProps, 'onClose' | 'children'>;
-}> = ({ children, label = 'Open flyout', flyoutProps }) => {
+const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
+  customActions: [
+    { iconType: 'share', onClick: noop, 'aria-label': 'Share' },
+    { iconType: 'gear', onClick: noop, 'aria-label': 'Settings' },
+  ],
+};
+
+/**
+ * Synthetic story args that toggle optional parts and structural props from the
+ * Controls panel. These are not `FlyoutTemplate` props; the `render` maps them
+ * onto the template and its declarative zones.
+ */
+interface GalleryArgs {
+  infoBlocks: boolean;
+  menuBarActions: boolean;
+  footerActions: boolean;
+  resizable: boolean;
+  type: NonNullable<FlyoutTemplateProps['type']>;
+  ownFocus: boolean;
+}
+
+const renderGallery = ({
+  infoBlocks,
+  menuBarActions,
+  footerActions,
+  resizable,
+  type,
+  ownFocus,
+}: GalleryArgs) => {
+  const flyoutProps: Omit<FlyoutTemplateProps, 'onClose' | 'children'> = {
+    type,
+    resizable,
+    ...(resizable ? { minWidth: 400 } : {}),
+    ...(type === 'overlay' ? { ownFocus } : {}),
+    ...(menuBarActions ? { flyoutMenuProps: menuBarProps } : {}),
+  };
+
   return (
     <FlyoutTemplate onClose={noop} size="m" {...flyoutProps}>
-      {children}
-    </FlyoutTemplate>
-  );
-};
-
-export const Minimal: Story = {
-  render: () => (
-    <OpenableFlyout>
-      <FlyoutTemplate.Header title="Service inventory" />
-      <FlyoutTemplate.Body>
-        <FlyoutTemplate.Body.Section title="Summary">
-          <EuiText size="s">
-            <p>A minimal flyout with a header title and a single body section.</p>
-          </EuiText>
-        </FlyoutTemplate.Body.Section>
-      </FlyoutTemplate.Body>
-    </OpenableFlyout>
-  ),
-};
-
-export const WithInfoBlocks: Story = {
-  render: () => (
-    <OpenableFlyout>
       <FlyoutTemplate.Header title="Service details">
-        <FlyoutTemplate.Header.InfoBlock title="Owner">Platform</FlyoutTemplate.Header.InfoBlock>
-        <FlyoutTemplate.Header.InfoBlock title="Latency">
-          <EuiHealth color="success">Healthy</EuiHealth>
-        </FlyoutTemplate.Header.InfoBlock>
-        <FlyoutTemplate.Header.InfoBlock title="Throughput">
-          1.2k tpm
-        </FlyoutTemplate.Header.InfoBlock>
-        <FlyoutTemplate.Header.InfoBlock title="Risk score" size="xl" color="danger">
-          90
-        </FlyoutTemplate.Header.InfoBlock>
+        {infoBlocks && (
+          <>
+            <FlyoutTemplate.Header.InfoBlock title="Owner">
+              Platform
+            </FlyoutTemplate.Header.InfoBlock>
+            <FlyoutTemplate.Header.InfoBlock title="Latency">
+              <EuiHealth color="success">Healthy</EuiHealth>
+            </FlyoutTemplate.Header.InfoBlock>
+            <FlyoutTemplate.Header.InfoBlock title="Throughput">
+              1.2k tpm
+            </FlyoutTemplate.Header.InfoBlock>
+            <FlyoutTemplate.Header.InfoBlock title="Risk score" size="xl" color="danger">
+              90
+            </FlyoutTemplate.Header.InfoBlock>
+          </>
+        )}
       </FlyoutTemplate.Header>
       <FlyoutTemplate.Body>
         <FlyoutTemplate.Body.Section title="Summary">
           <EuiText size="s">
             <p>
-              <code>Header.InfoBlock</code> parts resolve into{' '}
-              <code>@kbn/shared-ux-info-blocks</code> and lay out in the responsive 3 → 2 → 1 column
-              grid.
+              Toggle the controls to preview info blocks, the managed menu bar, footer actions,
+              resizing, and overlay/push behavior.
             </p>
           </EuiText>
         </FlyoutTemplate.Body.Section>
       </FlyoutTemplate.Body>
-    </OpenableFlyout>
-  ),
+      {footerActions && (
+        <FlyoutTemplate.Footer>
+          <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={noop} />
+          <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={noop} />
+        </FlyoutTemplate.Footer>
+      )}
+    </FlyoutTemplate>
+  );
 };
 
+const meta: Meta<GalleryArgs> = {
+  title: 'Flyout/Flyout Template',
+  args: {
+    infoBlocks: true,
+    menuBarActions: true,
+    footerActions: true,
+    resizable: true,
+    type: 'overlay',
+    ownFocus: false,
+  },
+  argTypes: {
+    infoBlocks: { name: 'Info blocks', control: { type: 'boolean' } },
+    menuBarActions: { name: 'Menu bar actions', control: { type: 'boolean' } },
+    footerActions: { name: 'Footer actions', control: { type: 'boolean' } },
+    resizable: { name: 'Resizable', control: { type: 'boolean' } },
+    type: { name: 'Flyout type', control: { type: 'inline-radio' }, options: ['overlay', 'push'] },
+    ownFocus: {
+      name: 'Own focus',
+      control: { type: 'boolean' },
+      // `ownFocus` only applies to overlay flyouts, so hide it for push.
+      if: { arg: 'type', eq: 'overlay' },
+    },
+  },
+  render: renderGallery,
+};
+export default meta;
+
+type Story = StoryObj<GalleryArgs>;
+
+export const Gallery: Story = {};
+
 export const SectionsWithPassthrough: Story = {
+  parameters: { controls: { disable: true } },
   render: () => (
-    <OpenableFlyout>
+    <FlyoutTemplate onClose={noop} size="m">
       <FlyoutTemplate.Header title="Service details" />
       <FlyoutTemplate.Body>
         <FlyoutTemplate.Body.Section title="Summary">
@@ -97,71 +141,6 @@ export const SectionsWithPassthrough: Story = {
           </EuiText>
         </FlyoutTemplate.Body.Section>
       </FlyoutTemplate.Body>
-    </OpenableFlyout>
-  ),
-};
-
-export const WithFooterActions: Story = {
-  render: () => (
-    <OpenableFlyout>
-      <FlyoutTemplate.Header title="Edit service" />
-      <FlyoutTemplate.Body>
-        <FlyoutTemplate.Body.Section title="Settings">
-          <EuiText size="s">
-            <p>Footer renders the primary action on the right and the secondary to its left.</p>
-          </EuiText>
-        </FlyoutTemplate.Body.Section>
-      </FlyoutTemplate.Body>
-      <FlyoutTemplate.Footer>
-        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={noop} />
-        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={noop} />
-      </FlyoutTemplate.Footer>
-    </OpenableFlyout>
-  ),
-};
-
-export const Resizable: Story = {
-  render: () => (
-    <OpenableFlyout flyoutProps={{ resizable: true, minWidth: 400 }}>
-      <FlyoutTemplate.Header title="Resizable flyout" />
-      <FlyoutTemplate.Body>
-        <FlyoutTemplate.Body.Section title="Summary">
-          <EuiText size="s">
-            <p>
-              Drag the resize handle at the edge of the flyout. <code>minWidth</code>,{' '}
-              <code>resizable</code>, and <code>onResize</code> are forwarded to the underlying{' '}
-              <code>EuiFlyout</code>.
-            </p>
-          </EuiText>
-        </FlyoutTemplate.Body.Section>
-      </FlyoutTemplate.Body>
-    </OpenableFlyout>
-  ),
-};
-
-export const WithMenuBarActions: Story = {
-  render: () => (
-    <OpenableFlyout
-      flyoutProps={{
-        flyoutMenuProps: {
-          customActions: [
-            { iconType: 'share', onClick: noop, 'aria-label': 'Share' },
-            { iconType: 'gear', onClick: noop, 'aria-label': 'Settings' },
-          ],
-        },
-      }}
-    >
-      <FlyoutTemplate.Header title="Managed flyout" />
-      <FlyoutTemplate.Body>
-        <FlyoutTemplate.Body.Section title="Menu bar">
-          <EuiText size="s">
-            <p>
-              Custom actions passed via <code>flyoutMenuProps</code> make EUI render the managed
-              menu bar automatically.
-            </p>
-          </EuiText>
-        </FlyoutTemplate.Body.Section>
-      </FlyoutTemplate.Body>
-    </OpenableFlyout>
+    </FlyoutTemplate>
   ),
 };
