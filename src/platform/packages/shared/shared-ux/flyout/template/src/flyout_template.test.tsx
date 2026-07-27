@@ -9,6 +9,7 @@
 
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { EuiCallOut } from '@elastic/eui';
 import { FlyoutTemplate } from './flyout_template';
 
@@ -244,5 +245,212 @@ describe('FlyoutTemplate', () => {
       </div>
     );
     expect(container.firstChild).toBeEmptyDOMElement();
+  });
+});
+
+describe('FlyoutTemplate tabs', () => {
+  const renderWithTabs = (ui: React.ReactElement) => render(ui);
+
+  it('renders a tab bar with correct roles', () => {
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.TabPanel>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            <span>metadata content</span>
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByRole('tablist')).toBeInTheDocument();
+    expect(screen.getAllByRole('tab')).toHaveLength(2);
+    expect(screen.getByRole('tabpanel')).toBeInTheDocument();
+  });
+
+  it('selects the first tab by default (uncontrolled)', () => {
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.TabPanel>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            <span>metadata content</span>
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByText('overview content')).toBeInTheDocument();
+    expect(screen.queryByText('metadata content')).not.toBeInTheDocument();
+  });
+
+  it('respects defaultSelectedTabId (uncontrolled)', () => {
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert" defaultSelectedTabId="metadata">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.TabPanel>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            <span>metadata content</span>
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('metadata content')).toBeInTheDocument();
+  });
+
+  it('switches panel on tab click (uncontrolled)', async () => {
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.TabPanel>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            <span>metadata content</span>
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Metadata' }));
+
+    expect(screen.getByText('metadata content')).toBeInTheDocument();
+    expect(screen.queryByText('overview content')).not.toBeInTheDocument();
+  });
+
+  it('calls onTabChange and respects selectedTabId in controlled mode', async () => {
+    const onTabChange = jest.fn();
+    const { rerender } = renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert" selectedTabId="overview" onTabChange={onTabChange}>
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.TabPanel>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            <span>metadata content</span>
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Metadata' }));
+    expect(onTabChange).toHaveBeenCalledWith('metadata');
+    // Panel has not switched because the consumer drives the value.
+    expect(screen.getByText('overview content')).toBeInTheDocument();
+
+    // Consumer updates the controlled value.
+    rerender(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert" selectedTabId="metadata" onTabChange={onTabChange}>
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.TabPanel>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            <span>metadata content</span>
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('metadata content')).toBeInTheDocument();
+    expect(screen.queryByText('overview content')).not.toBeInTheDocument();
+  });
+
+  it('wires a11y ids between tab and panel', () => {
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const tab = screen.getByRole('tab', { name: 'Overview' });
+    const panel = screen.getByRole('tabpanel');
+    expect(tab).toHaveAttribute('id', 'overview');
+    expect(panel).toHaveAttribute('aria-labelledby', 'overview');
+    expect(panel).toHaveAttribute('id', 'tabpanel-overview');
+  });
+
+  it('warns and does not render top-level Section in tabbed mode', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Orphan section">
+            <span>orphan content</span>
+          </FlyoutTemplate.Body.Section>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('Top-level Body.Section and passthrough children are not rendered')
+    );
+    expect(screen.queryByText('orphan content')).not.toBeInTheDocument();
+    warn.mockRestore();
+  });
+
+  it('renders header and body unchanged when no tabs are declared', () => {
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="noTabs">
+        <FlyoutTemplate.Header title="No tabs" />
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">
+            <span>summary content</span>
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+    expect(screen.getByText('summary content')).toBeInTheDocument();
   });
 });

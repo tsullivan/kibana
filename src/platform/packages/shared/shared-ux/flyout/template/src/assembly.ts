@@ -26,7 +26,7 @@ export const flyoutAssembly = defineAssembly({ name: 'FlyoutTemplate' });
 
 /**
  * Header assembly. Parses parts declared inside `FlyoutTemplate.Header`
- * (currently `Header.InfoBlock`; `Metadata`/`Badge`/`Tab` land in a follow-up).
+ * (`Header.InfoBlock`, `Header.Tab`).
  */
 export const headerAssembly = defineAssembly({ name: 'FlyoutTemplateHeader' });
 
