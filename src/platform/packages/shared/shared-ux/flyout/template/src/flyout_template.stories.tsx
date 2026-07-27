@@ -9,7 +9,7 @@
 
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { EuiCallOut, EuiHealth, EuiText } from '@elastic/eui';
+import { EuiHealth, EuiText } from '@elastic/eui';
 import { FlyoutTemplate } from './flyout_template';
 import type { FlyoutTemplateProps } from './types';
 
@@ -27,7 +27,7 @@ const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
  * Controls panel. These are not `FlyoutTemplate` props; the `render` maps them
  * onto the template and its declarative zones.
  */
-interface GalleryArgs {
+interface Args {
   infoBlocks: boolean;
   menuBarActions: boolean;
   footerActions: boolean;
@@ -36,18 +36,18 @@ interface GalleryArgs {
   ownFocus: boolean;
 }
 
-const renderGallery = ({
+const renderSimple = ({
   infoBlocks,
   menuBarActions,
   footerActions,
   resizable,
   type,
   ownFocus,
-}: GalleryArgs) => {
+}: Args) => {
   const flyoutProps: Omit<FlyoutTemplateProps, 'onClose' | 'children'> = {
     type,
     resizable,
-    ...(resizable ? { minWidth: 400 } : {}),
+    ...(resizable ? { minWidth: 320 } : {}),
     ...(type === 'overlay' ? { ownFocus } : {}),
     ...(menuBarActions ? { flyoutMenuProps: menuBarProps } : {}),
   };
@@ -92,7 +92,7 @@ const renderGallery = ({
   );
 };
 
-const meta: Meta<GalleryArgs> = {
+const meta: Meta<Args> = {
   title: 'Flyout/Flyout Template',
   args: {
     infoBlocks: true,
@@ -115,32 +115,10 @@ const meta: Meta<GalleryArgs> = {
       if: { arg: 'type', eq: 'overlay' },
     },
   },
-  render: renderGallery,
+  render: renderSimple,
 };
 export default meta;
 
-type Story = StoryObj<GalleryArgs>;
+type Story = StoryObj<Args>;
 
-export const Gallery: Story = {};
-
-export const SectionsWithPassthrough: Story = {
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <FlyoutTemplate onClose={noop} size="m">
-      <FlyoutTemplate.Header title="Service details" />
-      <FlyoutTemplate.Body>
-        <FlyoutTemplate.Body.Section title="Summary">
-          <EuiText size="s">
-            <p>Structured sections can be interleaved with passthrough content.</p>
-          </EuiText>
-        </FlyoutTemplate.Body.Section>
-        <EuiCallOut title="Data is delayed" color="warning" size="s" />
-        <FlyoutTemplate.Body.Section title="Dependencies">
-          <EuiText size="s">
-            <p>Another section rendered after the callout, preserving JSX order.</p>
-          </EuiText>
-        </FlyoutTemplate.Body.Section>
-      </FlyoutTemplate.Body>
-    </FlyoutTemplate>
-  ),
-};
+export const Simple: Story = {};
