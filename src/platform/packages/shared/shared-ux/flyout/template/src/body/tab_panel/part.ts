@@ -7,13 +7,10 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export {
-  FlyoutTemplateConfigProvider,
-  useFlyoutTemplateConfig,
-  resolveZoneTestSubj,
-} from './config_context';
-export type { FlyoutTemplateConfig } from './config_context';
-export { FlyoutScrollProvider, useFlyoutScroll } from './scroll_context';
-export type { FlyoutScrollState } from './scroll_context';
-export { FlyoutTabsProvider, useFlyoutTabs } from './tabs_context';
-export type { FlyoutTabsState } from './tabs_context';
+import { bodyAssembly } from '../../assembly';
+
+/** Part name used for identifying `Body.TabPanel` children. */
+export const TAB_PANEL_PART_NAME = 'tabPanel';
+
+/** Part factory for `FlyoutTemplate.Body.TabPanel`. */
+export const tabPanelPart = bodyAssembly.definePart({ name: TAB_PANEL_PART_NAME });

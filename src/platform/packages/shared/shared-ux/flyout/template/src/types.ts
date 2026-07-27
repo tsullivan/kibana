@@ -12,17 +12,64 @@ import type { EuiButtonProps, EuiFlyoutProps } from '@elastic/eui';
 import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
 
 /**
+ * Descriptor produced by resolving a `Header.Tab` part. Consumed by the header
+ * zone to render `EuiTabs`/`EuiTab` and by `FlyoutTabsProvider` to publish the
+ * ordered tab list.
+ */
+export interface TabDescriptor {
+  id: string;
+  label: ReactNode;
+  disabled?: boolean;
+  prepend?: ReactNode;
+  append?: ReactNode;
+  'data-test-subj'?: string;
+}
+
+/**
+ * Props for the declarative `FlyoutTemplate.Header.Tab` part.
+ */
+export interface FlyoutHeaderTabProps {
+  /** Stable identifier, used to link the tab to its `Body.TabPanel`. */
+  id: string;
+  /** Tab label rendered inside `EuiTab`. */
+  label: ReactNode;
+  disabled?: boolean;
+  prepend?: ReactNode;
+  append?: ReactNode;
+  'data-test-subj'?: string;
+}
+
+/**
+ * Props for the declarative `FlyoutTemplate.Body.TabPanel` part.
+ */
+export interface FlyoutBodyTabPanelProps {
+  /** Must match the `id` of a `Header.Tab`. */
+  tabId: string;
+  children?: ReactNode;
+  'data-test-subj'?: string;
+}
+
+/**
  * Props for the declarative `FlyoutTemplate.Header` zone.
- *
- * `title` and `Header.InfoBlock` are supported in this slice; metadata, badges,
- * and tabs are added as declarative parts in a follow-up.
  */
 export interface FlyoutHeaderProps {
   /** Title rendered by the header. Rendered as an H3 (heading level is owned by the template). */
   title: ReactNode;
   'data-test-subj'?: string;
-  /** `Header.InfoBlock` parts (Metadata, Badge, and Tab parts land in a follow-up). */
+  /** `Header.InfoBlock` and `Header.Tab` parts. */
   children?: ReactNode;
+  /**
+   * Initial selected tab id (uncontrolled). Defaults to the first tab's id when
+   * omitted. Ignored when `selectedTabId` is provided.
+   */
+  defaultSelectedTabId?: string;
+  /**
+   * Currently selected tab id (controlled). When provided the consumer drives
+   * selection; `onTabChange` fires on every click.
+   */
+  selectedTabId?: string;
+  /** Called when the user clicks a tab. */
+  onTabChange?: (id: string) => void;
 }
 
 /**

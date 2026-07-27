@@ -36,61 +36,101 @@ interface Args {
   ownFocus: boolean;
 }
 
-const renderSimple = ({
-  infoBlocks,
+/** Maps shared story args to `FlyoutTemplate` props. */
+const buildFlyoutProps = ({
   menuBarActions,
-  footerActions,
   resizable,
   type,
   ownFocus,
-}: Args) => {
-  const flyoutProps: Omit<FlyoutTemplateProps, 'onClose' | 'children'> = {
-    type,
-    resizable,
-    ...(resizable ? { minWidth: 320 } : {}),
-    ...(type === 'overlay' ? { ownFocus } : {}),
-    ...(menuBarActions ? { flyoutMenuProps: menuBarProps } : {}),
-  };
+}: Args): Omit<FlyoutTemplateProps, 'onClose' | 'children'> => ({
+  type,
+  resizable,
+  ...(resizable ? { minWidth: 320 } : {}),
+  ...(type === 'overlay' ? { ownFocus } : {}),
+  ...(menuBarActions ? { flyoutMenuProps: menuBarProps } : {}),
+});
 
-  return (
-    <FlyoutTemplate onClose={noop} size="m" {...flyoutProps}>
-      <FlyoutTemplate.Header title="Service details">
-        {infoBlocks && (
-          <>
-            <FlyoutTemplate.Header.InfoBlock title="Owner">
-              Platform
-            </FlyoutTemplate.Header.InfoBlock>
-            <FlyoutTemplate.Header.InfoBlock title="Latency">
-              <EuiHealth color="success">Healthy</EuiHealth>
-            </FlyoutTemplate.Header.InfoBlock>
-            <FlyoutTemplate.Header.InfoBlock title="Throughput">
-              1.2k tpm
-            </FlyoutTemplate.Header.InfoBlock>
-            <FlyoutTemplate.Header.InfoBlock title="Risk score" size="xl" color="danger">
-              90
-            </FlyoutTemplate.Header.InfoBlock>
-          </>
-        )}
-      </FlyoutTemplate.Header>
-      <FlyoutTemplate.Body>
-        <FlyoutTemplate.Body.Section title="Summary">
-          <EuiText size="s">
-            <p>
-              Toggle the controls to preview info blocks, the managed menu bar, footer actions,
-              resizing, and overlay/push behavior.
-            </p>
-          </EuiText>
-        </FlyoutTemplate.Body.Section>
-      </FlyoutTemplate.Body>
-      {footerActions && (
-        <FlyoutTemplate.Footer>
-          <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={noop} />
-          <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={noop} />
-        </FlyoutTemplate.Footer>
-      )}
-    </FlyoutTemplate>
-  );
-};
+// ── Shared info blocks ────────────────────────────────────────────────────────
+// Must be called as a function (not rendered as <InfoBlockParts />): the
+// assembly parser discovers parts as direct/fragment children of the Header;
+// mounting a wrapper component hides them from the parser.
+
+const infoBlockParts = () => (
+  <>
+    <FlyoutTemplate.Header.InfoBlock title="Owner">Platform</FlyoutTemplate.Header.InfoBlock>
+    <FlyoutTemplate.Header.InfoBlock title="Latency">
+      <EuiHealth color="success">Healthy</EuiHealth>
+    </FlyoutTemplate.Header.InfoBlock>
+    <FlyoutTemplate.Header.InfoBlock title="Throughput">1.2k tpm</FlyoutTemplate.Header.InfoBlock>
+    <FlyoutTemplate.Header.InfoBlock title="Risk score" size="xl" color="danger">
+      90
+    </FlyoutTemplate.Header.InfoBlock>
+  </>
+);
+
+// ── Simple ────────────────────────────────────────────────────────────────────
+
+const renderSimple = (args: Args) => (
+  <FlyoutTemplate onClose={noop} size="m" {...buildFlyoutProps(args)}>
+    <FlyoutTemplate.Header title="Service details">
+      {args.infoBlocks && infoBlockParts()}
+    </FlyoutTemplate.Header>
+    <FlyoutTemplate.Body>
+      <FlyoutTemplate.Body.Section title="Summary">
+        <EuiText size="s">
+          <p>
+            Toggle the controls to preview info blocks, the managed menu bar, footer actions,
+            resizing, and overlay/push behavior.
+          </p>
+        </EuiText>
+      </FlyoutTemplate.Body.Section>
+    </FlyoutTemplate.Body>
+    {args.footerActions && (
+      <FlyoutTemplate.Footer>
+        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={noop} />
+        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={noop} />
+      </FlyoutTemplate.Footer>
+    )}
+  </FlyoutTemplate>
+);
+
+// ── With Tabs ─────────────────────────────────────────────────────────────────
+
+const TABS: Array<{ id: string; label: string; content: string }> = [
+  { id: 'overview', label: 'Overview', content: 'Overview panel content.' },
+  { id: 'metadata', label: 'Metadata', content: 'Metadata panel content.' },
+  { id: 'timeline', label: 'Timeline', content: 'Timeline panel content.' },
+];
+
+const renderWithTabs = (args: Args) => (
+  <FlyoutTemplate onClose={noop} size="m" {...buildFlyoutProps(args)}>
+    <FlyoutTemplate.Header title="Alert details">
+      {args.infoBlocks && infoBlockParts()}
+      {TABS.map(({ id, label }) => (
+        <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
+      ))}
+    </FlyoutTemplate.Header>
+    <FlyoutTemplate.Body>
+      {TABS.map(({ id, label, content }) => (
+        <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
+          <FlyoutTemplate.Body.Section title={label}>
+            <EuiText size="s">
+              <p>{content}</p>
+            </EuiText>
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body.TabPanel>
+      ))}
+    </FlyoutTemplate.Body>
+    {args.footerActions && (
+      <FlyoutTemplate.Footer>
+        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={noop} />
+        <FlyoutTemplate.Footer.PrimaryAction label="Investigate" onClick={noop} />
+      </FlyoutTemplate.Footer>
+    )}
+  </FlyoutTemplate>
+);
+
+// ── Meta ──────────────────────────────────────────────────────────────────────
 
 const meta: Meta<Args> = {
   title: 'Flyout/Flyout Template',
@@ -122,3 +162,7 @@ export default meta;
 type Story = StoryObj<Args>;
 
 export const Simple: Story = {};
+
+export const WithTabs: Story = {
+  render: renderWithTabs,
+};

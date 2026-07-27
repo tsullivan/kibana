@@ -9,13 +9,26 @@
 
 import React, { useMemo } from 'react';
 import type { ParsedPart } from '@kbn/content-list-assembly';
-import { EuiFlyoutHeader, EuiSpacer, EuiTitle } from '@elastic/eui';
+import {
+  EuiFlyoutHeader,
+  EuiHorizontalRule,
+  EuiSpacer,
+  EuiTab,
+  EuiTabs,
+  EuiTitle,
+} from '@elastic/eui';
 import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
 import { InfoBlocks } from '@kbn/shared-ux-info-blocks';
 import { flyoutAssembly, headerAssembly } from '../assembly';
-import { resolveZoneTestSubj, useFlyoutScroll, useFlyoutTemplateConfig } from '../context';
+import {
+  resolveZoneTestSubj,
+  useFlyoutScroll,
+  useFlyoutTabs,
+  useFlyoutTemplateConfig,
+} from '../context';
 import type { FlyoutHeaderProps } from '../types';
 import { InfoBlock, infoBlockPart, INFO_BLOCK_PART_NAME } from './info_block';
+import { Tab } from './tab';
 
 /** Part name used for identifying the `Header` zone. */
 export const HEADER_PART_NAME = 'header';
@@ -24,18 +37,19 @@ const headerPart = flyoutAssembly.definePart({ name: HEADER_PART_NAME });
 
 /**
  * Declarative `FlyoutTemplate.Header`. Returns `null`; the root renders the
- * `HeaderZone` with these attributes. Namespaces the `InfoBlock` part.
+ * `HeaderZone` with these attributes. Namespaces the `InfoBlock` and `Tab` parts.
  */
 const BaseHeader = headerPart.createComponent<FlyoutHeaderProps>();
 BaseHeader.displayName = 'FlyoutTemplate.Header';
 
-export const Header = Object.assign(BaseHeader, { InfoBlock });
+export const Header = Object.assign(BaseHeader, { InfoBlock, Tab });
 
 /**
  * Internal renderer for the header zone. Composes `EuiFlyoutHeader` and owns the
- * heading level: H3 at rest (scroll index 0), H4 once collapsed. Consumers
- * cannot choose the heading level. `Header.InfoBlock` parts resolve into
- * `@kbn/shared-ux-info-blocks`, compressed to match the collapsed state.
+ * heading level: H3 at rest (scroll index 0), H4 once collapsed. `Header.InfoBlock`
+ * parts resolve into `@kbn/shared-ux-info-blocks`, compressed to match the collapsed
+ * state. `Header.Tab` parts render as an `EuiTabs` bar; selection state is read from
+ * `FlyoutTabsProvider`.
  */
 export const HeaderZone = ({
   title,
@@ -44,6 +58,7 @@ export const HeaderZone = ({
 }: FlyoutHeaderProps) => {
   const { scrollIndex, isCollapsed } = useFlyoutScroll();
   const { dataTestSubj: rootTestSubj } = useFlyoutTemplateConfig();
+  const { tabs, selectedTabId, selectTab } = useFlyoutTabs();
   const isTitleCollapsed = scrollIndex > 0;
 
   const infoBlockItems = useMemo(() => {
@@ -56,9 +71,11 @@ export const HeaderZone = ({
       .filter((item): item is InfoBlockItem => item !== undefined);
   }, [children]);
 
+  const hasTabs = tabs.length > 0;
+
   return (
     <EuiFlyoutHeader
-      hasBorder
+      hasBorder={false}
       data-test-subj={resolveZoneTestSubj(dataTestSubj, rootTestSubj, 'Header')}
     >
       <EuiTitle size={isTitleCollapsed ? 'xs' : 'm'}>
@@ -70,6 +87,28 @@ export const HeaderZone = ({
           <InfoBlocks items={infoBlockItems} compressed={isCollapsed} />
         </>
       )}
+      {hasTabs && (
+        <>
+          <EuiSpacer size="s" />
+          <EuiTabs bottomBorder={false} size={isCollapsed ? 's' : 'm'}>
+            {tabs.map((tab) => (
+              <EuiTab
+                key={tab.id}
+                id={tab.id}
+                isSelected={tab.id === selectedTabId}
+                onClick={() => selectTab(tab.id)}
+                disabled={tab.disabled}
+                prepend={tab.prepend}
+                append={tab.append}
+                data-test-subj={tab['data-test-subj']}
+              >
+                {tab.label}
+              </EuiTab>
+            ))}
+          </EuiTabs>
+        </>
+      )}
+      <EuiHorizontalRule margin="none" />
     </EuiFlyoutHeader>
   );
 };
