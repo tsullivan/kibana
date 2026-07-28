@@ -21,11 +21,6 @@ const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
   ],
 };
 
-/**
- * Synthetic story args that toggle optional parts and structural props from the
- * Controls panel. These are not `FlyoutTemplate` props; the `render` maps them
- * onto the template and its declarative zones.
- */
 interface Args {
   infoBlocks: boolean;
   sectionHasBorder: boolean;
@@ -37,6 +32,37 @@ interface Args {
   type: NonNullable<FlyoutTemplateProps['type']>;
   ownFocus: boolean;
 }
+
+const meta: Meta<Args> = {
+  title: 'Flyout/Flyout Template',
+  args: {
+    infoBlocks: true,
+    sectionIcon: true,
+    sectionAction: true,
+    sectionHasBorder: false,
+    menuBarActions: true,
+    footerActions: true,
+    resizable: true,
+    type: 'overlay',
+    ownFocus: false,
+  },
+  argTypes: {
+    infoBlocks: { name: 'Info blocks', control: { type: 'boolean' } },
+    sectionHasBorder: { name: 'Section has border', control: { type: 'boolean' } },
+    sectionIcon: { name: 'Section icon', control: { type: 'boolean' } },
+    sectionAction: { name: 'Section action', control: { type: 'boolean' } },
+    menuBarActions: { name: 'Menu bar actions', control: { type: 'boolean' } },
+    footerActions: { name: 'Footer actions', control: { type: 'boolean' } },
+    resizable: { name: 'Resizable', control: { type: 'boolean' } },
+    type: { name: 'Flyout type', control: { type: 'inline-radio' }, options: ['overlay', 'push'] },
+    ownFocus: {
+      name: 'Own focus',
+      control: { type: 'boolean' },
+      // `ownFocus` only applies to overlay flyouts, so hide it for push.
+      if: { arg: 'type', eq: 'overlay' },
+    },
+  },
+};
 
 /** Maps shared story args to `FlyoutTemplate` props. */
 const buildFlyoutProps = ({
@@ -68,11 +94,6 @@ const buildSectionProps = (args: Args) => ({
   ...buildTitleAdornments(args),
 });
 
-// ── Shared info blocks ────────────────────────────────────────────────────────
-// Must be called as a function (not rendered as <InfoBlockParts />): the
-// assembly parser discovers parts as direct/fragment children of the Header;
-// mounting a wrapper component hides them from the parser.
-
 const infoBlockParts = () => (
   <>
     <FlyoutTemplate.Header.InfoBlock title="Owner">Platform</FlyoutTemplate.Header.InfoBlock>
@@ -85,8 +106,6 @@ const infoBlockParts = () => (
     </FlyoutTemplate.Header.InfoBlock>
   </>
 );
-
-// ── Simple ────────────────────────────────────────────────────────────────────
 
 const renderSimple = (args: Args) => (
   <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
@@ -111,8 +130,6 @@ const renderSimple = (args: Args) => (
     )}
   </FlyoutTemplate>
 );
-
-// ── With Tabs ─────────────────────────────────────────────────────────────────
 
 const TABS: Array<{ id: string; label: string; content: string }> = [
   { id: 'overview', label: 'Overview', content: 'Overview panel content.' },
@@ -148,50 +165,17 @@ const renderWithTabs = (args: Args) => (
   </FlyoutTemplate>
 );
 
-// ── Meta ──────────────────────────────────────────────────────────────────────
-
-const meta: Meta<Args> = {
-  title: 'Flyout/Flyout Template',
-  args: {
-    infoBlocks: true,
-    sectionHasBorder: true,
-    sectionIcon: true,
-    sectionAction: true,
-    menuBarActions: true,
-    footerActions: true,
-    resizable: true,
-    type: 'overlay',
-    ownFocus: false,
-  },
-  argTypes: {
-    infoBlocks: { name: 'Info blocks', control: { type: 'boolean' } },
-    sectionHasBorder: { name: 'Section has border', control: { type: 'boolean' } },
-    sectionIcon: { name: 'Section icon', control: { type: 'boolean' } },
-    sectionAction: { name: 'Section action', control: { type: 'boolean' } },
-    menuBarActions: { name: 'Menu bar actions', control: { type: 'boolean' } },
-    footerActions: { name: 'Footer actions', control: { type: 'boolean' } },
-    resizable: { name: 'Resizable', control: { type: 'boolean' } },
-    type: { name: 'Flyout type', control: { type: 'inline-radio' }, options: ['overlay', 'push'] },
-    ownFocus: {
-      name: 'Own focus',
-      control: { type: 'boolean' },
-      // `ownFocus` only applies to overlay flyouts, so hide it for push.
-      if: { arg: 'type', eq: 'overlay' },
-    },
-  },
-  render: renderSimple,
+export const Tabs: Story = {
+  render: renderWithTabs,
 };
+
 export default meta;
 
 type Story = StoryObj<Args>;
 
-export const Simple: Story = {};
-
-export const WithTabs: Story = {
-  render: renderWithTabs,
+export const RegularSections: Story = {
+  render: renderSimple,
 };
-
-// ── With Accordions ───────────────────────────────────────────────────────────
 
 const ACCORDIONS: Array<{ id: string; title: string; content: string }> = [
   { id: 'overview', title: 'Overview', content: 'Overview accordion content.' },
@@ -228,7 +212,7 @@ const renderWithAccordions = (args: Args) => (
   </FlyoutTemplate>
 );
 
-export const WithAccordions: Story = {
+export const AccordionSections: Story = {
   render: renderWithAccordions,
   // Accordion content is always outlined, so the border toggle does not apply here.
   argTypes: {

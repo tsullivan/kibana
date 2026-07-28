@@ -23,7 +23,15 @@ import { sectionPart } from './part';
  * in an outlined box — identical treatment to `Body.Accordion`.
  */
 export const Section = sectionPart.createComponent<FlyoutSectionProps>({
-  resolve: ({ title, children, icon, tooltip, action, hasBorder, 'data-test-subj': dataTestSubj }) => {
+  resolve: ({
+    title,
+    children,
+    icon,
+    tooltip,
+    action,
+    hasBorder,
+    'data-test-subj': dataTestSubj,
+  }) => {
     const titleWithIcon = renderTitleWithIcon(
       <EuiTitle size="xs">
         <h4>{title}</h4>
