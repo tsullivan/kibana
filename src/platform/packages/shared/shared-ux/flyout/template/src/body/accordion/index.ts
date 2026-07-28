@@ -7,17 +7,5 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { FlyoutTemplate } from './src/flyout_template';
-export type {
-  FlyoutTemplateProps,
-  FlyoutHeaderProps,
-  FlyoutHeaderInfoBlockProps,
-  FlyoutHeaderTabProps,
-  FlyoutBodyProps,
-  FlyoutBodyTabPanelProps,
-  FlyoutSectionProps,
-  FlyoutSectionAction,
-  FlyoutAccordionProps,
-  FlyoutFooterProps,
-  FlyoutFooterActionProps,
-} from './src/types';
+export { Accordion } from './accordion';
+export { accordionPart, ACCORDION_PART_NAME } from './part';

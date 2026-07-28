@@ -54,6 +54,10 @@ template and (in managed mode) the EUI menu bar own the close affordance.
     (+ optional `tooltip`) shown right of the title, `action` (a right-aligned
     link on the title row), and `hasBorder` to wrap the whole section (title and
     content) in an outlined box.
+  - `FlyoutTemplate.Body.Accordion` — a collapsible section with the same title
+    row as `Section` (`title`, `icon`/`tooltip`, `action`) plus `initialIsOpen`.
+    Content is always wrapped in an outlined box. A body uses either `Section` or
+    `Accordion` parts, not both.
   - passthrough children (callouts, announcements, search, filters).
 - `FlyoutTemplate.Footer` — optional. Accepts:
   - `FlyoutTemplate.Footer.PrimaryAction` — right-aligned, filled button.

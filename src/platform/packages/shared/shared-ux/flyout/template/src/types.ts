@@ -127,6 +127,34 @@ export interface FlyoutSectionProps {
 }
 
 /**
+ * Props for the declarative `FlyoutTemplate.Body.Accordion` part.
+ *
+ * The title row mirrors `Body.Section` (title, optional `icon`/`tooltip`, and a
+ * right-aligned `action`). Accordion content is always wrapped in an outlined
+ * box, so there is no `hasBorder` option. A body uses either `Section` or
+ * `Accordion` parts, not both.
+ */
+export interface FlyoutAccordionProps {
+  /** Optional explicit instance id; auto-generated when omitted. */
+  id?: string;
+  /** Accordion title, styled to match a section title. */
+  title: ReactNode;
+  /**
+   * Icon rendered immediately to the right of the title. When `tooltip` is set
+   * the icon becomes the tooltip anchor; defaults to an info icon if omitted.
+   */
+  icon?: EuiIconProps['type'];
+  /** Tooltip shown from an icon to the right of the title. */
+  tooltip?: ReactNode;
+  /** Action link aligned to the right on the title row (the accordion's extra action). */
+  action?: FlyoutSectionAction;
+  /** Whether the accordion is expanded on first render. Defaults to `false`. */
+  initialIsOpen?: boolean;
+  'data-test-subj'?: string;
+  children?: ReactNode;
+}
+
+/**
  * Props for the declarative `FlyoutTemplate.Body` zone.
  */
 export interface FlyoutBodyProps {

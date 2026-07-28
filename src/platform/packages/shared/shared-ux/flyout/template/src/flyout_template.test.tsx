@@ -516,3 +516,110 @@ describe('FlyoutTemplate tabs', () => {
     expect(screen.getByText('summary content')).toBeInTheDocument();
   });
 });
+
+describe('FlyoutTemplate accordions', () => {
+  it('wraps only the accordion content in an outlined box, not the title', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion title="Overview" initialIsOpen>
+            <span>overview content</span>
+          </FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const title = screen.getByRole('button', { name: /Overview/ });
+    expect(title).toBeInTheDocument();
+    // Content is wrapped in an outlined box; the title stays outside it.
+    const panel = screen.getByText('overview content').closest('.euiPanel');
+    expect(panel).toBeInTheDocument();
+    expect(panel).not.toContainElement(title);
+  });
+
+  it('renders a divider below each closed accordion except the last', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion title="One">one</FlyoutTemplate.Body.Accordion>
+          <FlyoutTemplate.Body.Accordion title="Two">two</FlyoutTemplate.Body.Accordion>
+          <FlyoutTemplate.Body.Accordion title="Three">three</FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // Three closed accordions → two dividers (none below the last).
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
+  });
+
+  it('hides the divider below an accordion while it is open', async () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion title="One">one</FlyoutTemplate.Body.Accordion>
+          <FlyoutTemplate.Body.Accordion title="Two">two</FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // Two closed accordions → one divider below the first.
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(1);
+
+    // Opening the first accordion hides its divider.
+    await userEvent.click(screen.getByRole('button', { name: /One/ }));
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+  });
+
+  it('toggles the accordion open on click', async () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion title="Overview">
+            <span>overview content</span>
+          </FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const button = screen.getByRole('button', { name: /Overview/ });
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(button);
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('renders an accordion action as the extra action', async () => {
+    const onClick = jest.fn();
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion
+            title="Overview"
+            action={{ label: 'Extra action', onClick }}
+          >
+            content
+          </FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Extra action' }));
+    expect(onClick).toHaveBeenCalled();
+  });
+
+  it('warns in development when a body mixes Section and Accordion', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+          <FlyoutTemplate.Body.Accordion title="Details">details</FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(warn).toHaveBeenCalledWith(
+      '[FlyoutTemplate] A body uses either Body.Section or Body.Accordion, not both.'
+    );
+    warn.mockRestore();
+  });
+});

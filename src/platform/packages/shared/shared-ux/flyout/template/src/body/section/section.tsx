@@ -8,17 +8,9 @@
  */
 
 import React from 'react';
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiIcon,
-  EuiIconTip,
-  EuiLink,
-  EuiPanel,
-  EuiSpacer,
-  EuiTitle,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiPanel, EuiSpacer, EuiTitle } from '@elastic/eui';
 import type { FlyoutSectionProps } from '../../types';
+import { renderTitleAction, renderTitleIcon } from '../adornments';
 import { sectionPart } from './part';
 
 /**
@@ -40,13 +32,7 @@ export const Section = sectionPart.createComponent<FlyoutSectionProps>({
     hasBorder,
     'data-test-subj': dataTestSubj,
   }) => {
-    // Tooltip anchors on an icon (defaults to `info`); a bare icon is decorative
-    // (meaningful icons should carry a tooltip, which is the accessible path).
-    const iconNode = tooltip ? (
-      <EuiIconTip type={icon ?? 'info'} content={tooltip} />
-    ) : icon ? (
-      <EuiIcon type={icon} aria-hidden />
-    ) : null;
+    const iconNode = renderTitleIcon(icon, tooltip);
 
     const titleRow = (
       <EuiFlexGroup gutterSize="xs" alignItems="center" responsive={false}>
@@ -67,15 +53,7 @@ export const Section = sectionPart.createComponent<FlyoutSectionProps>({
         responsive={false}
       >
         <EuiFlexItem grow={false}>{titleRow}</EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiLink
-            href={action.href}
-            onClick={action.onClick}
-            data-test-subj={action['data-test-subj']}
-          >
-            {action.label}
-          </EuiLink>
-        </EuiFlexItem>
+        <EuiFlexItem grow={false}>{renderTitleAction(action)}</EuiFlexItem>
       </EuiFlexGroup>
     ) : (
       titleRow

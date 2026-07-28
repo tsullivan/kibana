@@ -14,19 +14,48 @@ import type { ParsedItem, ParsedPart } from '@kbn/content-list-assembly';
 import { bodyAssembly, flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import type { FlyoutBodyProps } from '../types';
-import { Section, sectionPart } from './section';
+import { Section, sectionPart, SECTION_PART_NAME } from './section';
+import { Accordion, accordionPart, ACCORDION_PART_NAME } from './accordion';
 import { TabPanel, TAB_PANEL_PART_NAME } from './tab_panel';
 
 /**
- * Renders parsed body items in source order: `Section` parts are resolved,
- * passthrough children are rendered as-is. Shared by the untabbed body and by
- * each tab panel's content (a panel's children are the same shape as the body).
+ * Renders parsed body items in source order: `Section` and `Accordion` parts are
+ * resolved, passthrough children are rendered as-is. Shared by the untabbed body
+ * and by each tab panel's content (a panel's children are the same shape as the
+ * body). A body uses either `Section` or `Accordion` parts, not both (PRD);
+ * mixing warns in development and renders everything in source order.
  */
 const renderBodyItems = (children: ReactNode) => {
   const items = bodyAssembly.parseChildren(children, { supportsOtherChildren: true });
+
+  if (process.env.NODE_ENV !== 'production') {
+    const hasSection = items.some((i) => i.type === 'part' && i.part === SECTION_PART_NAME);
+    const hasAccordion = items.some((i) => i.type === 'part' && i.part === ACCORDION_PART_NAME);
+    if (hasSection && hasAccordion) {
+      // eslint-disable-next-line no-console
+      console.warn('[FlyoutTemplate] A body uses either Body.Section or Body.Accordion, not both.');
+    }
+  }
+
+  // Accordions get a divider between each (owned by the accordion so it can hide
+  // while open); the last accordion renders no divider below it.
+  const accordionTotal = items.filter(
+    (i) => i.type === 'part' && i.part === ACCORDION_PART_NAME
+  ).length;
+  let accordionIndex = 0;
+
   return items.map((item, index) => {
     if (item.type === 'child') {
       return <Fragment key={`passthrough-${index}`}>{item.node}</Fragment>;
+    }
+    if (item.part === ACCORDION_PART_NAME) {
+      const showBottomDivider = accordionIndex < accordionTotal - 1;
+      accordionIndex += 1;
+      return (
+        <Fragment key={item.instanceId}>
+          {accordionPart.resolve(item, { showBottomDivider }) ?? null}
+        </Fragment>
+      );
     }
     return (
       <Fragment key={item.instanceId}>{sectionPart.resolve(item, undefined) ?? null}</Fragment>
@@ -46,7 +75,7 @@ const bodyPart = flyoutAssembly.definePart({ name: BODY_PART_NAME });
 const BaseBody = bodyPart.createComponent<FlyoutBodyProps>();
 BaseBody.displayName = 'FlyoutTemplate.Body';
 
-export const Body = Object.assign(BaseBody, { Section, TabPanel });
+export const Body = Object.assign(BaseBody, { Section, Accordion, TabPanel });
 
 /**
  * Internal renderer for the body zone. Composes `EuiFlyoutBody`.

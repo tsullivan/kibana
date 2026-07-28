@@ -52,15 +52,20 @@ const buildFlyoutProps = ({
   ...(menuBarActions ? { flyoutMenuProps: menuBarProps } : {}),
 });
 
-/** Maps the section-related story args onto `Body.Section` props. */
-const buildSectionProps = (args: Args) => ({
-  hasBorder: args.sectionHasBorder,
+/** Title-row adornments shared by `Body.Section` and `Body.Accordion`. */
+const buildTitleAdornments = (args: Args) => ({
   ...(args.sectionIcon
     ? { icon: 'info' as const, tooltip: 'Additional context about this section.' }
     : {}),
   ...(args.sectionAction
     ? { action: { label: 'Extra action', onClick: action('section action') } }
     : {}),
+});
+
+/** Maps the section-related story args onto `Body.Section` props. */
+const buildSectionProps = (args: Args) => ({
+  hasBorder: args.sectionHasBorder,
+  ...buildTitleAdornments(args),
 });
 
 // ── Shared info blocks ────────────────────────────────────────────────────────
@@ -184,4 +189,49 @@ export const Simple: Story = {};
 
 export const WithTabs: Story = {
   render: renderWithTabs,
+};
+
+// ── With Accordions ───────────────────────────────────────────────────────────
+
+const ACCORDIONS: Array<{ id: string; title: string; content: string }> = [
+  { id: 'overview', title: 'Overview', content: 'Overview accordion content.' },
+  { id: 'metadata', title: 'Metadata', content: 'Metadata accordion content.' },
+  { id: 'timeline', title: 'Timeline', content: 'Timeline accordion content.' },
+];
+
+const renderWithAccordions = (args: Args) => (
+  <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+    <FlyoutTemplate.Header title="Alert details">
+      {args.infoBlocks && infoBlockParts()}
+    </FlyoutTemplate.Header>
+    <FlyoutTemplate.Body>
+      {ACCORDIONS.map(({ id, title, content }, index) => (
+        <FlyoutTemplate.Body.Accordion
+          key={id}
+          id={id}
+          title={title}
+          initialIsOpen={index === 0}
+          {...buildTitleAdornments(args)}
+        >
+          <EuiText size="s">
+            <p>{content}</p>
+          </EuiText>
+        </FlyoutTemplate.Body.Accordion>
+      ))}
+    </FlyoutTemplate.Body>
+    {args.footerActions && (
+      <FlyoutTemplate.Footer>
+        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
+      </FlyoutTemplate.Footer>
+    )}
+  </FlyoutTemplate>
+);
+
+export const WithAccordions: Story = {
+  render: renderWithAccordions,
+  // Accordion content is always outlined, so the border toggle does not apply here.
+  argTypes: {
+    sectionHasBorder: { table: { disable: true } },
+  },
 };
