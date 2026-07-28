@@ -10,7 +10,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { EuiCallOut } from '@elastic/eui';
+import { KbnInfoCallout } from '@kbn/ui-callout';
 import { FlyoutTemplate } from './flyout_template';
 
 const noop = () => {};
@@ -231,7 +231,7 @@ describe('FlyoutTemplate', () => {
           <FlyoutTemplate.Body.Section title="First">
             <span>first section</span>
           </FlyoutTemplate.Body.Section>
-          <EuiCallOut title="Data is delayed" />
+          <KbnInfoCallout title="Data is delayed" />
           <FlyoutTemplate.Body.Section title="Second">
             <span>second section</span>
           </FlyoutTemplate.Body.Section>

@@ -12,6 +12,7 @@
   ],
   "kbn_references": [
     "@kbn/content-list-assembly",
-    "@kbn/shared-ux-info-blocks"
+    "@kbn/shared-ux-info-blocks",
+    "@kbn/ui-callout"
   ]
 }

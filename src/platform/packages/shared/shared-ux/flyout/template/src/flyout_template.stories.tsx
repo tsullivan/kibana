@@ -9,16 +9,15 @@
 
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
 import { EuiHealth, EuiText } from '@elastic/eui';
 import { FlyoutTemplate } from './flyout_template';
 import type { FlyoutTemplateProps } from './types';
 
-const noop = () => {};
-
 const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
   customActions: [
-    { iconType: 'share', onClick: noop, 'aria-label': 'Share' },
-    { iconType: 'gear', onClick: noop, 'aria-label': 'Settings' },
+    { iconType: 'share', onClick: action('share'), 'aria-label': 'Share' },
+    { iconType: 'gear', onClick: action('settings'), 'aria-label': 'Settings' },
   ],
 };
 
@@ -59,7 +58,9 @@ const buildSectionProps = (args: Args) => ({
   ...(args.sectionIcon
     ? { icon: 'info' as const, tooltip: 'Additional context about this section.' }
     : {}),
-  ...(args.sectionAction ? { action: { label: 'Extra action', onClick: noop } } : {}),
+  ...(args.sectionAction
+    ? { action: { label: 'Extra action', onClick: action('section action') } }
+    : {}),
 });
 
 // ── Shared info blocks ────────────────────────────────────────────────────────
@@ -83,7 +84,7 @@ const infoBlockParts = () => (
 // ── Simple ────────────────────────────────────────────────────────────────────
 
 const renderSimple = (args: Args) => (
-  <FlyoutTemplate onClose={noop} size="m" {...buildFlyoutProps(args)}>
+  <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
     <FlyoutTemplate.Header title="Service details">
       {args.infoBlocks && infoBlockParts()}
     </FlyoutTemplate.Header>
@@ -99,8 +100,8 @@ const renderSimple = (args: Args) => (
     </FlyoutTemplate.Body>
     {args.footerActions && (
       <FlyoutTemplate.Footer>
-        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={noop} />
-        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={noop} />
+        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
       </FlyoutTemplate.Footer>
     )}
   </FlyoutTemplate>
@@ -115,7 +116,7 @@ const TABS: Array<{ id: string; label: string; content: string }> = [
 ];
 
 const renderWithTabs = (args: Args) => (
-  <FlyoutTemplate onClose={noop} size="m" {...buildFlyoutProps(args)}>
+  <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
     <FlyoutTemplate.Header title="Alert details">
       {args.infoBlocks && infoBlockParts()}
       {TABS.map(({ id, label }) => (
@@ -135,8 +136,8 @@ const renderWithTabs = (args: Args) => (
     </FlyoutTemplate.Body>
     {args.footerActions && (
       <FlyoutTemplate.Footer>
-        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={noop} />
-        <FlyoutTemplate.Footer.PrimaryAction label="Investigate" onClick={noop} />
+        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+        <FlyoutTemplate.Footer.PrimaryAction label="Investigate" onClick={action('investigate')} />
       </FlyoutTemplate.Footer>
     )}
   </FlyoutTemplate>
@@ -148,9 +149,9 @@ const meta: Meta<Args> = {
   title: 'Flyout/Flyout Template',
   args: {
     infoBlocks: true,
-    sectionHasBorder: false,
-    sectionIcon: false,
-    sectionAction: false,
+    sectionHasBorder: true,
+    sectionIcon: true,
+    sectionAction: true,
     menuBarActions: true,
     footerActions: true,
     resizable: true,

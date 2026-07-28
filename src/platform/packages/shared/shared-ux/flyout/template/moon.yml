@@ -19,6 +19,7 @@ project:
 dependsOn:
   - '@kbn/content-list-assembly'
   - '@kbn/shared-ux-info-blocks'
+  - '@kbn/ui-callout'
 tags:
   - shared-browser
   - package
