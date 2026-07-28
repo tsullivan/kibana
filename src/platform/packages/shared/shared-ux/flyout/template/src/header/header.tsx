@@ -8,15 +8,18 @@
  */
 
 import React, { useMemo } from 'react';
+import { css } from '@emotion/react';
 import type { ParsedPart } from '@kbn/content-list-assembly';
 import {
   EuiFlyoutHeader,
-  EuiHorizontalRule,
   EuiSpacer,
   EuiTab,
   EuiTabs,
   EuiTitle,
+  useEuiMemoizedStyles,
+  useEuiTheme,
 } from '@elastic/eui';
+import type { EuiFlyoutProps, UseEuiTheme } from '@elastic/eui';
 import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
 import { InfoBlocks } from '@kbn/shared-ux-info-blocks';
 import { flyoutAssembly, headerAssembly } from '../assembly';
@@ -44,20 +47,59 @@ BaseHeader.displayName = 'FlyoutTemplate.Header';
 
 export const Header = Object.assign(BaseHeader, { InfoBlock, Tab });
 
+/** Maps `paddingSize` to the header's horizontal padding; `undefined` follows EuiFlyout's `'l'` default. */
+const resolveHorizontalPadding = (
+  euiTheme: UseEuiTheme['euiTheme'],
+  paddingSize: EuiFlyoutProps['paddingSize']
+): string => {
+  switch (paddingSize) {
+    case 'none':
+      return '0';
+    case 's':
+      return euiTheme.size.s;
+    case 'm':
+      return euiTheme.size.base;
+    case 'l':
+    default:
+      return euiTheme.size.l;
+  }
+};
+
+const dividerStyles = ({ euiTheme }: UseEuiTheme) => ({
+  divider: css`
+    border-block-end: ${euiTheme.border.thin};
+  `,
+});
+
+/** Full-width divider: negative horizontal margins bleed it past the header padding to the flyout edges. */
+const FullBleedDivider = ({ horizontalPadding }: { horizontalPadding: string }) => {
+  const styles = useEuiMemoizedStyles(dividerStyles);
+  return (
+    <div
+      aria-hidden
+      css={styles.divider}
+      style={{
+        marginInlineStart: `-${horizontalPadding}`,
+        marginInlineEnd: `-${horizontalPadding}`,
+      }}
+    />
+  );
+};
+
 /**
- * Internal renderer for the header zone. Composes `EuiFlyoutHeader` and owns the
- * heading level: H3 at rest (scroll index 0), H4 once collapsed. `Header.InfoBlock`
- * parts resolve into `@kbn/shared-ux-info-blocks`, compressed to match the collapsed
- * state. `Header.Tab` parts render as an `EuiTabs` bar; selection state is read from
- * `FlyoutTabsProvider`.
+ * Internal renderer for the header zone. Owns the heading level (H3 at rest, H4
+ * once collapsed), resolves `Header.InfoBlock` parts, and renders `Header.Tab`
+ * parts as an `EuiTabs` bar driven by `FlyoutTabsProvider`. Borders are
+ * template-owned (`hasBorder={false}`) so the dividers are full-bleed.
  */
 export const HeaderZone = ({
   title,
   children,
   'data-test-subj': dataTestSubj,
 }: FlyoutHeaderProps) => {
+  const { euiTheme } = useEuiTheme();
   const { scrollIndex, isCollapsed } = useFlyoutScroll();
-  const { dataTestSubj: rootTestSubj } = useFlyoutTemplateConfig();
+  const { dataTestSubj: rootTestSubj, paddingSize } = useFlyoutTemplateConfig();
   const { tabs, selectedTabId, selectTab } = useFlyoutTabs();
   const isTitleCollapsed = scrollIndex > 0;
 
@@ -71,7 +113,9 @@ export const HeaderZone = ({
       .filter((item): item is InfoBlockItem => item !== undefined);
   }, [children]);
 
+  const hasInfoBlocks = infoBlockItems.length > 0;
   const hasTabs = tabs.length > 0;
+  const horizontalPadding = resolveHorizontalPadding(euiTheme, paddingSize);
 
   return (
     <EuiFlyoutHeader
@@ -81,8 +125,10 @@ export const HeaderZone = ({
       <EuiTitle size={isTitleCollapsed ? 'xs' : 'm'}>
         {isTitleCollapsed ? <h4>{title}</h4> : <h3>{title}</h3>}
       </EuiTitle>
-      {infoBlockItems.length > 0 && (
+      {hasInfoBlocks && (
         <>
+          <EuiSpacer size="m" />
+          <FullBleedDivider horizontalPadding={horizontalPadding} />
           <EuiSpacer size="m" />
           <InfoBlocks items={infoBlockItems} compressed={isCollapsed} />
         </>
@@ -108,7 +154,9 @@ export const HeaderZone = ({
           </EuiTabs>
         </>
       )}
-      <EuiHorizontalRule margin="none" />
+      {/* Bottom divider hugs the tab bar; without tabs it gets its own spacing. */}
+      {!hasTabs && <EuiSpacer size="m" />}
+      <FullBleedDivider horizontalPadding={horizontalPadding} />
     </EuiFlyoutHeader>
   );
 };
