@@ -120,7 +120,7 @@ export interface FlyoutSectionProps {
   tooltip?: ReactNode;
   /** Action link aligned to the right on the title row. */
   action?: FlyoutSectionAction;
-  /** Wrap the whole section (title and content) in an outlined box. Defaults to `false`. */
+  /** Wrap the section content (not the title) in an outlined box. Defaults to `false`. */
   hasBorder?: boolean;
   'data-test-subj'?: string;
   children?: ReactNode;

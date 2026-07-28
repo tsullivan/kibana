@@ -8,18 +8,10 @@
  */
 
 import React, { useState } from 'react';
-import {
-  EuiAccordion,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiHorizontalRule,
-  EuiPanel,
-  EuiSpacer,
-  EuiTitle,
-  useGeneratedHtmlId,
-} from '@elastic/eui';
+import { EuiAccordion, EuiHorizontalRule, EuiSpacer, EuiTitle, useGeneratedHtmlId } from '@elastic/eui';
 import type { FlyoutAccordionProps } from '../../types';
-import { renderTitleAction, renderTitleIcon } from '../adornments';
+import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../adornments';
+import { SectionContent } from '../section_content';
 import { accordionPart } from './part';
 
 type AccordionSectionProps = FlyoutAccordionProps & {
@@ -29,9 +21,11 @@ type AccordionSectionProps = FlyoutAccordionProps & {
 
 /**
  * Internal renderer. Uses hooks (id + open state), so it must be a component
- * rather than inline JSX in `resolve`. The outlined box wraps only the
- * expandable content, not the title row (PRD accordion border style). The
- * between-accordion divider is owned here so it can hide while open.
+ * rather than inline JSX in `resolve`.
+ *
+ * The title row and outlined content box are shared with `Section` (via
+ * `renderTitleWithIcon` / `SectionContent`). The accordion-only differences are
+ * expand/collapse and the between-accordion divider, which hides while open.
  */
 const AccordionSection = ({
   id,
@@ -46,19 +40,14 @@ const AccordionSection = ({
 }: AccordionSectionProps) => {
   const accordionId = useGeneratedHtmlId({ conditionalId: id, prefix: 'flyoutAccordion' });
   const [isOpen, setIsOpen] = useState(initialIsOpen);
-  const iconNode = renderTitleIcon(icon, tooltip);
 
   // Styled like a section title, but a `span` (not an H4): the button label is
   // phrasing content, and headings are not allowed inside a button.
-  const buttonContent = (
-    <EuiFlexGroup gutterSize="xs" alignItems="center" responsive={false}>
-      <EuiFlexItem grow={false}>
-        <EuiTitle size="xs">
-          <span>{title}</span>
-        </EuiTitle>
-      </EuiFlexItem>
-      {iconNode && <EuiFlexItem grow={false}>{iconNode}</EuiFlexItem>}
-    </EuiFlexGroup>
+  const buttonContent = renderTitleWithIcon(
+    <EuiTitle size="xs">
+      <span>{title}</span>
+    </EuiTitle>,
+    renderTitleIcon(icon, tooltip)
   );
 
   return (
@@ -71,10 +60,7 @@ const AccordionSection = ({
         onToggle={setIsOpen}
         data-test-subj={dataTestSubj}
       >
-        <EuiSpacer size="s" />
-        <EuiPanel hasShadow={false} hasBorder paddingSize="m">
-          {children}
-        </EuiPanel>
+        <SectionContent hasBorder>{children}</SectionContent>
       </EuiAccordion>
       {/* Open: a spacer separates the content box from the next section. Closed:
           the between-accordion divider (omitted for the last accordion). */}

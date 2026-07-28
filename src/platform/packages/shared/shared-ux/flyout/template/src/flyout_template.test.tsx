@@ -162,8 +162,8 @@ describe('FlyoutTemplate', () => {
 
     const panel = screen.getByText('boxed content').closest('.euiPanel');
     expect(panel).toBeInTheDocument();
-    // The box surrounds the whole section, including the title.
-    expect(panel).toContainElement(screen.getByRole('heading', { level: 4, name: 'Summary' }));
+    // The box wraps only the content; the title stays outside it (same as Accordion).
+    expect(panel).not.toContainElement(screen.getByRole('heading', { level: 4, name: 'Summary' }));
   });
 
   it('renders a section icon next to the title', () => {

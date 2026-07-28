@@ -9,7 +9,7 @@
 
 import React from 'react';
 import type { ReactNode } from 'react';
-import { EuiIcon, EuiIconTip, EuiLink } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiIcon, EuiIconTip, EuiLink } from '@elastic/eui';
 import type { EuiIconProps } from '@elastic/eui';
 import type { FlyoutSectionAction } from '../types';
 
@@ -34,4 +34,16 @@ export const renderTitleAction = (action: FlyoutSectionAction): ReactNode => (
   <EuiLink href={action.href} onClick={action.onClick} data-test-subj={action['data-test-subj']}>
     {action.label}
   </EuiLink>
+);
+
+/**
+ * The title element plus its optional trailing icon, as an inline row. Shared by
+ * `Section` (title is an H4) and `Accordion` (title is a `span` inside the toggle
+ * button), so the two render the title/icon pairing identically.
+ */
+export const renderTitleWithIcon = (titleNode: ReactNode, iconNode: ReactNode): ReactNode => (
+  <EuiFlexGroup gutterSize="xs" alignItems="center" responsive={false}>
+    <EuiFlexItem grow={false}>{titleNode}</EuiFlexItem>
+    {iconNode && <EuiFlexItem grow={false}>{iconNode}</EuiFlexItem>}
+  </EuiFlexGroup>
 );
