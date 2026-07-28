@@ -7,8 +7,14 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useState } from 'react';
-import { EuiAccordion, EuiHorizontalRule, EuiSpacer, EuiTitle, useGeneratedHtmlId } from '@elastic/eui';
+import React, { useEffect, useState } from 'react';
+import {
+  EuiAccordion,
+  EuiHorizontalRule,
+  EuiSpacer,
+  EuiTitle,
+  useGeneratedHtmlId,
+} from '@elastic/eui';
 import type { FlyoutAccordionProps } from '../../types';
 import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../adornments';
 import { SectionContent } from '../section_content';
@@ -39,7 +45,25 @@ const AccordionSection = ({
   'data-test-subj': dataTestSubj,
 }: AccordionSectionProps) => {
   const accordionId = useGeneratedHtmlId({ conditionalId: id, prefix: 'flyoutAccordion' });
-  const [isOpen, setIsOpen] = useState(initialIsOpen);
+
+  // Controlled open state. EuiAccordion measures its content height with a
+  // ResizeObserver; when it mounts already-open inside the flyout (which animates
+  // in), that first measurement can come back 0 and never correct, leaving the
+  // panel blank until toggled. So we start closed and open after the first paint,
+  // once layout has settled and the height can be measured correctly.
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!initialIsOpen) return undefined;
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => setIsOpen(true));
+    });
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
+  }, [initialIsOpen]);
 
   // Styled like a section title, but a `span` (not an H4): the button label is
   // phrasing content, and headings are not allowed inside a button.
@@ -56,7 +80,7 @@ const AccordionSection = ({
         id={accordionId}
         buttonContent={buttonContent}
         extraAction={action ? renderTitleAction(action) : undefined}
-        initialIsOpen={initialIsOpen}
+        forceState={isOpen ? 'open' : 'closed'}
         onToggle={setIsOpen}
         data-test-subj={dataTestSubj}
       >
