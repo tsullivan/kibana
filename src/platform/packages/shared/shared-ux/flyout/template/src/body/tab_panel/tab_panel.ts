@@ -25,8 +25,6 @@ import { tabPanelPart } from './part';
  * </FlyoutTemplate.Body>
  * ```
  */
-export const TabPanel = tabPanelPart.createComponent<FlyoutBodyTabPanelProps>({
-  resolve: ({ children }) => children ?? null,
-});
+export const TabPanel = tabPanelPart.createComponent<FlyoutBodyTabPanelProps>();
 
 TabPanel.displayName = 'FlyoutTemplate.Body.TabPanel';

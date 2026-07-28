@@ -8,13 +8,31 @@
  */
 
 import React, { Fragment, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { EuiFlyoutBody } from '@elastic/eui';
 import type { ParsedItem, ParsedPart } from '@kbn/content-list-assembly';
 import { bodyAssembly, flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import type { FlyoutBodyProps } from '../types';
 import { Section, sectionPart } from './section';
-import { TabPanel, tabPanelPart, TAB_PANEL_PART_NAME } from './tab_panel';
+import { TabPanel, TAB_PANEL_PART_NAME } from './tab_panel';
+
+/**
+ * Renders parsed body items in source order: `Section` parts are resolved,
+ * passthrough children are rendered as-is. Shared by the untabbed body and by
+ * each tab panel's content (a panel's children are the same shape as the body).
+ */
+const renderBodyItems = (children: ReactNode) => {
+  const items = bodyAssembly.parseChildren(children, { supportsOtherChildren: true });
+  return items.map((item, index) => {
+    if (item.type === 'child') {
+      return <Fragment key={`passthrough-${index}`}>{item.node}</Fragment>;
+    }
+    return (
+      <Fragment key={item.instanceId}>{sectionPart.resolve(item, undefined) ?? null}</Fragment>
+    );
+  });
+};
 
 /** Part name used for identifying the `Body` zone. */
 export const BODY_PART_NAME = 'body';
@@ -106,8 +124,10 @@ export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBod
 
     const activeTabId = activePanel ? (activePanel.attributes.tabId as string) : undefined;
 
+    // The panel's children have the same shape as the body: Section parts and
+    // passthrough content, resolved the same way.
     const activePanelContent = activePanel
-      ? tabPanelPart.resolve(activePanel, undefined) ?? null
+      ? renderBodyItems(activePanel.attributes.children as ReactNode)
       : null;
 
     return (
@@ -125,16 +145,5 @@ export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBod
     );
   }
 
-  return (
-    <EuiFlyoutBody data-test-subj={bodyTestSubj}>
-      {items.map((item, index) => {
-        if (item.type === 'child') {
-          return <Fragment key={`passthrough-${index}`}>{item.node}</Fragment>;
-        }
-        return (
-          <Fragment key={item.instanceId}>{sectionPart.resolve(item, undefined) ?? null}</Fragment>
-        );
-      })}
-    </EuiFlyoutBody>
-  );
+  return <EuiFlyoutBody data-test-subj={bodyTestSubj}>{renderBodyItems(children)}</EuiFlyoutBody>;
 };
