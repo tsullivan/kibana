@@ -167,7 +167,7 @@ const FlyoutTemplateRoot = ({
       aria-label={ariaLabel ?? menuTitleString}
       data-test-subj={dataTestSubj}
     >
-      <FlyoutTemplateConfigProvider value={{ dataTestSubj }}>
+      <FlyoutTemplateConfigProvider value={{ dataTestSubj, paddingSize }}>
         <FlyoutScrollProvider value={{ scrollIndex: 0, isCollapsed: false }}>
           <FlyoutTabsProvider value={tabsContextValue}>
             {headerItem && <HeaderZone {...(headerAttrs as FlyoutHeaderProps)} />}

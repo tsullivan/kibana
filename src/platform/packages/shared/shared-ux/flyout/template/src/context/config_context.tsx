@@ -9,6 +9,7 @@
 
 import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
+import type { EuiFlyoutProps } from '@elastic/eui';
 
 /**
  * Static-ish configuration shared with the zones. Kept intentionally light for
@@ -17,6 +18,8 @@ import type { ReactNode } from 'react';
 export interface FlyoutTemplateConfig {
   /** Root `data-test-subj`, used to derive zone-level test subjects. */
   dataTestSubj?: string;
+  /** Flyout horizontal padding size; the header reads it to bleed dividers to the edges. */
+  paddingSize?: EuiFlyoutProps['paddingSize'];
 }
 
 const FlyoutTemplateConfigContext = createContext<FlyoutTemplateConfig>({});
