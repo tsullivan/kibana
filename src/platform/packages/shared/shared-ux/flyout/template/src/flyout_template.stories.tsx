@@ -29,6 +29,9 @@ const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
  */
 interface Args {
   infoBlocks: boolean;
+  sectionHasBorder: boolean;
+  sectionIcon: boolean;
+  sectionAction: boolean;
   menuBarActions: boolean;
   footerActions: boolean;
   resizable: boolean;
@@ -48,6 +51,15 @@ const buildFlyoutProps = ({
   ...(resizable ? { minWidth: 320 } : {}),
   ...(type === 'overlay' ? { ownFocus } : {}),
   ...(menuBarActions ? { flyoutMenuProps: menuBarProps } : {}),
+});
+
+/** Maps the section-related story args onto `Body.Section` props. */
+const buildSectionProps = (args: Args) => ({
+  hasBorder: args.sectionHasBorder,
+  ...(args.sectionIcon
+    ? { icon: 'info' as const, tooltip: 'Additional context about this section.' }
+    : {}),
+  ...(args.sectionAction ? { action: { label: 'Extra action', onClick: noop } } : {}),
 });
 
 // ── Shared info blocks ────────────────────────────────────────────────────────
@@ -76,7 +88,7 @@ const renderSimple = (args: Args) => (
       {args.infoBlocks && infoBlockParts()}
     </FlyoutTemplate.Header>
     <FlyoutTemplate.Body>
-      <FlyoutTemplate.Body.Section title="Summary">
+      <FlyoutTemplate.Body.Section title="Summary" {...buildSectionProps(args)}>
         <EuiText size="s">
           <p>
             Toggle the controls to preview info blocks, the managed menu bar, footer actions,
@@ -113,7 +125,7 @@ const renderWithTabs = (args: Args) => (
     <FlyoutTemplate.Body>
       {TABS.map(({ id, label, content }) => (
         <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
-          <FlyoutTemplate.Body.Section title={label}>
+          <FlyoutTemplate.Body.Section title={label} {...buildSectionProps(args)}>
             <EuiText size="s">
               <p>{content}</p>
             </EuiText>
@@ -136,6 +148,9 @@ const meta: Meta<Args> = {
   title: 'Flyout/Flyout Template',
   args: {
     infoBlocks: true,
+    sectionHasBorder: false,
+    sectionIcon: false,
+    sectionAction: false,
     menuBarActions: true,
     footerActions: true,
     resizable: true,
@@ -144,6 +159,9 @@ const meta: Meta<Args> = {
   },
   argTypes: {
     infoBlocks: { name: 'Info blocks', control: { type: 'boolean' } },
+    sectionHasBorder: { name: 'Section has border', control: { type: 'boolean' } },
+    sectionIcon: { name: 'Section icon', control: { type: 'boolean' } },
+    sectionAction: { name: 'Section action', control: { type: 'boolean' } },
     menuBarActions: { name: 'Menu bar actions', control: { type: 'boolean' } },
     footerActions: { name: 'Footer actions', control: { type: 'boolean' } },
     resizable: { name: 'Resizable', control: { type: 'boolean' } },

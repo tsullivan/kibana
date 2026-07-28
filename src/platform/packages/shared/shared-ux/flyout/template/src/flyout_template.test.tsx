@@ -135,6 +135,68 @@ describe('FlyoutTemplate', () => {
     expect(screen.getByRole('heading', { level: 4, name: 'Summary' })).toBeInTheDocument();
   });
 
+  it('does not wrap section content in an outlined box by default', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">
+            <span>plain content</span>
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('plain content').closest('.euiPanel')).toBeNull();
+  });
+
+  it('wraps section content in an outlined box when hasBorder is set', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary" hasBorder>
+            <span>boxed content</span>
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const panel = screen.getByText('boxed content').closest('.euiPanel');
+    expect(panel).toBeInTheDocument();
+    // The box surrounds the whole section, including the title.
+    expect(panel).toContainElement(screen.getByRole('heading', { level: 4, name: 'Summary' }));
+  });
+
+  it('renders a section icon next to the title', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary" icon="info">
+            content
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(container.querySelector('[data-euiicon-type="info"]')).toBeInTheDocument();
+  });
+
+  it('renders a section action link on the title row', async () => {
+    const onClick = jest.fn();
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary" action={{ label: 'Extra action', onClick }}>
+            content
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const link = screen.getByRole('button', { name: 'Extra action' });
+    await userEvent.click(link);
+    expect(onClick).toHaveBeenCalled();
+  });
+
   it('is valid without a header (body is the only required zone)', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
     renderTemplate(

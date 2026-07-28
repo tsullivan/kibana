@@ -50,7 +50,10 @@ template and (in managed mode) the EUI menu bar own the close affordance.
     resolved into `@kbn/shared-ux-info-blocks` and compressed to match the
     header's collapsed state.
 - `FlyoutTemplate.Body` — the only required zone. Accepts:
-  - `FlyoutTemplate.Body.Section` — `title` (H4) plus content.
+  - `FlyoutTemplate.Body.Section` — `title` (H4) plus content. Options: `icon`
+    (+ optional `tooltip`) shown right of the title, `action` (a right-aligned
+    link on the title row), and `hasBorder` to wrap the whole section (title and
+    content) in an outlined box.
   - passthrough children (callouts, announcements, search, filters).
 - `FlyoutTemplate.Footer` — optional. Accepts:
   - `FlyoutTemplate.Footer.PrimaryAction` — right-aligned, filled button.

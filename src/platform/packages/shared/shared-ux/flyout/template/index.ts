@@ -16,6 +16,7 @@ export type {
   FlyoutBodyProps,
   FlyoutBodyTabPanelProps,
   FlyoutSectionProps,
+  FlyoutSectionAction,
   FlyoutFooterProps,
   FlyoutFooterActionProps,
 } from './src/types';

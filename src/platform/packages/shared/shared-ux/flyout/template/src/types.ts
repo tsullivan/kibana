@@ -8,7 +8,7 @@
  */
 
 import type { MouseEventHandler, ReactNode } from 'react';
-import type { EuiButtonProps, EuiFlyoutProps } from '@elastic/eui';
+import type { EuiButtonProps, EuiFlyoutProps, EuiIconProps } from '@elastic/eui';
 import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
 
 /**
@@ -94,11 +94,34 @@ export interface FlyoutHeaderInfoBlockProps {
 /**
  * Props for the declarative `FlyoutTemplate.Body.Section` part.
  */
+/**
+ * A single action link rendered right-aligned on the section title row
+ * (`FlyoutTemplate.Body.Section`'s `action`).
+ */
+export interface FlyoutSectionAction {
+  /** Link text. */
+  label: ReactNode;
+  onClick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
+  href?: string;
+  'data-test-subj'?: string;
+}
+
 export interface FlyoutSectionProps {
   /** Optional explicit instance id; auto-generated when omitted. */
   id?: string;
   /** Section title rendered as an H4. */
   title: ReactNode;
+  /**
+   * Icon rendered immediately to the right of the title. When `tooltip` is set
+   * the icon becomes the tooltip anchor; defaults to an info icon if omitted.
+   */
+  icon?: EuiIconProps['type'];
+  /** Tooltip shown from an icon to the right of the title. */
+  tooltip?: ReactNode;
+  /** Action link aligned to the right on the title row. */
+  action?: FlyoutSectionAction;
+  /** Wrap the whole section (title and content) in an outlined box. Defaults to `false`. */
+  hasBorder?: boolean;
   'data-test-subj'?: string;
   children?: ReactNode;
 }
