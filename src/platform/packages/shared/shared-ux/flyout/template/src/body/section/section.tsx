@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiTitle } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiTitle } from '@elastic/eui';
 import type { FlyoutSectionProps } from '../../types';
 import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../adornments';
 import { SectionContent } from '../section_content';
@@ -23,15 +23,10 @@ import { sectionPart } from './part';
  * in an outlined box — identical treatment to `Body.Accordion`.
  */
 export const Section = sectionPart.createComponent<FlyoutSectionProps>({
-  resolve: ({
-    title,
-    children,
-    icon,
-    tooltip,
-    action,
-    hasBorder,
-    'data-test-subj': dataTestSubj,
-  }) => {
+  resolve: (
+    { title, children, icon, tooltip, action, hasBorder, 'data-test-subj': dataTestSubj },
+    { showBottomDivider }
+  ) => {
     const titleWithIcon = renderTitleWithIcon(
       <EuiTitle size="xs">
         <h4>{title}</h4>
@@ -54,10 +49,13 @@ export const Section = sectionPart.createComponent<FlyoutSectionProps>({
     );
 
     return (
-      <section data-test-subj={dataTestSubj}>
-        {header}
-        <SectionContent hasBorder={hasBorder}>{children}</SectionContent>
-      </section>
+      <>
+        <section data-test-subj={dataTestSubj}>
+          {header}
+          <SectionContent hasBorder={hasBorder}>{children}</SectionContent>
+        </section>
+        {showBottomDivider && <EuiHorizontalRule margin="m" />}
+      </>
     );
   },
 });

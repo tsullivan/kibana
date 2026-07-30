@@ -38,16 +38,29 @@ const renderBodyItems = (children: ReactNode) => {
     }
   }
 
-  // Accordions get a divider between each (owned by the accordion so it can hide
-  // while open); the last accordion renders no divider below it.
+  // Sections and accordions each get a divider between siblings (none after the
+  // last). Accordions additionally hide the divider while open.
+  const sectionTotal = items.filter(
+    (i) => i.type === 'part' && i.part === SECTION_PART_NAME
+  ).length;
   const accordionTotal = items.filter(
     (i) => i.type === 'part' && i.part === ACCORDION_PART_NAME
   ).length;
+  let sectionIndex = 0;
   let accordionIndex = 0;
 
   return items.map((item, index) => {
     if (item.type === 'child') {
       return <Fragment key={`passthrough-${index}`}>{item.node}</Fragment>;
+    }
+    if (item.part === SECTION_PART_NAME) {
+      const showBottomDivider = sectionIndex < sectionTotal - 1;
+      sectionIndex += 1;
+      return (
+        <Fragment key={item.instanceId}>
+          {sectionPart.resolve(item, { showBottomDivider }) ?? null}
+        </Fragment>
+      );
     }
     if (item.part === ACCORDION_PART_NAME) {
       const showBottomDivider = accordionIndex < accordionTotal - 1;
@@ -58,9 +71,7 @@ const renderBodyItems = (children: ReactNode) => {
         </Fragment>
       );
     }
-    return (
-      <Fragment key={item.instanceId}>{sectionPart.resolve(item, undefined) ?? null}</Fragment>
-    );
+    return null;
   });
 };
 

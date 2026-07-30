@@ -135,6 +135,33 @@ describe('FlyoutTemplate', () => {
     expect(screen.getByRole('heading', { level: 4, name: 'Summary' })).toBeInTheDocument();
   });
 
+  it('renders a divider between sections, none after the last', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="One">one</FlyoutTemplate.Body.Section>
+          <FlyoutTemplate.Body.Section title="Two">two</FlyoutTemplate.Body.Section>
+          <FlyoutTemplate.Body.Section title="Three">three</FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // Three sections → two dividers (none below the last).
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
+  });
+
+  it('renders no divider for a single section', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+  });
+
   it('does not wrap section content in an outlined box by default', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">

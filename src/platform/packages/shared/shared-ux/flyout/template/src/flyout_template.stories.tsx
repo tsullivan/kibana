@@ -7,10 +7,10 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { EuiHealth, EuiText } from '@elastic/eui';
+import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiHealth, EuiText } from '@elastic/eui';
 import { FlyoutTemplate } from './flyout_template';
 import type { FlyoutTemplateProps } from './types';
 
@@ -31,6 +31,8 @@ interface Args {
   resizable: boolean;
   type: NonNullable<FlyoutTemplateProps['type']>;
   ownFocus: boolean;
+  numSections: number;
+  numSubsections: number;
 }
 
 const meta: Meta<Args> = {
@@ -45,6 +47,8 @@ const meta: Meta<Args> = {
     resizable: true,
     type: 'overlay',
     ownFocus: false,
+    numSections: 2,
+    numSubsections: 3,
   },
   argTypes: {
     infoBlocks: { name: 'Info blocks', control: { type: 'boolean' } },
@@ -61,6 +65,8 @@ const meta: Meta<Args> = {
       // `ownFocus` only applies to overlay flyouts, so hide it for push.
       if: { arg: 'type', eq: 'overlay' },
     },
+    numSections: { name: 'Sections', control: { type: 'range', min: 1, max: 4, step: 1 } },
+    numSubsections: { name: 'Subsections', control: { type: 'range', min: 1, max: 4, step: 1 } },
   },
 };
 
@@ -107,30 +113,6 @@ const infoBlockParts = () => (
   </>
 );
 
-const renderSimple = (args: Args) => (
-  <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
-    <FlyoutTemplate.Header title="Service details">
-      {args.infoBlocks && infoBlockParts()}
-    </FlyoutTemplate.Header>
-    <FlyoutTemplate.Body>
-      <FlyoutTemplate.Body.Section title="Summary" {...buildSectionProps(args)}>
-        <EuiText size="s">
-          <p>
-            Toggle the controls to preview info blocks, the managed menu bar, footer actions,
-            resizing, and overlay/push behavior.
-          </p>
-        </EuiText>
-      </FlyoutTemplate.Body.Section>
-    </FlyoutTemplate.Body>
-    {args.footerActions && (
-      <FlyoutTemplate.Footer>
-        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-      </FlyoutTemplate.Footer>
-    )}
-  </FlyoutTemplate>
-);
-
 const TABS: Array<{ id: string; label: string; content: string }> = [
   { id: 'overview', label: 'Overview', content: 'Overview panel content.' },
   { id: 'metadata', label: 'Metadata', content: 'Metadata panel content.' },
@@ -165,132 +147,211 @@ const renderWithTabs = (args: Args) => (
   </FlyoutTemplate>
 );
 
-export const Tabs: Story = {
-  render: renderWithTabs,
-};
-
-export default meta;
-
-type Story = StoryObj<Args>;
-
-export const RegularSections: Story = {
-  render: renderSimple,
-};
-
-const ACCORDIONS: Array<{ id: string; title: string; content: string }> = [
-  { id: 'overview', title: 'Overview', content: 'Overview accordion content.' },
-  { id: 'metadata', title: 'Metadata', content: 'Metadata accordion content.' },
-  { id: 'timeline', title: 'Timeline', content: 'Timeline accordion content.' },
+const SECTIONS: Array<{ id: string; title: string; content: string }> = [
+  { id: 'summary', title: 'Summary', content: 'Summary section content.' },
+  { id: 'details', title: 'Details', content: 'Details section content.' },
+  { id: 'context', title: 'Context', content: 'Context section content.' },
+  { id: 'history', title: 'History', content: 'History section content.' },
 ];
-
-const renderWithAccordions = (args: Args) => (
-  <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
-    <FlyoutTemplate.Header title="Alert details">
-      {args.infoBlocks && infoBlockParts()}
-    </FlyoutTemplate.Header>
-    <FlyoutTemplate.Body>
-      {ACCORDIONS.map(({ id, title, content }, index) => (
-        <FlyoutTemplate.Body.Accordion
-          key={id}
-          id={id}
-          title={title}
-          initialIsOpen={index === 0}
-          {...buildTitleAdornments(args)}
-        >
-          <EuiText size="s">
-            <p>{content}</p>
-          </EuiText>
-        </FlyoutTemplate.Body.Accordion>
-      ))}
-    </FlyoutTemplate.Body>
-    {args.footerActions && (
-      <FlyoutTemplate.Footer>
-        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-      </FlyoutTemplate.Footer>
-    )}
-  </FlyoutTemplate>
-);
-
-export const AccordionSections: Story = {
-  render: renderWithAccordions,
-  // Accordion content is always outlined, so the border toggle does not apply here.
-  argTypes: {
-    sectionHasBorder: { table: { disable: true } },
-  },
-};
 
 const SUBSECTIONS: Array<{ id: string; title: string; content: string }> = [
   { id: 'host', title: 'Host', content: 'Host subsection content.' },
   { id: 'process', title: 'Process', content: 'Process subsection content.' },
   { id: 'network', title: 'Network', content: 'Network subsection content.' },
+  { id: 'user', title: 'User', content: 'User subsection content.' },
 ];
 
-const renderSectionsWithSubsections = (args: Args) => (
-  <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
-    <FlyoutTemplate.Header title="Alert details">
-      {args.infoBlocks && infoBlockParts()}
-    </FlyoutTemplate.Header>
-    <FlyoutTemplate.Body>
-      <FlyoutTemplate.Body.Section title="Overview" {...buildSectionProps(args)}>
-        {SUBSECTIONS.map(({ id, title, content }) => (
-          <FlyoutTemplate.Body.Section.Subsection key={id} id={id} title={title}>
-            <EuiText size="s">
-              <p>{content}</p>
-            </EuiText>
-          </FlyoutTemplate.Body.Section.Subsection>
-        ))}
-      </FlyoutTemplate.Body.Section>
-    </FlyoutTemplate.Body>
-    {args.footerActions && (
-      <FlyoutTemplate.Footer>
-        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-      </FlyoutTemplate.Footer>
-    )}
-  </FlyoutTemplate>
-);
+const ACCORDIONS: Array<{ id: string; title: string; content: string }> = [
+  { id: 'overview', title: 'Overview', content: 'Overview accordion content.' },
+  { id: 'metadata', title: 'Metadata', content: 'Metadata accordion content.' },
+  { id: 'timeline', title: 'Timeline', content: 'Timeline accordion content.' },
+  { id: 'related', title: 'Related', content: 'Related accordion content.' },
+];
 
-export const SectionsWithSubsections: Story = {
-  render: renderSectionsWithSubsections,
+export default meta;
+
+type Story = StoryObj<Args>;
+
+export const Tabs: Story = {
+  render: renderWithTabs,
 };
 
-const renderAccordionsWithSubsections = (args: Args) => (
-  <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
-    <FlyoutTemplate.Header title="Alert details">
-      {args.infoBlocks && infoBlockParts()}
-    </FlyoutTemplate.Header>
-    <FlyoutTemplate.Body>
-      {ACCORDIONS.map(({ id, title }, index) => (
-        <FlyoutTemplate.Body.Accordion
-          key={id}
-          id={id}
-          title={title}
-          initialIsOpen={index === 0}
-          {...buildTitleAdornments(args)}
-        >
-          {SUBSECTIONS.map(({ id: subId, title: subTitle, content }) => (
-            <FlyoutTemplate.Body.Accordion.Subsection key={subId} id={subId} title={subTitle}>
-              <EuiText size="s">
-                <p>{content}</p>
-              </EuiText>
-            </FlyoutTemplate.Body.Accordion.Subsection>
-          ))}
-        </FlyoutTemplate.Body.Accordion>
-      ))}
-    </FlyoutTemplate.Body>
-    {args.footerActions && (
-      <FlyoutTemplate.Footer>
-        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-        <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-      </FlyoutTemplate.Footer>
-    )}
-  </FlyoutTemplate>
-);
+export const Sections: Story = {
+  render: function Render(args) {
+    const [open, setOpen] = useState<'simple' | 'subsections' | null>(null);
+    const onClose = () => setOpen(null);
+    const sections = SECTIONS.slice(0, args.numSections);
+    const subsections = SUBSECTIONS.slice(0, args.numSubsections);
 
-export const AccordionsWithSubsections: Story = {
-  render: renderAccordionsWithSubsections,
+    return (
+      <>
+        <EuiFlexGroup gutterSize="s" wrap>
+          <EuiFlexItem grow={false}>
+            <EuiButton onClick={() => setOpen('simple')}>Simple sections</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton onClick={() => setOpen('subsections')}>Sections with subsections</EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+
+        {open === 'simple' && (
+          <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
+            <FlyoutTemplate.Header title="Service details">
+              {args.infoBlocks && infoBlockParts()}
+            </FlyoutTemplate.Header>
+            <FlyoutTemplate.Body>
+              {sections.map(({ id, title, content }) => (
+                <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
+                  <EuiText size="s">
+                    <p>{content}</p>
+                  </EuiText>
+                </FlyoutTemplate.Body.Section>
+              ))}
+            </FlyoutTemplate.Body>
+            {args.footerActions && (
+              <FlyoutTemplate.Footer>
+                <FlyoutTemplate.Footer.SecondaryAction
+                  label="Discard"
+                  onClick={action('discard')}
+                />
+                <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
+              </FlyoutTemplate.Footer>
+            )}
+          </FlyoutTemplate>
+        )}
+
+        {open === 'subsections' && (
+          <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
+            <FlyoutTemplate.Header title="Alert details">
+              {args.infoBlocks && infoBlockParts()}
+            </FlyoutTemplate.Header>
+            <FlyoutTemplate.Body>
+              {sections.map(({ id, title }) => (
+                <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
+                  {subsections.map(({ id: subId, title: subTitle, content }) => (
+                    <FlyoutTemplate.Body.Section.Subsection key={subId} id={subId} title={subTitle}>
+                      <EuiText size="s">
+                        <p>{content}</p>
+                      </EuiText>
+                    </FlyoutTemplate.Body.Section.Subsection>
+                  ))}
+                </FlyoutTemplate.Body.Section>
+              ))}
+            </FlyoutTemplate.Body>
+            {args.footerActions && (
+              <FlyoutTemplate.Footer>
+                <FlyoutTemplate.Footer.SecondaryAction
+                  label="Discard"
+                  onClick={action('discard')}
+                />
+                <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
+              </FlyoutTemplate.Footer>
+            )}
+          </FlyoutTemplate>
+        )}
+      </>
+    );
+  },
+};
+
+export const Accordions: Story = {
+  // Accordion content is always outlined, so the border toggle does not apply here.
+  args: { numSections: 3 },
   argTypes: {
     sectionHasBorder: { table: { disable: true } },
+    numSections: { name: 'Accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
+  },
+  render: function Render(args) {
+    const [open, setOpen] = useState<'simple' | 'subsections' | null>(null);
+    const onClose = () => setOpen(null);
+    const accordions = ACCORDIONS.slice(0, args.numSections);
+    const subsections = SUBSECTIONS.slice(0, args.numSubsections);
+
+    return (
+      <>
+        <EuiFlexGroup gutterSize="s" wrap>
+          <EuiFlexItem grow={false}>
+            <EuiButton onClick={() => setOpen('simple')}>Simple accordions</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton onClick={() => setOpen('subsections')}>
+              Accordions with subsections
+            </EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+
+        {open === 'simple' && (
+          <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
+            <FlyoutTemplate.Header title="Alert details">
+              {args.infoBlocks && infoBlockParts()}
+            </FlyoutTemplate.Header>
+            <FlyoutTemplate.Body>
+              {accordions.map(({ id, title, content }, index) => (
+                <FlyoutTemplate.Body.Accordion
+                  key={id}
+                  id={id}
+                  title={title}
+                  initialIsOpen={index === 0}
+                  {...buildTitleAdornments(args)}
+                >
+                  <EuiText size="s">
+                    <p>{content}</p>
+                  </EuiText>
+                </FlyoutTemplate.Body.Accordion>
+              ))}
+            </FlyoutTemplate.Body>
+            {args.footerActions && (
+              <FlyoutTemplate.Footer>
+                <FlyoutTemplate.Footer.SecondaryAction
+                  label="Discard"
+                  onClick={action('discard')}
+                />
+                <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
+              </FlyoutTemplate.Footer>
+            )}
+          </FlyoutTemplate>
+        )}
+
+        {open === 'subsections' && (
+          <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
+            <FlyoutTemplate.Header title="Alert details">
+              {args.infoBlocks && infoBlockParts()}
+            </FlyoutTemplate.Header>
+            <FlyoutTemplate.Body>
+              {accordions.map(({ id, title }, index) => (
+                <FlyoutTemplate.Body.Accordion
+                  key={id}
+                  id={id}
+                  title={title}
+                  initialIsOpen={index === 0}
+                  {...buildTitleAdornments(args)}
+                >
+                  {subsections.map(({ id: subId, title: subTitle, content }) => (
+                    <FlyoutTemplate.Body.Accordion.Subsection
+                      key={subId}
+                      id={subId}
+                      title={subTitle}
+                    >
+                      <EuiText size="s">
+                        <p>{content}</p>
+                      </EuiText>
+                    </FlyoutTemplate.Body.Accordion.Subsection>
+                  ))}
+                </FlyoutTemplate.Body.Accordion>
+              ))}
+            </FlyoutTemplate.Body>
+            {args.footerActions && (
+              <FlyoutTemplate.Footer>
+                <FlyoutTemplate.Footer.SecondaryAction
+                  label="Discard"
+                  onClick={action('discard')}
+                />
+                <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
+              </FlyoutTemplate.Footer>
+            )}
+          </FlyoutTemplate>
+        )}
+      </>
+    );
   },
 };
