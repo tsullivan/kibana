@@ -33,6 +33,7 @@ interface Args {
   ownFocus: boolean;
   numSections: number;
   numSubsections: number;
+  numTabs: number;
 }
 
 const meta: Meta<Args> = {
@@ -49,6 +50,7 @@ const meta: Meta<Args> = {
     ownFocus: false,
     numSections: 2,
     numSubsections: 3,
+    numTabs: 3,
   },
   argTypes: {
     infoBlocks: { name: 'Info blocks', control: { type: 'boolean' } },
@@ -67,6 +69,7 @@ const meta: Meta<Args> = {
     },
     numSections: { name: 'Sections', control: { type: 'range', min: 1, max: 4, step: 1 } },
     numSubsections: { name: 'Subsections', control: { type: 'range', min: 1, max: 4, step: 1 } },
+    numTabs: { name: 'Tabs', control: { type: 'range', min: 1, max: 12, step: 1 } },
   },
 };
 
@@ -117,35 +120,50 @@ const TABS: Array<{ id: string; label: string; content: string }> = [
   { id: 'overview', label: 'Overview', content: 'Overview panel content.' },
   { id: 'metadata', label: 'Metadata', content: 'Metadata panel content.' },
   { id: 'timeline', label: 'Timeline', content: 'Timeline panel content.' },
+  { id: 'logs', label: 'Logs', content: 'Logs panel content.' },
+  { id: 'traces', label: 'Traces', content: 'Traces panel content.' },
+  { id: 'errors', label: 'Errors', content: 'Errors panel content.' },
+  { id: 'dependencies', label: 'Dependencies', content: 'Dependencies panel content.' },
+  { id: 'metrics', label: 'Metrics', content: 'Metrics panel content.' },
+  { id: 'events', label: 'Events', content: 'Events panel content.' },
+  { id: 'alerts', label: 'Alerts', content: 'Alerts panel content.' },
+  { id: 'settings', label: 'Settings', content: 'Settings panel content.' },
+  { id: 'history', label: 'History', content: 'History panel content.' },
 ];
 
-const renderWithTabs = (args: Args) => (
-  <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
-    <FlyoutTemplate.Header title="Alert details">
-      {args.infoBlocks && infoBlockParts()}
-      {TABS.map(({ id, label }) => (
-        <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
-      ))}
-    </FlyoutTemplate.Header>
-    <FlyoutTemplate.Body>
-      {TABS.map(({ id, label, content }) => (
-        <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
-          <FlyoutTemplate.Body.Section title={label} {...buildSectionProps(args)}>
-            <EuiText size="s">
-              <p>{content}</p>
-            </EuiText>
-          </FlyoutTemplate.Body.Section>
-        </FlyoutTemplate.Body.TabPanel>
-      ))}
-    </FlyoutTemplate.Body>
-    {args.footerActions && (
-      <FlyoutTemplate.Footer>
-        <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-        <FlyoutTemplate.Footer.PrimaryAction label="Investigate" onClick={action('investigate')} />
-      </FlyoutTemplate.Footer>
-    )}
-  </FlyoutTemplate>
-);
+const renderWithTabs = (args: Args) => {
+  const tabs = TABS.slice(0, args.numTabs);
+  return (
+    <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+      <FlyoutTemplate.Header title="Alert details">
+        {args.infoBlocks && infoBlockParts()}
+        {tabs.map(({ id, label }) => (
+          <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
+        ))}
+      </FlyoutTemplate.Header>
+      <FlyoutTemplate.Body>
+        {tabs.map(({ id, label, content }) => (
+          <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
+            <FlyoutTemplate.Body.Section title={label} {...buildSectionProps(args)}>
+              <EuiText size="s">
+                <p>{content}</p>
+              </EuiText>
+            </FlyoutTemplate.Body.Section>
+          </FlyoutTemplate.Body.TabPanel>
+        ))}
+      </FlyoutTemplate.Body>
+      {args.footerActions && (
+        <FlyoutTemplate.Footer>
+          <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+          <FlyoutTemplate.Footer.PrimaryAction
+            label="Investigate"
+            onClick={action('investigate')}
+          />
+        </FlyoutTemplate.Footer>
+      )}
+    </FlyoutTemplate>
+  );
+};
 
 const SECTIONS: Array<{ id: string; title: string; content: string }> = [
   { id: 'summary', title: 'Summary', content: 'Summary section content.' },
@@ -173,6 +191,10 @@ export default meta;
 type Story = StoryObj<Args>;
 
 export const Tabs: Story = {
+  argTypes: {
+    numSections: { table: { disable: true } },
+    numSubsections: { table: { disable: true } },
+  },
   render: renderWithTabs,
 };
 
