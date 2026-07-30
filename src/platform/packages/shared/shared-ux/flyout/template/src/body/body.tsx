@@ -16,6 +16,7 @@ import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../
 import type { FlyoutBodyProps } from '../types';
 import { Section, sectionPart, SECTION_PART_NAME } from './section';
 import { Accordion, accordionPart, ACCORDION_PART_NAME } from './accordion';
+import { Subsection } from './subsection';
 import { TabPanel, TAB_PANEL_PART_NAME } from './tab_panel';
 
 /**
@@ -75,7 +76,12 @@ const bodyPart = flyoutAssembly.definePart({ name: BODY_PART_NAME });
 const BaseBody = bodyPart.createComponent<FlyoutBodyProps>();
 BaseBody.displayName = 'FlyoutTemplate.Body';
 
-export const Body = Object.assign(BaseBody, { Section, Accordion, TabPanel });
+export const Body = Object.assign(BaseBody, {
+  Section: Object.assign(Section, { Subsection }),
+  Accordion: Object.assign(Accordion, { Subsection }),
+  TabPanel,
+  Subsection,
+});
 
 /**
  * Internal renderer for the body zone. Composes `EuiFlyoutBody`.

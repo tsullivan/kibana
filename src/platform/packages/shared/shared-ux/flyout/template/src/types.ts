@@ -127,6 +127,24 @@ export interface FlyoutSectionProps {
 }
 
 /**
+ * Props for the declarative `FlyoutTemplate.Body.Section.Subsection` part
+ * (also available as `Body.Accordion.Subsection` and `Body.Subsection`).
+ *
+ * Subsections are the maximum allowed level of hierarchy (PRD §17). The title
+ * renders as an H5. Visual treatment is determined by the parent context:
+ * inside an Accordion each subsection gets its own outlined box; inside a
+ * Section they are separated by horizontal-rule dividers.
+ */
+export interface FlyoutSubsectionProps {
+  /** Optional explicit instance id; auto-generated when omitted. */
+  id?: string;
+  /** Subsection title rendered as an H5. */
+  title: ReactNode;
+  'data-test-subj'?: string;
+  children?: ReactNode;
+}
+
+/**
  * Props for the declarative `FlyoutTemplate.Body.Accordion` part.
  *
  * The title row mirrors `Body.Section` (title, optional `icon`/`tooltip`, and a

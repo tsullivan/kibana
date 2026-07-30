@@ -58,6 +58,12 @@ template and (in managed mode) the EUI menu bar own the close affordance.
     row as `Section` (`title`, `icon`/`tooltip`, `action`) plus `initialIsOpen`.
     Content is always wrapped in an outlined box. A body uses either `Section` or
     `Accordion` parts, not both.
+  - `FlyoutTemplate.Body.Section.Subsection` (also `Body.Accordion.Subsection`
+    and `Body.Subsection`) — a subsection inside a `Section` or `Accordion`.
+    `title` renders as H5. Rendering adapts to context: inside an `Accordion`
+    each subsection gets its own outlined box; inside a `Section` subsections
+    are separated by horizontal-rule dividers. Subsections are the maximum
+    allowed hierarchy level (PRD §17).
   - passthrough children (callouts, announcements, search, filters).
 - `FlyoutTemplate.Footer` — optional. Accepts:
   - `FlyoutTemplate.Footer.PrimaryAction` — right-aligned, filled button.
@@ -78,5 +84,5 @@ in production; they never throw.
 
 ## Not yet implemented
 
-Header `Metadata` / `Badge` / `Tab`, `Body.Accordion`, all `Subsection`s,
-`Footer.Left`, and a dedicated `Menu` assembly are planned follow-ups.
+Header `Metadata` / `Badge`, `Footer.Left`, and a dedicated `Menu` assembly are
+planned follow-ups.

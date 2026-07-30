@@ -623,3 +623,130 @@ describe('FlyoutTemplate accordions', () => {
     warn.mockRestore();
   });
 });
+
+describe('FlyoutTemplate subsections', () => {
+  it('renders subsection titles as H5 inside a Section', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Overview">
+            <FlyoutTemplate.Body.Section.Subsection title="Host">
+              <span>host content</span>
+            </FlyoutTemplate.Body.Section.Subsection>
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByRole('heading', { level: 4, name: 'Overview' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 5, name: 'Host' })).toBeInTheDocument();
+    expect(screen.getByText('host content')).toBeInTheDocument();
+  });
+
+  it('separates Section subsections with horizontal rules, none after the last', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Overview">
+            <FlyoutTemplate.Body.Section.Subsection title="One">
+              one
+            </FlyoutTemplate.Body.Section.Subsection>
+            <FlyoutTemplate.Body.Section.Subsection title="Two">
+              two
+            </FlyoutTemplate.Body.Section.Subsection>
+            <FlyoutTemplate.Body.Section.Subsection title="Three">
+              three
+            </FlyoutTemplate.Body.Section.Subsection>
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // Three subsections → two dividers (none below the last).
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
+  });
+
+  it('does not wrap Section subsections in an outer bordered box', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Overview">
+            <FlyoutTemplate.Body.Section.Subsection title="Host">
+              <span>host content</span>
+            </FlyoutTemplate.Body.Section.Subsection>
+          </FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // Content should NOT be inside an EuiPanel box in the section context.
+    expect(screen.getByText('host content').closest('.euiPanel')).toBeNull();
+  });
+
+  it('renders Accordion subsections each in their own outlined box', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion title="Overview" initialIsOpen>
+            <FlyoutTemplate.Body.Accordion.Subsection title="Host">
+              <span>host content</span>
+            </FlyoutTemplate.Body.Accordion.Subsection>
+            <FlyoutTemplate.Body.Accordion.Subsection title="Process">
+              <span>process content</span>
+            </FlyoutTemplate.Body.Accordion.Subsection>
+          </FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // Each subsection in its own EuiPanel box.
+    expect(screen.getByText('host content').closest('.euiPanel')).toBeInTheDocument();
+    expect(screen.getByText('process content').closest('.euiPanel')).toBeInTheDocument();
+    // The two panels are siblings, not nested.
+    const hostPanel = screen.getByText('host content').closest('.euiPanel')!;
+    const processPanel = screen.getByText('process content').closest('.euiPanel')!;
+    expect(hostPanel).not.toContainElement(processPanel as HTMLElement);
+  });
+
+  it('does not render horizontal rules between Accordion subsections', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion title="Overview" initialIsOpen>
+            <FlyoutTemplate.Body.Accordion.Subsection title="One">
+              one
+            </FlyoutTemplate.Body.Accordion.Subsection>
+            <FlyoutTemplate.Body.Accordion.Subsection title="Two">
+              two
+            </FlyoutTemplate.Body.Accordion.Subsection>
+          </FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // Accordion subsections use spacers, not horizontal rules.
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+  });
+
+  it('renders subsection titles as H5 inside an Accordion', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion title="Overview" initialIsOpen>
+            <FlyoutTemplate.Body.Accordion.Subsection title="Host">
+              host content
+            </FlyoutTemplate.Body.Accordion.Subsection>
+          </FlyoutTemplate.Body.Accordion>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByRole('heading', { level: 5, name: 'Host' })).toBeInTheDocument();
+  });
+
+  it('exposes Subsection on Body directly as Body.Subsection', () => {
+    // Body.Subsection is the same component as Body.Section.Subsection.
+    expect(FlyoutTemplate.Body.Subsection).toBe(FlyoutTemplate.Body.Section.Subsection);
+    expect(FlyoutTemplate.Body.Subsection).toBe(FlyoutTemplate.Body.Accordion.Subsection);
+  });
+});

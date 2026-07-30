@@ -37,6 +37,12 @@ export const headerAssembly = defineAssembly({ name: 'FlyoutTemplateHeader' });
 export const bodyAssembly = defineAssembly({ name: 'FlyoutTemplateBody' });
 
 /**
+ * Section assembly. Parses `Body.Section.Subsection` parts (and passthrough
+ * children) declared inside `FlyoutTemplate.Body.Section` or `.Accordion`.
+ */
+export const sectionAssembly = defineAssembly({ name: 'FlyoutTemplateSection' });
+
+/**
  * Footer assembly. Parses `Footer.PrimaryAction` / `Footer.SecondaryAction`
  * parts declared inside `FlyoutTemplate.Footer`.
  */
