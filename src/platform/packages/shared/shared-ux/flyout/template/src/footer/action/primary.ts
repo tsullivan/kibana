@@ -7,12 +7,36 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import React from 'react';
+import { EuiButton } from '@elastic/eui';
 import type { FlyoutFooterActionProps } from '../../types';
 import { primaryActionPart } from './part';
 
-/**
- * Declarative `FlyoutTemplate.Footer.PrimaryAction`. Returns `null`; the footer
- * zone reads its attributes and renders a right-aligned, filled button.
- */
-export const PrimaryAction = primaryActionPart.createComponent<FlyoutFooterActionProps>();
+/** Declarative `FlyoutTemplate.Footer.PrimaryAction`. */
+export const PrimaryAction = primaryActionPart.createComponent<FlyoutFooterActionProps>({
+  resolve: ({
+    label,
+    onClick,
+    iconType,
+    color,
+    isLoading,
+    isDisabled,
+    fill = true,
+    'data-test-subj': dataTestSubj,
+  }) =>
+    React.createElement(
+      EuiButton,
+      {
+        fill,
+        color,
+        iconType,
+        isLoading,
+        isDisabled,
+        onClick,
+        'data-test-subj': dataTestSubj,
+      },
+      label
+    ),
+});
+
 PrimaryAction.displayName = 'FlyoutTemplate.Footer.PrimaryAction';

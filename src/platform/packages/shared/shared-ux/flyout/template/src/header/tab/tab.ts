@@ -10,20 +10,7 @@
 import type { FlyoutHeaderTabProps } from '../../types';
 import { tabPart } from './part';
 
-/**
- * Declarative `FlyoutTemplate.Header.Tab`.
- *
- * Returns `null`; the root parses it into a `TabDescriptor` and passes the
- * ordered list to `FlyoutTabsProvider`. The header zone renders `EuiTab` for
- * each descriptor.
- *
- * ```tsx
- * <FlyoutTemplate.Header title="Alert">
- *   <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
- *   <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
- * </FlyoutTemplate.Header>
- * ```
- */
+/** Declarative `FlyoutTemplate.Header.Tab`. */
 export const Tab = tabPart.createComponent<FlyoutHeaderTabProps>({
   resolve: ({ id, label, disabled, prepend, append, 'data-test-subj': dataTestSubj }) => ({
     id,

@@ -10,19 +10,7 @@
 import type { FlyoutHeaderInfoBlockProps } from '../../types';
 import { infoBlockPart } from './part';
 
-/**
- * Declarative `FlyoutTemplate.Header.InfoBlock`.
- *
- * Returns `null`; the header zone parses it and resolves it into an
- * `InfoBlockItem` rendered by `@kbn/shared-ux-info-blocks`. `children` supplies
- * the block's value:
- *
- * ```tsx
- * <Header.InfoBlock title="Latency">
- *   <EuiHealth color="success">Healthy</EuiHealth>
- * </Header.InfoBlock>
- * ```
- */
+/** Declarative `FlyoutTemplate.Header.InfoBlock`. */
 export const InfoBlock = infoBlockPart.createComponent<FlyoutHeaderInfoBlockProps>({
   resolve: ({ title, children, size, color, 'data-test-subj': dataTestSubj }) => ({
     title,

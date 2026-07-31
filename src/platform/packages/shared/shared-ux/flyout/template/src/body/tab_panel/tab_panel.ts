@@ -10,21 +10,7 @@
 import type { FlyoutBodyTabPanelProps } from '../../types';
 import { tabPanelPart } from './part';
 
-/**
- * Declarative `FlyoutTemplate.Body.TabPanel`.
- *
- * Returns `null`; the body zone renders the children of the panel whose
- * `tabId` matches the currently selected tab. Wrap `Body.Section` parts (or
- * any content) inside a `TabPanel` when the body is in tabbed mode.
- *
- * ```tsx
- * <FlyoutTemplate.Body>
- *   <FlyoutTemplate.Body.TabPanel tabId="overview">
- *     <FlyoutTemplate.Body.Section title="Summary">…</FlyoutTemplate.Body.Section>
- *   </FlyoutTemplate.Body.TabPanel>
- * </FlyoutTemplate.Body>
- * ```
- */
+/** Declarative `FlyoutTemplate.Body.TabPanel`. */
 export const TabPanel = tabPanelPart.createComponent<FlyoutBodyTabPanelProps>();
 
 TabPanel.displayName = 'FlyoutTemplate.Body.TabPanel';

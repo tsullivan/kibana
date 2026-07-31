@@ -15,11 +15,7 @@ export const SUBSECTION_PART_NAME = 'subsection';
 
 /** Runtime context passed to the subsection resolver by `SectionContent`. */
 export interface SubsectionResolveContext {
-  /**
-   * Whether the parent section uses bordered boxes (accordion context). When
-   * `true`, each subsection renders in its own outlined `EuiPanel`; when
-   * `false`, subsections are separated by horizontal rules.
-   */
+  /** Whether the parent section uses bordered boxes (accordion context). */
   hasBorder: boolean;
   /** Render a separator below this subsection; `false` for the last one. */
   showBottomDivider: boolean;

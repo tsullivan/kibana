@@ -8,115 +8,40 @@
  */
 
 import React from 'react';
-import {
-  EuiButton,
-  EuiButtonEmpty,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiFlyoutFooter,
-} from '@elastic/eui';
-import type { ParsedPart } from '@kbn/content-list-assembly';
-import { flyoutAssembly, footerAssembly } from '../assembly';
+import { EuiFlexGroup, EuiFlexItem, EuiFlyoutFooter } from '@elastic/eui';
+import { flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTemplateConfig } from '../context';
-import type { FlyoutFooterActionProps, FlyoutFooterProps } from '../types';
-import {
-  PrimaryAction,
-  SecondaryAction,
-  PRIMARY_ACTION_PART_NAME,
-  SECONDARY_ACTION_PART_NAME,
-} from './action';
+import type { FlyoutFooterProps } from '../types';
+import { PrimaryAction, SecondaryAction, primaryActionPart, secondaryActionPart } from './action';
 
 /** Part name used for identifying the `Footer` zone. */
 export const FOOTER_PART_NAME = 'footer';
 
 const footerPart = flyoutAssembly.definePart({ name: FOOTER_PART_NAME });
 
-/**
- * Declarative `FlyoutTemplate.Footer`. Returns `null`; the root renders the
- * `FooterZone` with these attributes. Namespaces the action parts.
- */
+/** Declarative `FlyoutTemplate.Footer`; the root renders the collected attributes. */
 const BaseFooter = footerPart.createComponent<FlyoutFooterProps>();
 BaseFooter.displayName = 'FlyoutTemplate.Footer';
 
 export const Footer = Object.assign(BaseFooter, { PrimaryAction, SecondaryAction });
 
-const renderPrimary = ({
-  label,
-  onClick,
-  iconType,
-  color,
-  isLoading,
-  isDisabled,
-  fill = true,
-  'data-test-subj': dataTestSubj,
-}: FlyoutFooterActionProps) => (
-  <EuiButton
-    fill={fill}
-    color={color}
-    iconType={iconType}
-    isLoading={isLoading}
-    isDisabled={isDisabled}
-    onClick={onClick}
-    data-test-subj={dataTestSubj}
-  >
-    {label}
-  </EuiButton>
-);
-
-const renderSecondary = ({
-  label,
-  onClick,
-  iconType,
-  color,
-  isLoading,
-  isDisabled,
-  'data-test-subj': dataTestSubj,
-}: FlyoutFooterActionProps) => (
-  <EuiButtonEmpty
-    color={color}
-    iconType={iconType}
-    isLoading={isLoading}
-    isDisabled={isDisabled}
-    onClick={onClick}
-    data-test-subj={dataTestSubj}
-  >
-    {label}
-  </EuiButtonEmpty>
-);
-
-/**
- * Internal renderer for the footer zone. Composes `EuiFlyoutFooter`. The primary
- * action is right-aligned and the secondary action sits to its left. There is no
- * default Cancel button; the footer renders nothing when it has no actions.
- */
+/** Internal renderer for optional primary/secondary footer actions. */
 export const FooterZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutFooterProps) => {
   const { dataTestSubj: rootTestSubj } = useFlyoutTemplateConfig();
-  const parts = footerAssembly.parseChildren(children);
+  const [primary] = primaryActionPart.parseChildren(children);
+  const [secondary] = secondaryActionPart.parseChildren(children);
+  const primaryAction = primary ? primaryActionPart.resolve(primary, undefined) : null;
+  const secondaryAction = secondary ? secondaryActionPart.resolve(secondary, undefined) : null;
 
-  const primary = parts.find(
-    (part): part is ParsedPart => part.type === 'part' && part.part === PRIMARY_ACTION_PART_NAME
-  );
-  const secondary = parts.find(
-    (part): part is ParsedPart => part.type === 'part' && part.part === SECONDARY_ACTION_PART_NAME
-  );
-
-  if (!primary && !secondary) {
+  if (!primaryAction && !secondaryAction) {
     return null;
   }
 
   return (
     <EuiFlyoutFooter data-test-subj={resolveZoneTestSubj(dataTestSubj, rootTestSubj, 'Footer')}>
       <EuiFlexGroup justifyContent="flexEnd" gutterSize="s" responsive={false}>
-        {secondary && (
-          <EuiFlexItem grow={false}>
-            {renderSecondary(secondary.attributes as unknown as FlyoutFooterActionProps)}
-          </EuiFlexItem>
-        )}
-        {primary && (
-          <EuiFlexItem grow={false}>
-            {renderPrimary(primary.attributes as unknown as FlyoutFooterActionProps)}
-          </EuiFlexItem>
-        )}
+        {secondaryAction && <EuiFlexItem grow={false}>{secondaryAction}</EuiFlexItem>}
+        {primaryAction && <EuiFlexItem grow={false}>{primaryAction}</EuiFlexItem>}
       </EuiFlexGroup>
     </EuiFlyoutFooter>
   );

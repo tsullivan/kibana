@@ -42,13 +42,14 @@ render context). Configure the menu bar with the passthrough props `session`,
 `resizable`, and `onResize` are forwarded to the underlying `EuiFlyout` as-is.
 Structural close-button and `side` props are intentionally not exposed; the
 template and (in managed mode) the EUI menu bar own the close affordance.
+When a header is present, its visible title names the flyout via `aria-labelledby`.
+Headerless flyouts can pass `aria-label` or `aria-labelledby` directly.
 
 ## Zones and parts (current slice)
 
 - `FlyoutTemplate.Header` — required `title` (rendered as an H3). Accepts:
   - `FlyoutTemplate.Header.InfoBlock` — `title` plus a `children` value,
-    resolved into `@kbn/shared-ux-info-blocks` and compressed to match the
-    header's collapsed state.
+    resolved into `@kbn/shared-ux-info-blocks`.
 - `FlyoutTemplate.Body` — the only required zone. Accepts:
   - `FlyoutTemplate.Body.Section` — `title` (H4) plus content. Options: `icon`
     (+ optional `tooltip`) shown right of the title, `action` (a right-aligned

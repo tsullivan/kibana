@@ -13,14 +13,7 @@ import { EuiPanel, EuiSpacer } from '@elastic/eui';
 import { sectionAssembly } from '../assembly';
 import { subsectionPart, SUBSECTION_PART_NAME } from './subsection';
 
-/**
- * The content region shared by `Section` and `Accordion`: a spacer below the
- * title and, when `hasBorder`, an outlined box around the content. When children
- * include `Subsection` parts the box is omitted and each subsection renders with
- * context-appropriate treatment:
- * - `hasBorder` (accordion): each subsection in its own outlined `EuiPanel`.
- * - no border (section): subsections separated by horizontal-rule dividers.
- */
+/** Shared section/accordion content renderer with optional subsection parsing. */
 export const SectionContent = ({
   hasBorder = false,
   children,

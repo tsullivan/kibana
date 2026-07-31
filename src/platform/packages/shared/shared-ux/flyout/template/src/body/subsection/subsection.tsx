@@ -12,15 +12,7 @@ import { EuiHorizontalRule, EuiPanel, EuiSpacer, EuiTitle } from '@elastic/eui';
 import type { FlyoutSubsectionProps } from '../../types';
 import { subsectionPart } from './part';
 
-/**
- * Declarative `FlyoutTemplate.Body.Section.Subsection` (also available as
- * `Body.Accordion.Subsection` and `Body.Subsection`).
- *
- * Returns `null`; `SectionContent` parses it and renders the resolved output.
- * The title renders as an H5. Rendering adapts to the parent context:
- * - Inside `Body.Section`: plain H5 + content, horizontal-rule dividers between.
- * - Inside `Body.Accordion`: each subsection in its own outlined box, spacer dividers.
- */
+/** Declarative `FlyoutTemplate.Body.Subsection`. */
 export const Subsection = subsectionPart.createComponent<FlyoutSubsectionProps>({
   resolve: (
     { title, children, 'data-test-subj': dataTestSubj },

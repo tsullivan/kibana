@@ -11,10 +11,7 @@ import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { EuiFlyoutProps } from '@elastic/eui';
 
-/**
- * Static-ish configuration shared with the zones. Kept intentionally light for
- * the MVP; expand as zones need more shared configuration.
- */
+/** Static configuration shared with template zones. */
 export interface FlyoutTemplateConfig {
   /** Root `data-test-subj`, used to derive zone-level test subjects. */
   dataTestSubj?: string;
@@ -39,10 +36,7 @@ export const FlyoutTemplateConfigProvider = ({
 export const useFlyoutTemplateConfig = (): FlyoutTemplateConfig =>
   useContext(FlyoutTemplateConfigContext);
 
-/**
- * Derives a zone-level `data-test-subj`: an explicit value always wins,
- * otherwise it is suffixed onto the root test subject when present.
- */
+/** Derives a zone-level `data-test-subj`. */
 export const resolveZoneTestSubj = (
   explicit: string | undefined,
   root: string | undefined,

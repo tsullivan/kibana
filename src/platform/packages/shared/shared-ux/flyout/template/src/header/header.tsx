@@ -9,7 +9,6 @@
 
 import React, { useMemo } from 'react';
 import { css } from '@emotion/react';
-import type { ParsedPart } from '@kbn/content-list-assembly';
 import {
   EuiFlyoutHeader,
   EuiSpacer,
@@ -22,15 +21,10 @@ import {
 import type { EuiFlyoutProps, UseEuiTheme } from '@elastic/eui';
 import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
 import { InfoBlocks } from '@kbn/shared-ux-info-blocks';
-import { flyoutAssembly, headerAssembly } from '../assembly';
-import {
-  resolveZoneTestSubj,
-  useFlyoutScroll,
-  useFlyoutTabs,
-  useFlyoutTemplateConfig,
-} from '../context';
+import { flyoutAssembly } from '../assembly';
+import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import type { FlyoutHeaderProps } from '../types';
-import { InfoBlock, infoBlockPart, INFO_BLOCK_PART_NAME } from './info_block';
+import { InfoBlock, infoBlockPart } from './info_block';
 import { Tab } from './tab';
 
 /** Part name used for identifying the `Header` zone. */
@@ -38,10 +32,7 @@ export const HEADER_PART_NAME = 'header';
 
 const headerPart = flyoutAssembly.definePart({ name: HEADER_PART_NAME });
 
-/**
- * Declarative `FlyoutTemplate.Header`. Returns `null`; the root renders the
- * `HeaderZone` with these attributes. Namespaces the `InfoBlock` and `Tab` parts.
- */
+/** Declarative `FlyoutTemplate.Header`; the root renders the collected attributes. */
 const BaseHeader = headerPart.createComponent<FlyoutHeaderProps>();
 BaseHeader.displayName = 'FlyoutTemplate.Header';
 
@@ -86,29 +77,24 @@ const FullBleedDivider = ({ horizontalPadding }: { horizontalPadding: string }) 
   );
 };
 
-/**
- * Internal renderer for the header zone. Owns the heading level (H3 at rest, H4
- * once collapsed), resolves `Header.InfoBlock` parts, and renders `Header.Tab`
- * parts as an `EuiTabs` bar driven by `FlyoutTabsProvider`. Borders are
- * template-owned (`hasBorder={false}`) so the dividers are full-bleed.
- */
+type HeaderZoneProps = FlyoutHeaderProps & {
+  flyoutTitleId?: string;
+};
+
+/** Internal renderer for the header zone; dividers are template-owned for full bleed. */
 export const HeaderZone = ({
   title,
   children,
+  flyoutTitleId,
   'data-test-subj': dataTestSubj,
-}: FlyoutHeaderProps) => {
+}: HeaderZoneProps) => {
   const { euiTheme } = useEuiTheme();
-  const { scrollIndex, isCollapsed } = useFlyoutScroll();
   const { dataTestSubj: rootTestSubj, paddingSize } = useFlyoutTemplateConfig();
   const { tabs, selectedTabId, selectTab } = useFlyoutTabs();
-  const isTitleCollapsed = scrollIndex > 0;
 
   const infoBlockItems = useMemo(() => {
-    const items = headerAssembly.parseChildren(children);
-    return items
-      .filter(
-        (item): item is ParsedPart => item.type === 'part' && item.part === INFO_BLOCK_PART_NAME
-      )
+    return infoBlockPart
+      .parseChildren(children)
       .map((item) => infoBlockPart.resolve(item, undefined))
       .filter((item): item is InfoBlockItem => item !== undefined);
   }, [children]);
@@ -122,25 +108,26 @@ export const HeaderZone = ({
       hasBorder={false}
       data-test-subj={resolveZoneTestSubj(dataTestSubj, rootTestSubj, 'Header')}
     >
-      <EuiTitle size={isTitleCollapsed ? 'xs' : 'm'}>
-        {isTitleCollapsed ? <h4>{title}</h4> : <h3>{title}</h3>}
+      <EuiTitle size="m">
+        <h3 id={flyoutTitleId}>{title}</h3>
       </EuiTitle>
       {hasInfoBlocks && (
         <>
           <EuiSpacer size="m" />
           <FullBleedDivider horizontalPadding={horizontalPadding} />
           <EuiSpacer size="m" />
-          <InfoBlocks items={infoBlockItems} compressed={isCollapsed} />
+          <InfoBlocks items={infoBlockItems} />
         </>
       )}
       {hasTabs && (
         <>
           <EuiSpacer size="s" />
-          <EuiTabs bottomBorder={false} size={isCollapsed ? 's' : 'm'}>
+          <EuiTabs bottomBorder={false} size="m">
             {tabs.map((tab) => (
               <EuiTab
                 key={tab.id}
-                id={tab.id}
+                id={tab.tabDomId}
+                aria-controls={tab.panelDomId}
                 isSelected={tab.id === selectedTabId}
                 onClick={() => selectTab(tab.id)}
                 disabled={tab.disabled}

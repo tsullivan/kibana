@@ -199,6 +199,9 @@ export const Tabs: Story = {
 };
 
 export const Sections: Story = {
+  argTypes: {
+    numTabs: { table: { disable: true } },
+  },
   render: function Render(args) {
     const [open, setOpen] = useState<'simple' | 'subsections' | null>(null);
     const onClose = () => setOpen(null);
@@ -282,6 +285,7 @@ export const Accordions: Story = {
   argTypes: {
     sectionHasBorder: { table: { disable: true } },
     numSections: { name: 'Accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
+    numTabs: { table: { disable: true } },
   },
   render: function Render(args) {
     const [open, setOpen] = useState<'simple' | 'subsections' | null>(null);

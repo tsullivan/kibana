@@ -78,11 +78,7 @@ export const getInfoBlocksLayout = (
   }));
 };
 
-// Dividers are drawn as pseudo-elements, whose declarations can't be reached
-// through the `style` prop, so their per-cell values (color/thickness/gap and
-// each divider's show/hide + inset) are threaded in as CSS custom properties
-// set via `style`. That keeps this `css` call static (one cached class) even
-// though the values it renders vary per cell and per render.
+// Pseudo-element dividers get per-cell values through CSS custom properties.
 const spacerCellCss = css`
   position: relative;
 
@@ -145,13 +141,8 @@ export const InfoBlocks: FunctionComponent<InfoBlocksProps> = ({
   // Keep divider ends off the card corners.
   const dividerCornerGap = euiTheme.size.base;
 
-  // The spacer (if any) is synthesized into `layout`, so pair each non-spacer
-  // cell with its real item by walking both in lockstep.
+  // The spacer is synthesized into `layout`, so real items advance separately.
   let nextItemIndex = 0;
-  const cells = layout.map((cell) => ({
-    cell,
-    item: cell.isSpacer ? null : items[nextItemIndex++],
-  }));
 
   const panelStyle: CSSProperties = {
     display: 'grid',
@@ -170,7 +161,7 @@ export const InfoBlocks: FunctionComponent<InfoBlocksProps> = ({
       data-test-subj={rest['data-test-subj'] ?? 'infoBlocks'}
       style={panelStyle}
     >
-      {cells.map(({ cell, item }, cellIndex) => {
+      {layout.map((cell, cellIndex) => {
         if (cell.isSpacer) {
           const spacerStyle: CSSProperties = {
             gridColumn: `span ${cell.span}`,
@@ -186,9 +177,14 @@ export const InfoBlocks: FunctionComponent<InfoBlocksProps> = ({
           );
         }
 
-        // `item` is non-null here: `cells` only pairs `null` with spacer cells.
         const isFirstColumn = cell.columnStart === 0;
-        const infoBlockItem = item!;
+        const infoBlockItem = items[nextItemIndex];
+        nextItemIndex += 1;
+
+        if (!infoBlockItem) {
+          return null;
+        }
+
         const itemStyle: CSSProperties = {
           padding: cellPadding,
           gridColumn: `span ${cell.span}`,

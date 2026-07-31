@@ -11,12 +11,9 @@ import type { MouseEventHandler, ReactNode } from 'react';
 import type { EuiButtonProps, EuiFlyoutProps, EuiIconProps } from '@elastic/eui';
 import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
 
-/**
- * Descriptor produced by resolving a `Header.Tab` part. Consumed by the header
- * zone to render `EuiTabs`/`EuiTab` and by `FlyoutTabsProvider` to publish the
- * ordered tab list.
- */
-export interface TabDescriptor {
+/** Descriptor produced by resolving a `Header.Tab` part. */
+export interface TabPartDescriptor {
+  /** Consumer-facing id that links `Header.Tab` to `Body.TabPanel`. */
   id: string;
   label: ReactNode;
   disabled?: boolean;
@@ -25,9 +22,13 @@ export interface TabDescriptor {
   'data-test-subj'?: string;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Header.Tab` part.
- */
+/** Runtime tab descriptor enriched with generated DOM ids. */
+export interface TabDescriptor extends TabPartDescriptor {
+  tabDomId: string;
+  panelDomId: string;
+}
+
+/** Props for the declarative `FlyoutTemplate.Header.Tab` part. */
 export interface FlyoutHeaderTabProps {
   /** Stable identifier, used to link the tab to its `Body.TabPanel`. */
   id: string;
@@ -39,9 +40,7 @@ export interface FlyoutHeaderTabProps {
   'data-test-subj'?: string;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Body.TabPanel` part.
- */
+/** Props for the declarative `FlyoutTemplate.Body.TabPanel` part. */
 export interface FlyoutBodyTabPanelProps {
   /** Must match the `id` of a `Header.Tab`. */
   tabId: string;
@@ -49,36 +48,22 @@ export interface FlyoutBodyTabPanelProps {
   'data-test-subj'?: string;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Header` zone.
- */
+/** Props for the declarative `FlyoutTemplate.Header` zone. */
 export interface FlyoutHeaderProps {
   /** Title rendered by the header. Rendered as an H3 (heading level is owned by the template). */
   title: ReactNode;
   'data-test-subj'?: string;
   /** `Header.InfoBlock` and `Header.Tab` parts. */
   children?: ReactNode;
-  /**
-   * Initial selected tab id (uncontrolled). Defaults to the first tab's id when
-   * omitted. Ignored when `selectedTabId` is provided.
-   */
+  /** Initial selected tab id (uncontrolled); ignored when `selectedTabId` is provided. */
   defaultSelectedTabId?: string;
-  /**
-   * Currently selected tab id (controlled). When provided the consumer drives
-   * selection; `onTabChange` fires on every click.
-   */
+  /** Currently selected tab id (controlled); `onTabChange` fires on every click. */
   selectedTabId?: string;
   /** Called when the user clicks a tab. */
   onTabChange?: (id: string) => void;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Header.InfoBlock` part.
- *
- * Resolves into an `InfoBlockItem` rendered by `@kbn/shared-ux-info-blocks`;
- * `children` supplies the block's value, mirroring `Body.Section`'s content
- * children.
- */
+/** Props for the declarative `FlyoutTemplate.Header.InfoBlock` part. */
 export interface FlyoutHeaderInfoBlockProps {
   /** Optional explicit instance id; auto-generated when omitted. */
   id?: string;
@@ -91,13 +76,7 @@ export interface FlyoutHeaderInfoBlockProps {
   'data-test-subj'?: string;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Body.Section` part.
- */
-/**
- * A single action link rendered right-aligned on the section title row
- * (`FlyoutTemplate.Body.Section`'s `action`).
- */
+/** Action link rendered right-aligned on a section or accordion title row. */
 export interface FlyoutSectionAction {
   /** Link text. */
   label: ReactNode;
@@ -111,10 +90,7 @@ export interface FlyoutSectionProps {
   id?: string;
   /** Section title rendered as an H4. */
   title: ReactNode;
-  /**
-   * Icon rendered immediately to the right of the title. When `tooltip` is set
-   * the icon becomes the tooltip anchor; defaults to an info icon if omitted.
-   */
+  /** Icon beside the title; defaults to `info` when `tooltip` is set. */
   icon?: EuiIconProps['type'];
   /** Tooltip shown from an icon to the right of the title. */
   tooltip?: ReactNode;
@@ -126,15 +102,7 @@ export interface FlyoutSectionProps {
   children?: ReactNode;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Body.Section.Subsection` part
- * (also available as `Body.Accordion.Subsection` and `Body.Subsection`).
- *
- * Subsections are the maximum allowed level of hierarchy (PRD §17). The title
- * renders as an H5. Visual treatment is determined by the parent context:
- * inside an Accordion each subsection gets its own outlined box; inside a
- * Section they are separated by horizontal-rule dividers.
- */
+/** Props for the declarative `FlyoutTemplate.Body.Subsection` part. */
 export interface FlyoutSubsectionProps {
   /** Optional explicit instance id; auto-generated when omitted. */
   id?: string;
@@ -144,23 +112,13 @@ export interface FlyoutSubsectionProps {
   children?: ReactNode;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Body.Accordion` part.
- *
- * The title row mirrors `Body.Section` (title, optional `icon`/`tooltip`, and a
- * right-aligned `action`). Accordion content is always wrapped in an outlined
- * box, so there is no `hasBorder` option. A body uses either `Section` or
- * `Accordion` parts, not both.
- */
+/** Props for the declarative `FlyoutTemplate.Body.Accordion` part. */
 export interface FlyoutAccordionProps {
   /** Optional explicit instance id; auto-generated when omitted. */
   id?: string;
   /** Accordion title, styled to match a section title. */
   title: ReactNode;
-  /**
-   * Icon rendered immediately to the right of the title. When `tooltip` is set
-   * the icon becomes the tooltip anchor; defaults to an info icon if omitted.
-   */
+  /** Icon beside the title; defaults to `info` when `tooltip` is set. */
   icon?: EuiIconProps['type'];
   /** Tooltip shown from an icon to the right of the title. */
   tooltip?: ReactNode;
@@ -172,19 +130,14 @@ export interface FlyoutAccordionProps {
   children?: ReactNode;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Body` zone.
- */
+/** Props for the declarative `FlyoutTemplate.Body` zone. */
 export interface FlyoutBodyProps {
   'data-test-subj'?: string;
   /** `Body.Section` parts and/or passthrough content (callouts, search, etc.). */
   children?: ReactNode;
 }
 
-/**
- * Props shared by the declarative footer action parts
- * (`Footer.PrimaryAction` and `Footer.SecondaryAction`).
- */
+/** Props shared by the declarative footer action parts. */
 export interface FlyoutFooterActionProps {
   /** Optional explicit instance id; auto-generated when omitted. */
   id?: string;
@@ -200,22 +153,14 @@ export interface FlyoutFooterActionProps {
   'data-test-subj'?: string;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Footer` zone.
- */
+/** Props for the declarative `FlyoutTemplate.Footer` zone. */
 export interface FlyoutFooterProps {
   'data-test-subj'?: string;
   /** `Footer.PrimaryAction` / `Footer.SecondaryAction` parts. */
   children?: ReactNode;
 }
 
-/**
- * Props for the root `FlyoutTemplate` component.
- *
- * Structural EUI flyout concerns are passed through to the underlying
- * `EuiFlyout`. `session` defaults to `'start'`, making these managed flyouts so
- * the menu bar is auto-provided by EUI.
- */
+/** Props for the root `FlyoutTemplate` component. */
 export type FlyoutTemplateProps = Pick<
   EuiFlyoutProps,
   | 'onClose'
@@ -233,7 +178,8 @@ export type FlyoutTemplateProps = Pick<
   | 'flyoutMenuProps'
   | 'flyoutMenuDisplayMode'
 > & {
-  'aria-label'?: string;
+  'aria-label'?: EuiFlyoutProps['aria-label'];
+  'aria-labelledby'?: EuiFlyoutProps['aria-labelledby'];
   'data-test-subj'?: string;
   /** Declarative zone children: `FlyoutTemplate.Header`, `.Body`, `.Footer`. */
   children?: ReactNode;

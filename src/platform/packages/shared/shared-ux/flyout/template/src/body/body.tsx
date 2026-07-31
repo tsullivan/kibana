@@ -19,13 +19,7 @@ import { Accordion, accordionPart, ACCORDION_PART_NAME } from './accordion';
 import { Subsection } from './subsection';
 import { TabPanel, TAB_PANEL_PART_NAME } from './tab_panel';
 
-/**
- * Renders parsed body items in source order: `Section` and `Accordion` parts are
- * resolved, passthrough children are rendered as-is. Shared by the untabbed body
- * and by each tab panel's content (a panel's children are the same shape as the
- * body). A body uses either `Section` or `Accordion` parts, not both (PRD);
- * mixing warns in development and renders everything in source order.
- */
+/** Renders `Section`, `Accordion`, and passthrough body children in source order. */
 const renderBodyItems = (children: ReactNode) => {
   const items = bodyAssembly.parseChildren(children, { supportsOtherChildren: true });
 
@@ -38,8 +32,7 @@ const renderBodyItems = (children: ReactNode) => {
     }
   }
 
-  // Sections and accordions each get a divider between siblings (none after the
-  // last). Accordions additionally hide the divider while open.
+  // Sections and accordions each get dividers between siblings.
   const sectionTotal = items.filter(
     (i) => i.type === 'part' && i.part === SECTION_PART_NAME
   ).length;
@@ -80,10 +73,7 @@ export const BODY_PART_NAME = 'body';
 
 const bodyPart = flyoutAssembly.definePart({ name: BODY_PART_NAME });
 
-/**
- * Declarative `FlyoutTemplate.Body`. Returns `null`; the root renders the
- * `BodyZone` with these attributes. Namespaces `Section` and `TabPanel` parts.
- */
+/** Declarative `FlyoutTemplate.Body`; the root renders the collected attributes. */
 const BaseBody = bodyPart.createComponent<FlyoutBodyProps>();
 BaseBody.displayName = 'FlyoutTemplate.Body';
 
@@ -94,19 +84,10 @@ export const Body = Object.assign(BaseBody, {
   Subsection,
 });
 
-/**
- * Internal renderer for the body zone. Composes `EuiFlyoutBody`.
- *
- * **Untabbed mode:** preserves JSX order between `Section` parts and passthrough
- * children (callouts, search, filters, etc.).
- *
- * **Tabbed mode** (any `Body.TabPanel` present): renders only the active tab's
- * panel with full a11y wiring. Top-level `Section` or passthrough children are
- * disallowed and logged as dev warnings (never thrown).
- */
+/** Internal renderer for the body zone, with optional tab-panel mode. */
 export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBodyProps) => {
   const { dataTestSubj: rootTestSubj } = useFlyoutTemplateConfig();
-  const { selectedTabId } = useFlyoutTabs();
+  const { tabs, selectedTabId } = useFlyoutTabs();
 
   const items = useMemo(
     () => bodyAssembly.parseChildren(children, { supportsOtherChildren: true }),
@@ -126,6 +107,8 @@ export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBod
   const bodyTestSubj = resolveZoneTestSubj(dataTestSubj, rootTestSubj, 'Body');
 
   if (isTabbedMode) {
+    const tabIds = new Set(tabs.map((tab) => tab.id));
+
     if (process.env.NODE_ENV !== 'production') {
       const disallowed = items.filter(
         (item): item is ParsedItem =>
@@ -139,8 +122,6 @@ export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBod
         );
       }
 
-      // Warn for tab panels whose tabId is not in the declared tab list. The
-      // selected-tab logic handles mismatches silently in prod; only warn in dev.
       const seenIds = new Set<string>();
       for (const panel of tabPanelItems) {
         const tabId = panel.attributes.tabId as string;
@@ -152,10 +133,24 @@ export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBod
         } else {
           seenIds.add(tabId);
         }
+        if (!tabIds.has(tabId)) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[FlyoutTemplate] Body.TabPanel tabId "${tabId}" does not match any Header.Tab id.`
+          );
+        }
+      }
+
+      for (const tab of tabs) {
+        if (!seenIds.has(tab.id)) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[FlyoutTemplate] Header.Tab id "${tab.id}" does not have a matching Body.TabPanel.`
+          );
+        }
       }
     }
 
-    // Deduplicate by tabId (first wins).
     const seenPanelIds = new Set<string>();
     const uniquePanels = tabPanelItems.filter((panel) => {
       const tabId = panel.attributes.tabId as string;
@@ -164,26 +159,25 @@ export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBod
       return true;
     });
 
-    const activePanel = uniquePanels.find(
-      (panel) => (panel.attributes.tabId as string) === selectedTabId
-    );
+    const activeTab = tabs.find((tab) => tab.id === selectedTabId);
+    const activePanel = uniquePanels.find((panel) => {
+      return (panel.attributes.tabId as string) === activeTab?.id;
+    });
 
-    const activeTabId = activePanel ? (activePanel.attributes.tabId as string) : undefined;
+    if (!activeTab || !activePanel) {
+      return <EuiFlyoutBody data-test-subj={bodyTestSubj} />;
+    }
 
-    // The panel's children have the same shape as the body: Section parts and
-    // passthrough content, resolved the same way.
-    const activePanelContent = activePanel
-      ? renderBodyItems(activePanel.attributes.children as ReactNode)
-      : null;
+    const activePanelContent = renderBodyItems(activePanel.attributes.children as ReactNode);
 
     return (
       <EuiFlyoutBody data-test-subj={bodyTestSubj}>
         <div
           role="tabpanel"
-          id={activeTabId !== undefined ? `tabpanel-${activeTabId}` : undefined}
-          aria-labelledby={activeTabId}
+          id={activeTab.panelDomId}
+          aria-labelledby={activeTab.tabDomId}
           tabIndex={0}
-          data-test-subj={activePanel?.attributes['data-test-subj'] as string | undefined}
+          data-test-subj={activePanel.attributes['data-test-subj'] as string | undefined}
         >
           {activePanelContent}
         </div>

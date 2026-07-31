@@ -7,43 +7,21 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-/**
- * Declarative component assembly definitions for the flyout template.
- *
- * The factory is imported from `@kbn/content-list-assembly` (Option A in the
- * package plan). All assembly imports are centralized here so a future rename
- * to a neutral, general-purpose package is a single-file change.
- */
 import { defineAssembly } from '@kbn/content-list-assembly';
 
 export { defineAssembly };
 
-/**
- * Root assembly. Parses the top-level zone parts (`header`, `body`, `footer`)
- * declared as children of `FlyoutTemplate`.
- */
+/** Parses top-level `FlyoutTemplate` zones. */
 export const flyoutAssembly = defineAssembly({ name: 'FlyoutTemplate' });
 
-/**
- * Header assembly. Parses parts declared inside `FlyoutTemplate.Header`
- * (`Header.InfoBlock`, `Header.Tab`).
- */
+/** Parses `FlyoutTemplate.Header` parts. */
 export const headerAssembly = defineAssembly({ name: 'FlyoutTemplateHeader' });
 
-/**
- * Body assembly. Parses `Body.Section` parts (and passthrough children) declared
- * inside `FlyoutTemplate.Body`.
- */
+/** Parses `FlyoutTemplate.Body` parts and passthrough children. */
 export const bodyAssembly = defineAssembly({ name: 'FlyoutTemplateBody' });
 
-/**
- * Section assembly. Parses `Body.Section.Subsection` parts (and passthrough
- * children) declared inside `FlyoutTemplate.Body.Section` or `.Accordion`.
- */
+/** Parses `FlyoutTemplate.Body.Section` / `.Accordion` content. */
 export const sectionAssembly = defineAssembly({ name: 'FlyoutTemplateSection' });
 
-/**
- * Footer assembly. Parses `Footer.PrimaryAction` / `Footer.SecondaryAction`
- * parts declared inside `FlyoutTemplate.Footer`.
- */
+/** Parses `FlyoutTemplate.Footer` action parts. */
 export const footerAssembly = defineAssembly({ name: 'FlyoutTemplateFooter' });

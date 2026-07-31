@@ -25,14 +25,7 @@ type AccordionSectionProps = FlyoutAccordionProps & {
   showBottomDivider: boolean;
 };
 
-/**
- * Internal renderer. Uses hooks (id + open state), so it must be a component
- * rather than inline JSX in `resolve`.
- *
- * The title row and outlined content box are shared with `Section` (via
- * `renderTitleWithIcon` / `SectionContent`). The accordion-only differences are
- * expand/collapse and the between-accordion divider, which hides while open.
- */
+/** Internal renderer for hook-backed accordion state. */
 const AccordionSection = ({
   id,
   title,
@@ -46,11 +39,7 @@ const AccordionSection = ({
 }: AccordionSectionProps) => {
   const accordionId = useGeneratedHtmlId({ conditionalId: id, prefix: 'flyoutAccordion' });
 
-  // Controlled open state. EuiAccordion measures its content height with a
-  // ResizeObserver; when it mounts already-open inside the flyout (which animates
-  // in), that first measurement can come back 0 and never correct, leaving the
-  // panel blank until toggled. So we start closed and open after the first paint,
-  // once layout has settled and the height can be measured correctly.
+  // Delay initial open so EuiAccordion measures nonzero height inside the animated flyout.
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -65,8 +54,7 @@ const AccordionSection = ({
     };
   }, [initialIsOpen]);
 
-  // Styled like a section title, but a `span` (not an H4): the button label is
-  // phrasing content, and headings are not allowed inside a button.
+  // Keep heading elements out of the accordion button's phrasing content.
   const buttonContent = renderTitleWithIcon(
     <EuiTitle size="xs">
       <span>{title}</span>
@@ -86,20 +74,12 @@ const AccordionSection = ({
       >
         <SectionContent hasBorder>{children}</SectionContent>
       </EuiAccordion>
-      {/* Open: a spacer separates the content box from the next section. Closed:
-          the between-accordion divider (omitted for the last accordion). */}
       {isOpen ? <EuiSpacer size="m" /> : showBottomDivider && <EuiHorizontalRule margin="m" />}
     </>
   );
 };
 
-/**
- * Declarative `FlyoutTemplate.Body.Accordion`.
- *
- * Returns `null`; the Body zone parses it and renders the resolved output. The
- * title row matches `Body.Section` (title, optional icon/tooltip, right-aligned
- * action). Content is always wrapped in an outlined box.
- */
+/** Declarative `FlyoutTemplate.Body.Accordion`. */
 export const Accordion = accordionPart.createComponent<FlyoutAccordionProps>({
   resolve: (attributes, { showBottomDivider }) => (
     <AccordionSection {...attributes} showBottomDivider={showBottomDivider} />

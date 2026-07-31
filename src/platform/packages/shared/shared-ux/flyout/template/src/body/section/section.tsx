@@ -14,14 +14,7 @@ import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../ador
 import { SectionContent } from '../section_content';
 import { sectionPart } from './part';
 
-/**
- * Declarative `FlyoutTemplate.Body.Section`.
- *
- * Returns `null`; the Body zone parses it and renders the resolved output. The
- * title renders as an H4 with an optional icon/tooltip beside it and an optional
- * right-aligned action. When `hasBorder`, the content (not the title) is wrapped
- * in an outlined box — identical treatment to `Body.Accordion`.
- */
+/** Declarative `FlyoutTemplate.Body.Section`. */
 export const Section = sectionPart.createComponent<FlyoutSectionProps>({
   resolve: (
     { title, children, icon, tooltip, action, hasBorder, 'data-test-subj': dataTestSubj },

@@ -15,12 +15,7 @@ import { FlyoutTemplate } from './flyout_template';
 
 const noop = () => {};
 
-/**
- * The zones render inside `EuiFlyout` regardless of session mode. Tests use
- * `session="never"` to render as a standard (unmanaged) flyout, which avoids
- * needing an `EuiFlyoutManager` provider while still exercising all of the
- * template's zone parsing, ordering, validation, and rendering logic.
- */
+/** Keeps flyout tests unmanaged while still exercising template parsing/rendering. */
 const renderTemplate = (ui: React.ReactElement) => render(ui);
 
 describe('FlyoutTemplate', () => {
@@ -59,6 +54,20 @@ describe('FlyoutTemplate', () => {
     expect(title).toBeInTheDocument();
   });
 
+  it('assigns a generated id to the visible header title for flyout labeling', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" aria-label="Hidden override">
+        <FlyoutTemplate.Header title="Alert details" />
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const title = screen.getByRole('heading', { level: 3, name: 'Alert details' });
+    expect(title.id).toMatch(/^flyoutTemplateTitle/);
+  });
+
   it('renders Header.InfoBlock parts via the info blocks layout', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
@@ -93,9 +102,7 @@ describe('FlyoutTemplate', () => {
   });
 
   it('accepts resizable/minWidth/onResize/ownFocus/onActive without altering zone rendering', () => {
-    // These are pure passthrough props forwarded as-is to `EuiFlyout` (verified
-    // by the `Resizable` story against the real component); this test guards
-    // against the template's own rendering breaking when they're supplied.
+    // Passthrough flyout props should not affect zone rendering.
     const onResize = jest.fn();
     const onActive = jest.fn();
     renderTemplate(
@@ -146,7 +153,7 @@ describe('FlyoutTemplate', () => {
       </FlyoutTemplate>
     );
 
-    // Three sections → two dividers (none below the last).
+    // Three sections -> two dividers (none below the last).
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
   });
 
@@ -497,9 +504,148 @@ describe('FlyoutTemplate tabs', () => {
 
     const tab = screen.getByRole('tab', { name: 'Overview' });
     const panel = screen.getByRole('tabpanel');
-    expect(tab).toHaveAttribute('id', 'overview');
-    expect(panel).toHaveAttribute('aria-labelledby', 'overview');
-    expect(panel).toHaveAttribute('id', 'tabpanel-overview');
+    expect(tab.id).not.toBe('overview');
+    expect(tab).toHaveAttribute('aria-controls', panel.id);
+    expect(panel).toHaveAttribute('aria-labelledby', tab.id);
+    expect(panel.id).toBe(`${tab.id}-panel`);
+  });
+
+  it('keeps tab and panel DOM ids unique across flyout instances', () => {
+    renderWithTabs(
+      <>
+        <FlyoutTemplate onClose={noop} session="never">
+          <FlyoutTemplate.Header title="First">
+            <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          </FlyoutTemplate.Header>
+          <FlyoutTemplate.Body>
+            <FlyoutTemplate.Body.TabPanel tabId="overview">
+              first content
+            </FlyoutTemplate.Body.TabPanel>
+          </FlyoutTemplate.Body>
+        </FlyoutTemplate>
+        <FlyoutTemplate onClose={noop} session="never">
+          <FlyoutTemplate.Header title="Second">
+            <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          </FlyoutTemplate.Header>
+          <FlyoutTemplate.Body>
+            <FlyoutTemplate.Body.TabPanel tabId="overview">
+              second content
+            </FlyoutTemplate.Body.TabPanel>
+          </FlyoutTemplate.Body>
+        </FlyoutTemplate>
+      </>
+    );
+
+    const tabs = screen.getAllByRole('tab', { name: 'Overview' });
+    const panels = screen.getAllByRole('tabpanel');
+    expect(tabs[0].id).not.toBe(tabs[1].id);
+    expect(panels[0].id).not.toBe(panels[1].id);
+    expect(panels[0]).toHaveAttribute('aria-labelledby', tabs[0].id);
+    expect(panels[1]).toHaveAttribute('aria-labelledby', tabs[1].id);
+  });
+
+  it('falls back to the first tab when selectedTabId is invalid', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert" selectedTabId="missing">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            overview content
+          </FlyoutTemplate.Body.TabPanel>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            metadata content
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(warn).toHaveBeenCalledWith(
+      '[FlyoutTemplate] selectedTabId "missing" does not match any Header.Tab id; first tab wins.'
+    );
+    expect(screen.getByText('overview content')).toBeInTheDocument();
+    warn.mockRestore();
+  });
+
+  it('falls back to the first tab when defaultSelectedTabId is invalid', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert" defaultSelectedTabId="missing">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            overview content
+          </FlyoutTemplate.Body.TabPanel>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            metadata content
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(warn).toHaveBeenCalledWith(
+      '[FlyoutTemplate] defaultSelectedTabId "missing" does not match any Header.Tab id; first tab wins.'
+    );
+    expect(screen.getByText('overview content')).toBeInTheDocument();
+    warn.mockRestore();
+  });
+
+  it('falls back when the uncontrolled selected tab is removed', async () => {
+    const renderFlyout = (includeMetadata: boolean) => (
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+          {includeMetadata && <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />}
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="overview">
+            overview content
+          </FlyoutTemplate.Body.TabPanel>
+          {includeMetadata && (
+            <FlyoutTemplate.Body.TabPanel tabId="metadata">
+              metadata content
+            </FlyoutTemplate.Body.TabPanel>
+          )}
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    const { rerender } = renderWithTabs(renderFlyout(true));
+    await userEvent.click(screen.getByRole('tab', { name: 'Metadata' }));
+    expect(screen.getByText('metadata content')).toBeInTheDocument();
+
+    rerender(renderFlyout(false));
+    expect(screen.getByText('overview content')).toBeInTheDocument();
+  });
+
+  it('warns when Header.Tab and Body.TabPanel ids do not match', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderWithTabs(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert">
+          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.TabPanel tabId="metadata">
+            metadata content
+          </FlyoutTemplate.Body.TabPanel>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(warn).toHaveBeenCalledWith(
+      '[FlyoutTemplate] Body.TabPanel tabId "metadata" does not match any Header.Tab id.'
+    );
+    expect(warn).toHaveBeenCalledWith(
+      '[FlyoutTemplate] Header.Tab id "overview" does not have a matching Body.TabPanel.'
+    );
+    warn.mockRestore();
   });
 
   it('warns and does not render top-level Section in tabbed mode', () => {
@@ -575,7 +721,7 @@ describe('FlyoutTemplate accordions', () => {
       </FlyoutTemplate>
     );
 
-    // Three closed accordions → two dividers (none below the last).
+    // Three closed accordions -> two dividers (none below the last).
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
   });
 
@@ -589,7 +735,7 @@ describe('FlyoutTemplate accordions', () => {
       </FlyoutTemplate>
     );
 
-    // Two closed accordions → one divider below the first.
+    // Two closed accordions -> one divider below the first.
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(1);
 
     // Opening the first accordion hides its divider.
@@ -689,7 +835,7 @@ describe('FlyoutTemplate subsections', () => {
       </FlyoutTemplate>
     );
 
-    // Three subsections → two dividers (none below the last).
+    // Three subsections -> two dividers (none below the last).
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
   });
 

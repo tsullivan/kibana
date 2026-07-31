@@ -116,8 +116,7 @@ describe('getInfoBlocksLayout (leading-spacer placement + divider hints)', () =>
 
   it('keeps the divider on the block before a leading spacer, and marks the spacer last-column', () => {
     const layout = getInfoBlocksLayout(itemCountWithSpacer, 3, true);
-    // The block before the spacer is NOT the last column, so it keeps its
-    // inline-end (right-hand) vertical divider.
+    // The block before the spacer keeps its inline-end divider.
     expect(layout[0].isLastColumn).toBe(false);
     // The spacer fills the rest of the row, reaching the last column.
     expect(layout[1]).toMatchObject({ isSpacer: true, isLastColumn: true });
@@ -139,16 +138,14 @@ describe('getInfoBlocksLayout (leading-spacer placement + divider hints)', () =>
   });
 
   it('leaves no room for a leading spacer at a single column', () => {
-    // The first item already fills the only column, so there's nothing left to
-    // reserve for the spacer -- every item still gets its own row.
+    // A single-column first item leaves no space to reserve.
     const layout = getInfoBlocksLayout(2, 1, true);
     expect(layout).toHaveLength(2);
     expect(layout.every((cell) => !cell.isSpacer)).toBe(true);
   });
 
   it('preserves the vertical divider beside a partial trailing row (no spacer item)', () => {
-    // 3 columns, 5 items: row 2 is [D | E | (absent)]. E is not the last column,
-    // so it keeps its inline-end divider even though the trailing cell is absent.
+    // A partial trailing row keeps the last real cell's inline-end divider.
     const layout = getInfoBlocksLayout(5, 3);
     expect(layout[4]).toMatchObject({ columnStart: 1, span: 1, isLastColumn: false });
   });

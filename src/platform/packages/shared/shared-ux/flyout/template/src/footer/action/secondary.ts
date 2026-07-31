@@ -7,13 +7,34 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import React from 'react';
+import { EuiButtonEmpty } from '@elastic/eui';
 import type { FlyoutFooterActionProps } from '../../types';
 import { secondaryActionPart } from './part';
 
-/**
- * Declarative `FlyoutTemplate.Footer.SecondaryAction`. Returns `null`; the
- * footer zone reads its attributes and renders an empty button to the left of
- * the primary action.
- */
-export const SecondaryAction = secondaryActionPart.createComponent<FlyoutFooterActionProps>();
+/** Declarative `FlyoutTemplate.Footer.SecondaryAction`. */
+export const SecondaryAction = secondaryActionPart.createComponent<FlyoutFooterActionProps>({
+  resolve: ({
+    label,
+    onClick,
+    iconType,
+    color,
+    isLoading,
+    isDisabled,
+    'data-test-subj': dataTestSubj,
+  }) =>
+    React.createElement(
+      EuiButtonEmpty,
+      {
+        color,
+        iconType,
+        isLoading,
+        isDisabled,
+        onClick,
+        'data-test-subj': dataTestSubj,
+      },
+      label
+    ),
+});
+
 SecondaryAction.displayName = 'FlyoutTemplate.Footer.SecondaryAction';
