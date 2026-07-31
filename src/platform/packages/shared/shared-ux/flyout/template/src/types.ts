@@ -102,6 +102,17 @@ export interface FlyoutSectionProps {
   children?: ReactNode;
 }
 
+/**
+ * Props for the declarative `FlyoutTemplate.Body.PlainSection` part: an untitled,
+ * unadorned container for content that owns its own layout (filter bars, data grids).
+ */
+export interface FlyoutPlainSectionProps {
+  /** Optional explicit instance id; auto-generated when omitted. */
+  id?: string;
+  'data-test-subj'?: string;
+  children?: ReactNode;
+}
+
 /** Props for the declarative `FlyoutTemplate.Body.Subsection` part. */
 export interface FlyoutSubsectionProps {
   /** Optional explicit instance id; auto-generated when omitted. */

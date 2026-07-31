@@ -65,6 +65,10 @@ Headerless flyouts can pass `aria-label` or `aria-labelledby` directly.
     each subsection gets its own outlined box; inside a `Section` subsections
     are separated by horizontal-rule dividers. Subsections are the maximum
     allowed hierarchy level (PRD §17).
+  - `FlyoutTemplate.Body.PlainSection` — an untitled container with no icon,
+    outline, or action, for content that owns its own layout (a filter bar, a
+    data grid). Plain sections may lead the body, above the first `Section` or
+    `Accordion`; placing one after a titled section logs a dev-mode warning.
   - passthrough children (callouts, announcements, search, filters).
 - `FlyoutTemplate.Footer` — optional. Accepts:
   - `FlyoutTemplate.Footer.PrimaryAction` — right-aligned, filled button.

@@ -169,6 +169,101 @@ describe('FlyoutTemplate', () => {
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
   });
 
+  it('renders plain section content with no title, outline, or divider', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.PlainSection data-test-subj="filterBar">
+            <span>filter bar</span>
+          </FlyoutTemplate.Body.PlainSection>
+          <FlyoutTemplate.Body.PlainSection data-test-subj="dataGrid">
+            <span>data grid</span>
+          </FlyoutTemplate.Body.PlainSection>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('filterBar')).toBeInTheDocument();
+    expect(screen.getByText('data grid')).toBeInTheDocument();
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+    expect(screen.getByText('filter bar').closest('.euiPanel')).toBeNull();
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+  });
+
+  it('does not warn when plain sections lead the body', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.PlainSection>
+            <span>filter bar</span>
+          </FlyoutTemplate.Body.PlainSection>
+          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('warns in development when a plain section follows a titled section', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+          <FlyoutTemplate.Body.PlainSection>
+            <span>data grid</span>
+          </FlyoutTemplate.Body.PlainSection>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(warn).toHaveBeenCalledWith(
+      '[FlyoutTemplate] Body.PlainSection must come before any Body.Section or ' +
+        'Body.Accordion; it is not meant to be interleaved with titled sections.'
+    );
+    warn.mockRestore();
+  });
+
+  it('warns in development when a plain section follows an accordion', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Accordion title="Overview">content</FlyoutTemplate.Body.Accordion>
+          <FlyoutTemplate.Body.PlainSection>
+            <span>data grid</span>
+          </FlyoutTemplate.Body.PlainSection>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(warn).toHaveBeenCalledWith(
+      '[FlyoutTemplate] Body.PlainSection must come before any Body.Section or ' +
+        'Body.Accordion; it is not meant to be interleaved with titled sections.'
+    );
+    warn.mockRestore();
+  });
+
+  it('does not count plain sections toward section dividers', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.PlainSection>
+            <span>filter bar</span>
+          </FlyoutTemplate.Body.PlainSection>
+          <FlyoutTemplate.Body.Section title="One">one</FlyoutTemplate.Body.Section>
+          <FlyoutTemplate.Body.Section title="Two">two</FlyoutTemplate.Body.Section>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // Two sections -> one divider; the plain section adds none.
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(1);
+  });
+
   it('does not wrap section content in an outlined box by default', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">

@@ -10,7 +10,7 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiHealth, EuiText } from '@elastic/eui';
+import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiHealth, EuiPanel, EuiText } from '@elastic/eui';
 import { FlyoutTemplate } from './flyout_template';
 import type { FlyoutTemplateProps } from './types';
 
@@ -34,6 +34,7 @@ interface Args {
   numSections: number;
   numSubsections: number;
   numTabs: number;
+  numPlainSections: number;
 }
 
 const meta: Meta<Args> = {
@@ -51,6 +52,7 @@ const meta: Meta<Args> = {
     numSections: 2,
     numSubsections: 3,
     numTabs: 3,
+    numPlainSections: 2,
   },
   argTypes: {
     infoBlocks: { name: 'Info blocks', control: { type: 'boolean' } },
@@ -70,6 +72,10 @@ const meta: Meta<Args> = {
     numSections: { name: 'Sections', control: { type: 'range', min: 1, max: 4, step: 1 } },
     numSubsections: { name: 'Subsections', control: { type: 'range', min: 1, max: 4, step: 1 } },
     numTabs: { name: 'Tabs', control: { type: 'range', min: 1, max: 12, step: 1 } },
+    numPlainSections: {
+      name: 'Plain sections',
+      control: { type: 'range', min: 1, max: 3, step: 1 },
+    },
   },
 };
 
@@ -186,6 +192,13 @@ const ACCORDIONS: Array<{ id: string; title: string; content: string }> = [
   { id: 'related', title: 'Related', content: 'Related accordion content.' },
 ];
 
+/** Stand-ins for self-contained widgets that bring their own chrome. */
+const PLAIN_SECTIONS: Array<{ id: string; label: string; height: number }> = [
+  { id: 'filterBar', label: 'Filter Bar', height: 48 },
+  { id: 'dataGrid', label: 'Data Grid', height: 320 },
+  { id: 'pagination', label: 'Pagination', height: 48 },
+];
+
 export default meta;
 
 type Story = StoryObj<Args>;
@@ -194,13 +207,15 @@ export const Tabs: Story = {
   argTypes: {
     numSections: { table: { disable: true } },
     numSubsections: { table: { disable: true } },
+    numPlainSections: { table: { disable: true } },
   },
   render: renderWithTabs,
 };
 
-export const Sections: Story = {
+export const RegularSections: Story = {
   argTypes: {
     numTabs: { table: { disable: true } },
+    numPlainSections: { table: { disable: true } },
   },
   render: function Render(args) {
     const [open, setOpen] = useState<'simple' | 'subsections' | null>(null);
@@ -286,6 +301,7 @@ export const Accordions: Story = {
     sectionHasBorder: { table: { disable: true } },
     numSections: { name: 'Accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
     numTabs: { table: { disable: true } },
+    numPlainSections: { table: { disable: true } },
   },
   render: function Render(args) {
     const [open, setOpen] = useState<'simple' | 'subsections' | null>(null);
@@ -378,6 +394,66 @@ export const Accordions: Story = {
           </FlyoutTemplate>
         )}
       </>
+    );
+  },
+};
+
+export const PlainSections: Story = {
+  argTypes: {
+    sectionIcon: { table: { disable: true } },
+    sectionAction: { table: { disable: true } },
+    numSubsections: { table: { disable: true } },
+    // Plain sections can stand alone, so allow a body with no titled sections.
+    numSections: { name: 'Sections', control: { type: 'range', min: 0, max: 4, step: 1 } },
+  },
+  render: (args) => {
+    const tabs = TABS.slice(0, args.numTabs);
+    const plainSections = PLAIN_SECTIONS.slice(0, args.numPlainSections);
+    const sections = SECTIONS.slice(0, args.numSections);
+
+    return (
+      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+        <FlyoutTemplate.Header title="Document">
+          {args.infoBlocks && infoBlockParts()}
+          {tabs.map(({ id, label }) => (
+            <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
+          ))}
+        </FlyoutTemplate.Header>
+        <FlyoutTemplate.Body>
+          {tabs.map((tab) => (
+            <FlyoutTemplate.Body.TabPanel key={tab.id} tabId={tab.id}>
+              {plainSections.map(({ id, label, height }) => (
+                <FlyoutTemplate.Body.PlainSection key={id} id={`${tab.id}-${id}`}>
+                  <EuiPanel color="primary" hasShadow={false} css={{ minHeight: height }}>
+                    <EuiText size="s" textAlign="center">
+                      <p>
+                        <em>{label}</em>
+                      </p>
+                    </EuiText>
+                  </EuiPanel>
+                </FlyoutTemplate.Body.PlainSection>
+              ))}
+              {sections.map(({ id, title, content }) => (
+                <FlyoutTemplate.Body.Section
+                  key={id}
+                  title={title}
+                  hasBorder={args.sectionHasBorder}
+                >
+                  <EuiText size="s">
+                    <p>{content}</p>
+                  </EuiText>
+                </FlyoutTemplate.Body.Section>
+              ))}
+            </FlyoutTemplate.Body.TabPanel>
+          ))}
+        </FlyoutTemplate.Body>
+        {args.footerActions && (
+          <FlyoutTemplate.Footer>
+            <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+            <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
+          </FlyoutTemplate.Footer>
+        )}
+      </FlyoutTemplate>
     );
   },
 };

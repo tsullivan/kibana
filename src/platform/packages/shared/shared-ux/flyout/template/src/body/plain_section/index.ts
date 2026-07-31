@@ -7,19 +7,5 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { FlyoutTemplate } from './src/flyout_template';
-export type {
-  FlyoutTemplateProps,
-  FlyoutHeaderProps,
-  FlyoutHeaderInfoBlockProps,
-  FlyoutHeaderTabProps,
-  FlyoutBodyProps,
-  FlyoutBodyTabPanelProps,
-  FlyoutSectionProps,
-  FlyoutSectionAction,
-  FlyoutPlainSectionProps,
-  FlyoutSubsectionProps,
-  FlyoutAccordionProps,
-  FlyoutFooterProps,
-  FlyoutFooterActionProps,
-} from './src/types';
+export { PlainSection } from './plain_section';
+export { plainSectionPart, PLAIN_SECTION_PART_NAME } from './part';
