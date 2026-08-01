@@ -22,7 +22,7 @@ const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
 };
 
 interface Args {
-  infoBlocks: boolean;
+  infoBlocks: number;
   sectionHasBorder: boolean;
   sectionIcon: boolean;
   sectionAction: boolean;
@@ -40,7 +40,7 @@ interface Args {
 const meta: Meta<Args> = {
   title: 'Flyout/Flyout Template',
   args: {
-    infoBlocks: true,
+    infoBlocks: 6,
     sectionIcon: true,
     sectionAction: true,
     sectionHasBorder: false,
@@ -55,7 +55,7 @@ const meta: Meta<Args> = {
     numPlainSections: 2,
   },
   argTypes: {
-    infoBlocks: { name: 'Info blocks', control: { type: 'boolean' } },
+    infoBlocks: { name: 'Header info blocks', control: { type: 'range', min: 0, max: 10, step: 1 } },
     sectionHasBorder: { name: 'Section has border', control: { type: 'boolean' } },
     sectionIcon: { name: 'Section icon', control: { type: 'boolean' } },
     sectionAction: { name: 'Section action', control: { type: 'boolean' } },
@@ -71,7 +71,7 @@ const meta: Meta<Args> = {
     },
     numSections: { name: 'Sections', control: { type: 'range', min: 1, max: 4, step: 1 } },
     numSubsections: { name: 'Subsections', control: { type: 'range', min: 1, max: 4, step: 1 } },
-    numTabs: { name: 'Tabs', control: { type: 'range', min: 1, max: 12, step: 1 } },
+    numTabs: { name: 'Header tabs', control: { type: 'range', min: 0, max: 10, step: 1 } },
     numPlainSections: {
       name: 'Plain sections',
       control: { type: 'range', min: 1, max: 3, step: 1 },
@@ -109,18 +109,20 @@ const buildSectionProps = (args: Args) => ({
   ...buildTitleAdornments(args),
 });
 
-const infoBlockParts = () => (
-  <>
-    <FlyoutTemplate.Header.InfoBlock title="Owner">Platform</FlyoutTemplate.Header.InfoBlock>
-    <FlyoutTemplate.Header.InfoBlock title="Latency">
-      <EuiHealth color="success">Healthy</EuiHealth>
-    </FlyoutTemplate.Header.InfoBlock>
-    <FlyoutTemplate.Header.InfoBlock title="Throughput">1.2k tpm</FlyoutTemplate.Header.InfoBlock>
-    <FlyoutTemplate.Header.InfoBlock title="Risk score" size="xl" color="danger">
-      90
-    </FlyoutTemplate.Header.InfoBlock>
-  </>
-);
+const INFO_BLOCK_POOL = [
+  <FlyoutTemplate.Header.InfoBlock key="owner" title="Owner">Platform</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="latency" title="Latency"><EuiHealth color="success">Healthy</EuiHealth></FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="throughput" title="Throughput">1.2k tpm</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="risk" title="Risk score" size="xl" color="danger">90</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="env" title="Environment">Production</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="version" title="Version">2.4.1</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="region" title="Region">us-east-1</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="uptime" title="Uptime">99.9%</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="last-seen" title="Last seen">2m ago</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="errors" title="Errors" color="warning">12</FlyoutTemplate.Header.InfoBlock>,
+];
+
+const infoBlockParts = (count: number) => INFO_BLOCK_POOL.slice(0, count);
 
 const TABS: Array<{ id: string; label: string; content: string }> = [
   { id: 'overview', label: 'Overview', content: 'Overview panel content.' },
@@ -136,40 +138,6 @@ const TABS: Array<{ id: string; label: string; content: string }> = [
   { id: 'settings', label: 'Settings', content: 'Settings panel content.' },
   { id: 'history', label: 'History', content: 'History panel content.' },
 ];
-
-const renderWithTabs = (args: Args) => {
-  const tabs = TABS.slice(0, args.numTabs);
-  return (
-    <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
-      <FlyoutTemplate.Header title="Alert details">
-        {args.infoBlocks && infoBlockParts()}
-        {tabs.map(({ id, label }) => (
-          <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
-        ))}
-      </FlyoutTemplate.Header>
-      <FlyoutTemplate.Body>
-        {tabs.map(({ id, label, content }) => (
-          <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
-            <FlyoutTemplate.Body.Section title={label} {...buildSectionProps(args)}>
-              <EuiText size="s">
-                <p>{content}</p>
-              </EuiText>
-            </FlyoutTemplate.Body.Section>
-          </FlyoutTemplate.Body.TabPanel>
-        ))}
-      </FlyoutTemplate.Body>
-      {args.footerActions && (
-        <FlyoutTemplate.Footer>
-          <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-          <FlyoutTemplate.Footer.PrimaryAction
-            label="Investigate"
-            onClick={action('investigate')}
-          />
-        </FlyoutTemplate.Footer>
-      )}
-    </FlyoutTemplate>
-  );
-};
 
 const SECTIONS: Array<{ id: string; title: string; content: string }> = [
   { id: 'summary', title: 'Summary', content: 'Summary section content.' },
@@ -203,18 +171,8 @@ export default meta;
 
 type Story = StoryObj<Args>;
 
-export const Tabs: Story = {
-  argTypes: {
-    numSections: { table: { disable: true } },
-    numSubsections: { table: { disable: true } },
-    numPlainSections: { table: { disable: true } },
-  },
-  render: renderWithTabs,
-};
-
 export const RegularSections: Story = {
   argTypes: {
-    numTabs: { table: { disable: true } },
     numPlainSections: { table: { disable: true } },
   },
   render: function Render(args) {
@@ -222,6 +180,28 @@ export const RegularSections: Story = {
     const onClose = () => setOpen(null);
     const sections = SECTIONS.slice(0, args.numSections);
     const subsections = SUBSECTIONS.slice(0, args.numSubsections);
+    const tabs = TABS.slice(0, args.numTabs);
+    const hasTabs = tabs.length > 0;
+
+    const simpleSections = sections.map(({ id, title, content }) => (
+      <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
+        <EuiText size="s">
+          <p>{content}</p>
+        </EuiText>
+      </FlyoutTemplate.Body.Section>
+    ));
+
+    const subsectionSections = sections.map(({ id, title }) => (
+      <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
+        {subsections.map(({ id: subId, title: subTitle, content }) => (
+          <FlyoutTemplate.Body.Section.Subsection key={subId} id={subId} title={subTitle}>
+            <EuiText size="s">
+              <p>{content}</p>
+            </EuiText>
+          </FlyoutTemplate.Body.Section.Subsection>
+        ))}
+      </FlyoutTemplate.Body.Section>
+    ));
 
     return (
       <>
@@ -237,16 +217,19 @@ export const RegularSections: Story = {
         {open === 'simple' && (
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
             <FlyoutTemplate.Header title="Service details">
-              {args.infoBlocks && infoBlockParts()}
+              {infoBlockParts(args.infoBlocks)}
+              {tabs.map(({ id, label }) => (
+                <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
+              ))}
             </FlyoutTemplate.Header>
             <FlyoutTemplate.Body>
-              {sections.map(({ id, title, content }) => (
-                <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
-                  <EuiText size="s">
-                    <p>{content}</p>
-                  </EuiText>
-                </FlyoutTemplate.Body.Section>
-              ))}
+              {hasTabs
+                ? tabs.map(({ id }) => (
+                    <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
+                      {simpleSections}
+                    </FlyoutTemplate.Body.TabPanel>
+                  ))
+                : simpleSections}
             </FlyoutTemplate.Body>
             {args.footerActions && (
               <FlyoutTemplate.Footer>
@@ -263,20 +246,19 @@ export const RegularSections: Story = {
         {open === 'subsections' && (
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
             <FlyoutTemplate.Header title="Alert details">
-              {args.infoBlocks && infoBlockParts()}
+              {infoBlockParts(args.infoBlocks)}
+              {tabs.map(({ id, label }) => (
+                <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
+              ))}
             </FlyoutTemplate.Header>
             <FlyoutTemplate.Body>
-              {sections.map(({ id, title }) => (
-                <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
-                  {subsections.map(({ id: subId, title: subTitle, content }) => (
-                    <FlyoutTemplate.Body.Section.Subsection key={subId} id={subId} title={subTitle}>
-                      <EuiText size="s">
-                        <p>{content}</p>
-                      </EuiText>
-                    </FlyoutTemplate.Body.Section.Subsection>
-                  ))}
-                </FlyoutTemplate.Body.Section>
-              ))}
+              {hasTabs
+                ? tabs.map(({ id }) => (
+                    <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
+                      {subsectionSections}
+                    </FlyoutTemplate.Body.TabPanel>
+                  ))
+                : subsectionSections}
             </FlyoutTemplate.Body>
             {args.footerActions && (
               <FlyoutTemplate.Footer>
@@ -300,7 +282,6 @@ export const Accordions: Story = {
   argTypes: {
     sectionHasBorder: { table: { disable: true } },
     numSections: { name: 'Accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
-    numTabs: { table: { disable: true } },
     numPlainSections: { table: { disable: true } },
   },
   render: function Render(args) {
@@ -308,6 +289,40 @@ export const Accordions: Story = {
     const onClose = () => setOpen(null);
     const accordions = ACCORDIONS.slice(0, args.numSections);
     const subsections = SUBSECTIONS.slice(0, args.numSubsections);
+    const tabs = TABS.slice(0, args.numTabs);
+    const hasTabs = tabs.length > 0;
+
+    const simpleAccordions = accordions.map(({ id, title, content }, index) => (
+      <FlyoutTemplate.Body.Accordion
+        key={id}
+        id={id}
+        title={title}
+        initialIsOpen={index === 0}
+        {...buildTitleAdornments(args)}
+      >
+        <EuiText size="s">
+          <p>{content}</p>
+        </EuiText>
+      </FlyoutTemplate.Body.Accordion>
+    ));
+
+    const subsectionAccordions = accordions.map(({ id, title }, index) => (
+      <FlyoutTemplate.Body.Accordion
+        key={id}
+        id={id}
+        title={title}
+        initialIsOpen={index === 0}
+        {...buildTitleAdornments(args)}
+      >
+        {subsections.map(({ id: subId, title: subTitle, content }) => (
+          <FlyoutTemplate.Body.Accordion.Subsection key={subId} id={subId} title={subTitle}>
+            <EuiText size="s">
+              <p>{content}</p>
+            </EuiText>
+          </FlyoutTemplate.Body.Accordion.Subsection>
+        ))}
+      </FlyoutTemplate.Body.Accordion>
+    ));
 
     return (
       <>
@@ -325,22 +340,19 @@ export const Accordions: Story = {
         {open === 'simple' && (
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
             <FlyoutTemplate.Header title="Alert details">
-              {args.infoBlocks && infoBlockParts()}
+              {infoBlockParts(args.infoBlocks)}
+              {tabs.map(({ id, label }) => (
+                <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
+              ))}
             </FlyoutTemplate.Header>
             <FlyoutTemplate.Body>
-              {accordions.map(({ id, title, content }, index) => (
-                <FlyoutTemplate.Body.Accordion
-                  key={id}
-                  id={id}
-                  title={title}
-                  initialIsOpen={index === 0}
-                  {...buildTitleAdornments(args)}
-                >
-                  <EuiText size="s">
-                    <p>{content}</p>
-                  </EuiText>
-                </FlyoutTemplate.Body.Accordion>
-              ))}
+              {hasTabs
+                ? tabs.map(({ id }) => (
+                    <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
+                      {simpleAccordions}
+                    </FlyoutTemplate.Body.TabPanel>
+                  ))
+                : simpleAccordions}
             </FlyoutTemplate.Body>
             {args.footerActions && (
               <FlyoutTemplate.Footer>
@@ -357,30 +369,19 @@ export const Accordions: Story = {
         {open === 'subsections' && (
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
             <FlyoutTemplate.Header title="Alert details">
-              {args.infoBlocks && infoBlockParts()}
+              {infoBlockParts(args.infoBlocks)}
+              {tabs.map(({ id, label }) => (
+                <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
+              ))}
             </FlyoutTemplate.Header>
             <FlyoutTemplate.Body>
-              {accordions.map(({ id, title }, index) => (
-                <FlyoutTemplate.Body.Accordion
-                  key={id}
-                  id={id}
-                  title={title}
-                  initialIsOpen={index === 0}
-                  {...buildTitleAdornments(args)}
-                >
-                  {subsections.map(({ id: subId, title: subTitle, content }) => (
-                    <FlyoutTemplate.Body.Accordion.Subsection
-                      key={subId}
-                      id={subId}
-                      title={subTitle}
-                    >
-                      <EuiText size="s">
-                        <p>{content}</p>
-                      </EuiText>
-                    </FlyoutTemplate.Body.Accordion.Subsection>
-                  ))}
-                </FlyoutTemplate.Body.Accordion>
-              ))}
+              {hasTabs
+                ? tabs.map(({ id }) => (
+                    <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
+                      {subsectionAccordions}
+                    </FlyoutTemplate.Body.TabPanel>
+                  ))
+                : subsectionAccordions}
             </FlyoutTemplate.Body>
             {args.footerActions && (
               <FlyoutTemplate.Footer>
@@ -408,44 +409,49 @@ export const PlainSections: Story = {
   },
   render: (args) => {
     const tabs = TABS.slice(0, args.numTabs);
+    const hasTabs = tabs.length > 0;
     const plainSections = PLAIN_SECTIONS.slice(0, args.numPlainSections);
     const sections = SECTIONS.slice(0, args.numSections);
+
+    const bodyContent = (tabId?: string) => (
+      <>
+        {plainSections.map(({ id, label, height }) => (
+          <FlyoutTemplate.Body.PlainSection key={id} id={tabId ? `${tabId}-${id}` : id}>
+            <EuiPanel color="primary" hasShadow={false} css={{ minHeight: height }}>
+              <EuiText size="s" textAlign="center">
+                <p>
+                  <em>{label}</em>
+                </p>
+              </EuiText>
+            </EuiPanel>
+          </FlyoutTemplate.Body.PlainSection>
+        ))}
+        {sections.map(({ id, title, content }) => (
+          <FlyoutTemplate.Body.Section key={id} title={title} hasBorder={args.sectionHasBorder}>
+            <EuiText size="s">
+              <p>{content}</p>
+            </EuiText>
+          </FlyoutTemplate.Body.Section>
+        ))}
+      </>
+    );
 
     return (
       <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
         <FlyoutTemplate.Header title="Document">
-          {args.infoBlocks && infoBlockParts()}
+          {infoBlockParts(args.infoBlocks)}
           {tabs.map(({ id, label }) => (
             <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
           ))}
         </FlyoutTemplate.Header>
         <FlyoutTemplate.Body>
-          {tabs.map((tab) => (
-            <FlyoutTemplate.Body.TabPanel key={tab.id} tabId={tab.id}>
-              {plainSections.map(({ id, label, height }) => (
-                <FlyoutTemplate.Body.PlainSection key={id} id={`${tab.id}-${id}`}>
-                  <EuiPanel color="primary" hasShadow={false} css={{ minHeight: height }}>
-                    <EuiText size="s" textAlign="center">
-                      <p>
-                        <em>{label}</em>
-                      </p>
-                    </EuiText>
-                  </EuiPanel>
-                </FlyoutTemplate.Body.PlainSection>
-              ))}
-              {sections.map(({ id, title, content }) => (
-                <FlyoutTemplate.Body.Section
-                  key={id}
-                  title={title}
-                  hasBorder={args.sectionHasBorder}
-                >
-                  <EuiText size="s">
-                    <p>{content}</p>
-                  </EuiText>
-                </FlyoutTemplate.Body.Section>
-              ))}
-            </FlyoutTemplate.Body.TabPanel>
-          ))}
+          {hasTabs
+            ? tabs.map((tab) => (
+                <FlyoutTemplate.Body.TabPanel key={tab.id} tabId={tab.id}>
+                  {bodyContent(tab.id)}
+                </FlyoutTemplate.Body.TabPanel>
+              ))
+            : bodyContent()}
         </FlyoutTemplate.Body>
         {args.footerActions && (
           <FlyoutTemplate.Footer>
