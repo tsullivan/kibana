@@ -87,6 +87,16 @@ const FullBleedDivider = ({ horizontalPadding }: { horizontalPadding: string }) 
 /** Badge counts above `MAX_VISIBLE_BADGES` collapse to `MAX_BADGES_BEFORE_OVERFLOW` plus an overflow badge. */
 const MAX_VISIBLE_BADGES = 5;
 const MAX_BADGES_BEFORE_OVERFLOW = 4;
+const MAX_BADGE_WIDTH = 200;
+
+/** Caps badge width so long labels ellipsize; `euiBadge__text` supplies the truncation. */
+const badgeGroupStyles = () => ({
+  group: css`
+    .euiBadge {
+      max-inline-size: ${MAX_BADGE_WIDTH}px;
+    }
+  `,
+});
 
 /** Overflow badge that reveals the collapsed badges in a popover. */
 const BadgeOverflow = ({ badges }: { badges: ReactNode[] }) => {
@@ -141,6 +151,7 @@ export const HeaderZone = ({
   'data-test-subj': dataTestSubj,
 }: HeaderZoneProps) => {
   const { euiTheme } = useEuiTheme();
+  const badgeStyles = useEuiMemoizedStyles(badgeGroupStyles);
   const { dataTestSubj: rootTestSubj, paddingSize } = useFlyoutTemplateConfig();
   const { tabs, selectedTabId, selectTab } = useFlyoutTabs();
 
@@ -187,7 +198,7 @@ export const HeaderZone = ({
       {hasBadges && (
         <>
           <EuiSpacer size="s" />
-          <EuiBadgeGroup gutterSize="s">
+          <EuiBadgeGroup gutterSize="s" css={badgeStyles.group}>
             {visibleBadges}
             {overflowBadges.length > 0 && <BadgeOverflow badges={overflowBadges} />}
           </EuiBadgeGroup>

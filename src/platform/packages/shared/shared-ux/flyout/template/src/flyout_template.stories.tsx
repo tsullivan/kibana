@@ -30,20 +30,19 @@ const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
 };
 
 interface Args {
-  infoBlocks: number;
+  numInfoBlocks: number;
   sectionHasBorder: boolean;
   sectionIcon: boolean;
   sectionAction: boolean;
   menuBarActions: boolean;
   footer: boolean;
-  footerActions: boolean;
   resizable: boolean;
   type: NonNullable<FlyoutTemplateProps['type']>;
   ownFocus: boolean;
   numSections: number;
+  numPlainSections: number;
   numSubsections: number;
   numTabs: number;
-  numPlainSections: number;
   titleIcon: boolean;
   description: boolean;
   numBadges: number;
@@ -53,22 +52,21 @@ const meta: Meta<Args> = {
   title: 'Flyout/Flyout Template',
   args: {
     menuBarActions: true,
-    infoBlocks: 6,
+    numInfoBlocks: 5,
     numTabs: 3,
     numSections: 2,
+    numPlainSections: 2,
     sectionIcon: true,
     sectionAction: true,
     sectionHasBorder: false,
     numSubsections: 2,
+    titleIcon: false,
+    description: true,
+    numBadges: 8,
     footer: true,
-    footerActions: true,
     resizable: true,
     type: 'overlay',
     ownFocus: false,
-    numPlainSections: 2,
-    titleIcon: false,
-    description: false,
-    numBadges: 0,
   },
   argTypes: {
     menuBarActions: {
@@ -86,7 +84,7 @@ const meta: Meta<Args> = {
       control: { type: 'boolean' },
       table: { category: 'Header' },
     },
-    infoBlocks: {
+    numInfoBlocks: {
       name: 'Info blocks',
       control: { type: 'range', min: 0, max: 10, step: 1 },
       table: { category: 'Header' },
@@ -132,12 +130,6 @@ const meta: Meta<Args> = {
       table: { category: 'Body' },
     },
     footer: { name: 'Footer', control: { type: 'boolean' }, table: { category: 'Footer' } },
-    footerActions: {
-      name: 'Footer actions',
-      control: { type: 'boolean' },
-      if: { arg: 'footer', eq: true },
-      table: { category: 'Footer' },
-    },
     resizable: { name: 'Resizable', control: { type: 'boolean' }, table: { category: 'Flyout' } },
     type: {
       name: 'Type',
@@ -200,13 +192,13 @@ const BADGE_POOL = [
     Urgency
   </EuiBadge>,
   <EuiBadge key="meta1" color="hollow">
-    Meta data 1
+    Meta data 1 very very very very very very long label
   </EuiBadge>,
   <EuiBadge key="meta2" color="hollow">
     Meta data 2
   </EuiBadge>,
   <EuiBadge key="meta3" color="hollow">
-    Meta data very long label
+    Meta data 2 very very very very long label
   </EuiBadge>,
   <EuiBadge key="meta4" color="hollow">
     Meta data 4
@@ -258,18 +250,13 @@ const infoBlockParts = (count: number) => INFO_BLOCK_POOL.slice(0, count);
 
 /**
  * The footer zone, which is optional. Called inline (not rendered as a component)
- * so the root still sees `FlyoutTemplate.Footer` as its own child. With the zone
- * present but no actions, the template renders no footer at all.
+ * so the root still sees `FlyoutTemplate.Footer` as its own child.
  */
 const footerZone = (args: Args) =>
   args.footer ? (
     <FlyoutTemplate.Footer>
-      {args.footerActions && (
-        <>
-          <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-          <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-        </>
-      )}
+      <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+      <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
     </FlyoutTemplate.Footer>
   ) : null;
 
@@ -371,7 +358,7 @@ export const RegularSections: Story = {
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
-              {infoBlockParts(args.infoBlocks)}
+              {infoBlockParts(args.numInfoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
               ))}
@@ -397,7 +384,7 @@ export const RegularSections: Story = {
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
-              {infoBlockParts(args.infoBlocks)}
+              {infoBlockParts(args.numInfoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
               ))}
@@ -488,7 +475,7 @@ export const Accordions: Story = {
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
-              {infoBlockParts(args.infoBlocks)}
+              {infoBlockParts(args.numInfoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
               ))}
@@ -514,7 +501,7 @@ export const Accordions: Story = {
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
-              {infoBlockParts(args.infoBlocks)}
+              {infoBlockParts(args.numInfoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
               ))}
@@ -581,7 +568,7 @@ export const PlainSections: Story = {
           description={args.description ? HEADER_DESCRIPTION : undefined}
           badges={badgeItems(args.numBadges)}
         >
-          {infoBlockParts(args.infoBlocks)}
+          {infoBlockParts(args.numInfoBlocks)}
           {tabs.map(({ id, label }) => (
             <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
           ))}

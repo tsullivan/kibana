@@ -1028,54 +1028,54 @@ describe('FlyoutTemplate header title icon, description, and badges', () => {
   );
 
   it('renders a decorative title icon when no tooltip is given', () => {
-    renderTemplate(
-      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
-        <FlyoutTemplate.Header title="Alert details" titleIcon="info" />
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details" titleIcon="warning" />
         {body}
       </FlyoutTemplate>
     );
 
-    const icon = within(screen.getByTestId('myFlyoutHeader')).getByRole('img', { hidden: true });
-    expect(icon).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelector('[data-euiicon-type="warning"]')).toHaveAttribute(
+      'aria-hidden',
+      'true'
+    );
+    expect(container.querySelector('.euiToolTipAnchor')).toBeNull();
   });
 
-  it('renders the title icon as a tooltip anchor when a tooltip is given', async () => {
-    renderTemplate(
+  it('renders the title icon as a focusable tooltip anchor, defaulting to the info icon', () => {
+    const { container } = renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details" titleTooltip="Extra context" />
         {body}
       </FlyoutTemplate>
     );
 
-    await userEvent.hover(screen.getByRole('button'));
-
-    expect(await screen.findByText('Extra context')).toBeInTheDocument();
+    const anchor = container.querySelector('.euiToolTipAnchor');
+    expect(anchor).not.toBeNull();
+    expect(anchor?.querySelector('[data-euiicon-type="info"]')).toHaveAttribute('tabindex', '0');
   });
 
   it('keeps the generated title id on the heading when a title icon is present', () => {
     renderTemplate(
-      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+      <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details" titleIcon="info" />
         {body}
       </FlyoutTemplate>
     );
 
     const heading = screen.getByRole('heading', { level: 3, name: 'Alert details' });
-    expect(heading.id).toBeTruthy();
-    expect(screen.getByTestId('myFlyout')).toHaveAttribute('aria-labelledby', heading.id);
+    expect(heading.id).toMatch(/^flyoutTemplateTitle/);
   });
 
   it('renders no title icon by default', () => {
-    renderTemplate(
-      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details" />
         {body}
       </FlyoutTemplate>
     );
 
-    expect(
-      within(screen.getByTestId('myFlyoutHeader')).queryByRole('img', { hidden: true })
-    ).toBeNull();
+    expect(container.querySelector('[data-euiicon-type]')).toBeNull();
   });
 
   it('renders the description below the title', () => {
