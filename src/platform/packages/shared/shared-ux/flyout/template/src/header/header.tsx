@@ -30,6 +30,7 @@ import { InfoBlocks } from '@kbn/shared-ux-info-blocks';
 import { flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import type { FlyoutHeaderProps } from '../types';
+import { renderTitleIcon, renderTitleWithIcon } from '../adornments';
 import { InfoBlock, infoBlockPart } from './info_block';
 import { Tab } from './tab';
 
@@ -131,6 +132,8 @@ type HeaderZoneProps = FlyoutHeaderProps & {
 /** Internal renderer for the header zone; dividers are template-owned for full bleed. */
 export const HeaderZone = ({
   title,
+  titleIcon,
+  titleTooltip,
   description,
   badges,
   children,
@@ -166,9 +169,12 @@ export const HeaderZone = ({
       hasBorder={false}
       data-test-subj={resolveZoneTestSubj(dataTestSubj, rootTestSubj, 'Header')}
     >
-      <EuiTitle size="m">
-        <h3 id={flyoutTitleId}>{title}</h3>
-      </EuiTitle>
+      {renderTitleWithIcon(
+        <EuiTitle size="m">
+          <h3 id={flyoutTitleId}>{title}</h3>
+        </EuiTitle>,
+        renderTitleIcon(titleIcon, titleTooltip)
+      )}
       {hasDescription && (
         <>
           <EuiSpacer size="xs" />

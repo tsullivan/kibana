@@ -10,7 +10,7 @@
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiTitle } from '@elastic/eui';
 import type { FlyoutSectionProps } from '../../types';
-import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../adornments';
+import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../adornments';
 import { SectionContent } from '../section_content';
 import { sectionPart } from './part';
 

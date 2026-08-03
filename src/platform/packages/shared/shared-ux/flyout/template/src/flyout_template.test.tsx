@@ -1020,12 +1020,63 @@ describe('FlyoutTemplate subsections', () => {
   });
 });
 
-describe('FlyoutTemplate header description and badges', () => {
+describe('FlyoutTemplate header title icon, description, and badges', () => {
   const body = (
     <FlyoutTemplate.Body>
       <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
     </FlyoutTemplate.Body>
   );
+
+  it('renders a decorative title icon when no tooltip is given', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details" titleIcon="info" />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    const icon = within(screen.getByTestId('myFlyoutHeader')).getByRole('img', { hidden: true });
+    expect(icon).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('renders the title icon as a tooltip anchor when a tooltip is given', async () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details" titleTooltip="Extra context" />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    await userEvent.hover(screen.getByRole('button'));
+
+    expect(await screen.findByText('Extra context')).toBeInTheDocument();
+  });
+
+  it('keeps the generated title id on the heading when a title icon is present', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details" titleIcon="info" />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    const heading = screen.getByRole('heading', { level: 3, name: 'Alert details' });
+    expect(heading.id).toBeTruthy();
+    expect(screen.getByTestId('myFlyout')).toHaveAttribute('aria-labelledby', heading.id);
+  });
+
+  it('renders no title icon by default', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details" />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(
+      within(screen.getByTestId('myFlyoutHeader')).queryByRole('img', { hidden: true })
+    ).toBeNull();
+  });
 
   it('renders the description below the title', () => {
     renderTemplate(

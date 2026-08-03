@@ -44,6 +44,7 @@ interface Args {
   numSubsections: number;
   numTabs: number;
   numPlainSections: number;
+  titleIcon: boolean;
   description: boolean;
   numBadges: number;
 }
@@ -65,6 +66,7 @@ const meta: Meta<Args> = {
     type: 'overlay',
     ownFocus: false,
     numPlainSections: 2,
+    titleIcon: false,
     description: false,
     numBadges: 0,
   },
@@ -73,6 +75,11 @@ const meta: Meta<Args> = {
       name: 'Actions',
       control: { type: 'boolean' },
       table: { category: 'Menu bar' },
+    },
+    titleIcon: {
+      name: 'Title icon',
+      control: { type: 'boolean' },
+      table: { category: 'Header' },
     },
     description: {
       name: 'Description',
@@ -178,6 +185,12 @@ const buildSectionProps = (args: Args) => ({
 });
 
 const HEADER_DESCRIPTION = 'Mar 30, 2022 @ 10:01:21.313';
+
+/** Maps the title icon arg onto the header's icon/tooltip pair. */
+const buildTitleIconProps = (args: Args) =>
+  args.titleIcon
+    ? { titleIcon: 'info' as const, titleTooltip: 'Additional context about this flyout.' }
+    : {};
 
 const BADGE_POOL = [
   <EuiBadge key="type" iconType="warning" color="default">
@@ -354,6 +367,7 @@ export const RegularSections: Story = {
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
             <FlyoutTemplate.Header
               title="Service details"
+              {...buildTitleIconProps(args)}
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
@@ -379,6 +393,7 @@ export const RegularSections: Story = {
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
             <FlyoutTemplate.Header
               title="Alert details"
+              {...buildTitleIconProps(args)}
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
@@ -469,6 +484,7 @@ export const Accordions: Story = {
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
             <FlyoutTemplate.Header
               title="Alert details"
+              {...buildTitleIconProps(args)}
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
@@ -494,6 +510,7 @@ export const Accordions: Story = {
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
             <FlyoutTemplate.Header
               title="Alert details"
+              {...buildTitleIconProps(args)}
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
@@ -560,6 +577,7 @@ export const PlainSections: Story = {
       <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
         <FlyoutTemplate.Header
           title="Document"
+          {...buildTitleIconProps(args)}
           description={args.description ? HEADER_DESCRIPTION : undefined}
           badges={badgeItems(args.numBadges)}
         >

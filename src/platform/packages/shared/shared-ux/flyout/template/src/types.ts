@@ -55,6 +55,10 @@ export interface FlyoutHeaderProps {
   'data-test-subj'?: string;
   /** `Header.InfoBlock` and `Header.Tab` parts. */
   children?: ReactNode;
+  /** Icon beside the title; defaults to `info` when `titleTooltip` is set. */
+  titleIcon?: EuiIconProps['type'];
+  /** Tooltip shown from the title icon. */
+  titleTooltip?: ReactNode;
   /** Subdued text below the title (e.g. a timestamp or short context string). */
   description?: ReactNode;
   /** Badges below the description; each item should be an `EuiBadge`. Capped at 5 visible; extras collapse into a "+N more" badge. */

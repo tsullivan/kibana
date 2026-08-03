@@ -11,7 +11,7 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiIcon, EuiIconTip, EuiLink } from '@elastic/eui';
 import type { EuiIconProps } from '@elastic/eui';
-import type { FlyoutSectionAction } from '../types';
+import type { FlyoutSectionAction } from './types';
 
 /** Renders an optional title icon or accessible tooltip anchor. */
 export const renderTitleIcon = (

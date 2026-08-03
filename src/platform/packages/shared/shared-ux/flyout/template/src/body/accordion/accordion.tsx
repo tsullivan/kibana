@@ -16,7 +16,7 @@ import {
   useGeneratedHtmlId,
 } from '@elastic/eui';
 import type { FlyoutAccordionProps } from '../../types';
-import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../adornments';
+import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../adornments';
 import { SectionContent } from '../section_content';
 import { accordionPart } from './part';
 
