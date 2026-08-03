@@ -7,19 +7,11 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useState } from 'react';
+import React from 'react';
+import type { ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import {
-  EuiBadge,
-  EuiButton,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiHealth,
-  EuiLink,
-  EuiPanel,
-  EuiText,
-} from '@elastic/eui';
+import { EuiBadge, EuiHealth, EuiLink, EuiPanel, EuiText } from '@elastic/eui';
 import { FlyoutTemplate } from './flyout_template';
 import type { FlyoutTemplateProps } from './types';
 
@@ -61,7 +53,7 @@ const meta: Meta<Args> = {
     sectionIcon: true,
     sectionAction: true,
     sectionHasBorder: false,
-    numSubsections: 2,
+    numSubsections: 0,
     titleIcon: false,
     description: true,
     numMetadata: 3,
@@ -88,8 +80,8 @@ const meta: Meta<Args> = {
       table: { category: 'Header' },
     },
     numMetadata: {
-      // One above the cap, to exercise the dev warning.
       name: 'Metadata pairs',
+      // Max is one above the cap, to exercise the dev warning.
       control: { type: 'range', min: 0, max: 4, step: 1 },
       table: { category: 'Header' },
     },
@@ -130,7 +122,7 @@ const meta: Meta<Args> = {
     },
     numSubsections: {
       name: 'Subsections',
-      control: { type: 'range', min: 1, max: 4, step: 1 },
+      control: { type: 'range', min: 0, max: 4, step: 1 },
       table: { category: 'Body' },
     },
     numPlainSections: {
@@ -272,33 +264,20 @@ const INFO_BLOCK_POOL = [
   </FlyoutTemplate.Header.InfoBlock>,
 ];
 
-const infoBlockParts = (count: number) => INFO_BLOCK_POOL.slice(0, count);
+const infoBlockItems = (count: number) => INFO_BLOCK_POOL.slice(0, count);
 
-/**
- * The footer zone, which is optional. Called inline (not rendered as a component)
- * so the root still sees `FlyoutTemplate.Footer` as its own child.
- */
-const footerZone = (args: Args) =>
-  args.footer ? (
-    <FlyoutTemplate.Footer>
-      <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-      <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-    </FlyoutTemplate.Footer>
-  ) : null;
-
-const TABS: Array<{ id: string; label: string; content: string }> = [
-  { id: 'overview', label: 'Overview', content: 'Overview panel content.' },
-  { id: 'metadata', label: 'Metadata', content: 'Metadata panel content.' },
-  { id: 'timeline', label: 'Timeline', content: 'Timeline panel content.' },
-  { id: 'logs', label: 'Logs', content: 'Logs panel content.' },
-  { id: 'traces', label: 'Traces', content: 'Traces panel content.' },
-  { id: 'errors', label: 'Errors', content: 'Errors panel content.' },
-  { id: 'dependencies', label: 'Dependencies', content: 'Dependencies panel content.' },
-  { id: 'metrics', label: 'Metrics', content: 'Metrics panel content.' },
-  { id: 'events', label: 'Events', content: 'Events panel content.' },
-  { id: 'alerts', label: 'Alerts', content: 'Alerts panel content.' },
-  { id: 'settings', label: 'Settings', content: 'Settings panel content.' },
-  { id: 'history', label: 'History', content: 'History panel content.' },
+/** Tab panels render the body sections, so tabs only need an id and a label. */
+const TABS: Array<{ id: string; label: string }> = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'metadata', label: 'Metadata' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'logs', label: 'Logs' },
+  { id: 'traces', label: 'Traces' },
+  { id: 'errors', label: 'Errors' },
+  { id: 'dependencies', label: 'Dependencies' },
+  { id: 'metrics', label: 'Metrics' },
+  { id: 'events', label: 'Events' },
+  { id: 'alerts', label: 'Alerts' },
 ];
 
 const SECTIONS: Array<{ id: string; title: string; content: string }> = [
@@ -329,6 +308,55 @@ const PLAIN_SECTIONS: Array<{ id: string; label: string; height: number }> = [
   { id: 'pagination', label: 'Pagination', height: 48 },
 ];
 
+const bodyText = (content: string) => (
+  <EuiText size="s">
+    <p>{content}</p>
+  </EuiText>
+);
+
+/**
+ * Each zone below is called inline (not rendered as a component) so the root still
+ * sees `FlyoutTemplate.Header`/`Body`/`Footer` as its own direct children.
+ */
+const headerZone = (args: Args, title: string) => (
+  <FlyoutTemplate.Header
+    title={title}
+    {...buildTitleIconProps(args)}
+    description={args.description ? HEADER_DESCRIPTION : undefined}
+    badges={badgeItems(args.numBadges)}
+  >
+    {metadataItems(args.numMetadata)}
+    {infoBlockItems(args.numInfoBlocks)}
+    {TABS.slice(0, args.numTabs).map(({ id, label }) => (
+      <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
+    ))}
+  </FlyoutTemplate.Header>
+);
+
+/** Wraps `content` in one `TabPanel` per tab, or renders it bare when there are no tabs. */
+const bodyZone = (args: Args, content: (tabId?: string) => ReactNode) => {
+  const tabs = TABS.slice(0, args.numTabs);
+  return (
+    <FlyoutTemplate.Body>
+      {tabs.length
+        ? tabs.map(({ id }) => (
+            <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
+              {content(id)}
+            </FlyoutTemplate.Body.TabPanel>
+          ))
+        : content()}
+    </FlyoutTemplate.Body>
+  );
+};
+
+const footerZone = (args: Args) =>
+  args.footer ? (
+    <FlyoutTemplate.Footer>
+      <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+      <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
+    </FlyoutTemplate.Footer>
+  ) : null;
+
 export default meta;
 
 type Story = StoryObj<Args>;
@@ -337,120 +365,42 @@ export const RegularSections: Story = {
   argTypes: {
     numPlainSections: { table: { disable: true } },
   },
-  render: function Render(args) {
-    const [open, setOpen] = useState<'simple' | 'subsections' | null>(null);
-    const onClose = () => setOpen(null);
-    const sections = SECTIONS.slice(0, args.numSections);
+  render: (args) => {
     const subsections = SUBSECTIONS.slice(0, args.numSubsections);
-    const tabs = TABS.slice(0, args.numTabs);
-    const hasTabs = tabs.length > 0;
 
-    const simpleSections = sections.map(({ id, title, content }) => (
+    const bodyItems = SECTIONS.slice(0, args.numSections).map(({ id, title, content }) => (
       <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
-        <EuiText size="s">
-          <p>{content}</p>
-        </EuiText>
-      </FlyoutTemplate.Body.Section>
-    ));
-
-    const subsectionSections = sections.map(({ id, title }) => (
-      <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
-        {subsections.map(({ id: subId, title: subTitle, content }) => (
-          <FlyoutTemplate.Body.Section.Subsection key={subId} id={subId} title={subTitle}>
-            <EuiText size="s">
-              <p>{content}</p>
-            </EuiText>
-          </FlyoutTemplate.Body.Section.Subsection>
-        ))}
+        {subsections.length
+          ? subsections.map(({ id: subId, title: subTitle, content: subContent }) => (
+              <FlyoutTemplate.Body.Section.Subsection key={subId} id={subId} title={subTitle}>
+                {bodyText(subContent)}
+              </FlyoutTemplate.Body.Section.Subsection>
+            ))
+          : bodyText(content)}
       </FlyoutTemplate.Body.Section>
     ));
 
     return (
-      <>
-        <EuiFlexGroup gutterSize="s" wrap>
-          <EuiFlexItem grow={false}>
-            <EuiButton onClick={() => setOpen('simple')}>Simple sections</EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton onClick={() => setOpen('subsections')}>Sections with subsections</EuiButton>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-
-        {open === 'simple' && (
-          <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
-            <FlyoutTemplate.Header
-              title="Service details"
-              {...buildTitleIconProps(args)}
-              description={args.description ? HEADER_DESCRIPTION : undefined}
-              badges={badgeItems(args.numBadges)}
-            >
-              {metadataItems(args.numMetadata)}
-              {infoBlockParts(args.numInfoBlocks)}
-              {tabs.map(({ id, label }) => (
-                <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
-              ))}
-            </FlyoutTemplate.Header>
-            <FlyoutTemplate.Body>
-              {hasTabs
-                ? tabs.map(({ id }) => (
-                    <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
-                      {simpleSections}
-                    </FlyoutTemplate.Body.TabPanel>
-                  ))
-                : simpleSections}
-            </FlyoutTemplate.Body>
-            {footerZone(args)}
-          </FlyoutTemplate>
-        )}
-
-        {open === 'subsections' && (
-          <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
-            <FlyoutTemplate.Header
-              title="Alert details"
-              {...buildTitleIconProps(args)}
-              description={args.description ? HEADER_DESCRIPTION : undefined}
-              badges={badgeItems(args.numBadges)}
-            >
-              {metadataItems(args.numMetadata)}
-              {infoBlockParts(args.numInfoBlocks)}
-              {tabs.map(({ id, label }) => (
-                <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
-              ))}
-            </FlyoutTemplate.Header>
-            <FlyoutTemplate.Body>
-              {hasTabs
-                ? tabs.map(({ id }) => (
-                    <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
-                      {subsectionSections}
-                    </FlyoutTemplate.Body.TabPanel>
-                  ))
-                : subsectionSections}
-            </FlyoutTemplate.Body>
-            {footerZone(args)}
-          </FlyoutTemplate>
-        )}
-      </>
+      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+        {headerZone(args, 'Service details')}
+        {bodyZone(args, () => bodyItems)}
+        {footerZone(args)}
+      </FlyoutTemplate>
     );
   },
 };
 
 export const Accordions: Story = {
-  // Accordion content is always outlined, so the border toggle does not apply here.
-  args: { numSections: 3 },
   argTypes: {
+    // Accordion content is always outlined, so the border toggle does not apply here.
     sectionHasBorder: { table: { disable: true } },
     numSections: { name: 'Body accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
     numPlainSections: { table: { disable: true } },
   },
-  render: function Render(args) {
-    const [open, setOpen] = useState<'simple' | 'subsections' | null>(null);
-    const onClose = () => setOpen(null);
-    const accordions = ACCORDIONS.slice(0, args.numSections);
+  render: (args) => {
     const subsections = SUBSECTIONS.slice(0, args.numSubsections);
-    const tabs = TABS.slice(0, args.numTabs);
-    const hasTabs = tabs.length > 0;
 
-    const simpleAccordions = accordions.map(({ id, title, content }, index) => (
+    const bodyItems = ACCORDIONS.slice(0, args.numSections).map(({ id, title, content }, index) => (
       <FlyoutTemplate.Body.Accordion
         key={id}
         id={id}
@@ -458,97 +408,22 @@ export const Accordions: Story = {
         initialIsOpen={index === 0}
         {...buildTitleAdornments(args)}
       >
-        <EuiText size="s">
-          <p>{content}</p>
-        </EuiText>
-      </FlyoutTemplate.Body.Accordion>
-    ));
-
-    const subsectionAccordions = accordions.map(({ id, title }, index) => (
-      <FlyoutTemplate.Body.Accordion
-        key={id}
-        id={id}
-        title={title}
-        initialIsOpen={index === 0}
-        {...buildTitleAdornments(args)}
-      >
-        {subsections.map(({ id: subId, title: subTitle, content }) => (
-          <FlyoutTemplate.Body.Accordion.Subsection key={subId} id={subId} title={subTitle}>
-            <EuiText size="s">
-              <p>{content}</p>
-            </EuiText>
-          </FlyoutTemplate.Body.Accordion.Subsection>
-        ))}
+        {subsections.length
+          ? subsections.map(({ id: subId, title: subTitle, content: subContent }) => (
+              <FlyoutTemplate.Body.Accordion.Subsection key={subId} id={subId} title={subTitle}>
+                {bodyText(subContent)}
+              </FlyoutTemplate.Body.Accordion.Subsection>
+            ))
+          : bodyText(content)}
       </FlyoutTemplate.Body.Accordion>
     ));
 
     return (
-      <>
-        <EuiFlexGroup gutterSize="s" wrap>
-          <EuiFlexItem grow={false}>
-            <EuiButton onClick={() => setOpen('simple')}>Simple accordions</EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton onClick={() => setOpen('subsections')}>
-              Accordions with subsections
-            </EuiButton>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-
-        {open === 'simple' && (
-          <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
-            <FlyoutTemplate.Header
-              title="Alert details"
-              {...buildTitleIconProps(args)}
-              description={args.description ? HEADER_DESCRIPTION : undefined}
-              badges={badgeItems(args.numBadges)}
-            >
-              {metadataItems(args.numMetadata)}
-              {infoBlockParts(args.numInfoBlocks)}
-              {tabs.map(({ id, label }) => (
-                <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
-              ))}
-            </FlyoutTemplate.Header>
-            <FlyoutTemplate.Body>
-              {hasTabs
-                ? tabs.map(({ id }) => (
-                    <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
-                      {simpleAccordions}
-                    </FlyoutTemplate.Body.TabPanel>
-                  ))
-                : simpleAccordions}
-            </FlyoutTemplate.Body>
-            {footerZone(args)}
-          </FlyoutTemplate>
-        )}
-
-        {open === 'subsections' && (
-          <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
-            <FlyoutTemplate.Header
-              title="Alert details"
-              {...buildTitleIconProps(args)}
-              description={args.description ? HEADER_DESCRIPTION : undefined}
-              badges={badgeItems(args.numBadges)}
-            >
-              {metadataItems(args.numMetadata)}
-              {infoBlockParts(args.numInfoBlocks)}
-              {tabs.map(({ id, label }) => (
-                <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
-              ))}
-            </FlyoutTemplate.Header>
-            <FlyoutTemplate.Body>
-              {hasTabs
-                ? tabs.map(({ id }) => (
-                    <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
-                      {subsectionAccordions}
-                    </FlyoutTemplate.Body.TabPanel>
-                  ))
-                : subsectionAccordions}
-            </FlyoutTemplate.Body>
-            {footerZone(args)}
-          </FlyoutTemplate>
-        )}
-      </>
+      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+        {headerZone(args, 'Alert details')}
+        {bodyZone(args, () => bodyItems)}
+        {footerZone(args)}
+      </FlyoutTemplate>
     );
   },
 };
@@ -562,12 +437,11 @@ export const PlainSections: Story = {
     numSections: { name: 'Body sections', control: { type: 'range', min: 0, max: 4, step: 1 } },
   },
   render: (args) => {
-    const tabs = TABS.slice(0, args.numTabs);
-    const hasTabs = tabs.length > 0;
     const plainSections = PLAIN_SECTIONS.slice(0, args.numPlainSections);
     const sections = SECTIONS.slice(0, args.numSections);
 
-    const bodyContent = (tabId?: string) => (
+    // `PlainSection` ids must stay unique per tab panel, so prefix them when tabbed.
+    const bodyItems = (tabId?: string) => (
       <>
         {plainSections.map(({ id, label, height }) => (
           <FlyoutTemplate.Body.PlainSection key={id} id={tabId ? `${tabId}-${id}` : id}>
@@ -582,9 +456,7 @@ export const PlainSections: Story = {
         ))}
         {sections.map(({ id, title, content }) => (
           <FlyoutTemplate.Body.Section key={id} title={title} hasBorder={args.sectionHasBorder}>
-            <EuiText size="s">
-              <p>{content}</p>
-            </EuiText>
+            {bodyText(content)}
           </FlyoutTemplate.Body.Section>
         ))}
       </>
@@ -592,27 +464,8 @@ export const PlainSections: Story = {
 
     return (
       <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
-        <FlyoutTemplate.Header
-          title="Document"
-          {...buildTitleIconProps(args)}
-          description={args.description ? HEADER_DESCRIPTION : undefined}
-          badges={badgeItems(args.numBadges)}
-        >
-          {metadataItems(args.numMetadata)}
-          {infoBlockParts(args.numInfoBlocks)}
-          {tabs.map(({ id, label }) => (
-            <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
-          ))}
-        </FlyoutTemplate.Header>
-        <FlyoutTemplate.Body>
-          {hasTabs
-            ? tabs.map((tab) => (
-                <FlyoutTemplate.Body.TabPanel key={tab.id} tabId={tab.id}>
-                  {bodyContent(tab.id)}
-                </FlyoutTemplate.Body.TabPanel>
-              ))
-            : bodyContent()}
-        </FlyoutTemplate.Body>
+        {headerZone(args, 'Document')}
+        {bodyZone(args, bodyItems)}
         {footerZone(args)}
       </FlyoutTemplate>
     );
