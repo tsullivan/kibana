@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiTitle } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiSpacer, EuiTitle } from '@elastic/eui';
 import type { FlyoutBodySectionProps } from '../../types';
 import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../title_adornments';
 import { SectionContent } from '../section_content';
@@ -47,7 +47,9 @@ export const Section = sectionPart.createComponent<FlyoutBodySectionProps>({
           {header}
           <SectionContent hasBorder={hasBorder}>{children}</SectionContent>
         </section>
-        {showBottomDivider && <EuiHorizontalRule margin="m" />}
+        {/* Outlined content already reads as separated, so only space it. */}
+        {showBottomDivider &&
+          (hasBorder ? <EuiSpacer size="m" /> : <EuiHorizontalRule margin="m" />)}
       </>
     );
   },
