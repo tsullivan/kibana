@@ -1013,14 +1013,13 @@ describe('FlyoutTemplate subsections', () => {
     expect(screen.getByRole('heading', { level: 5, name: 'Host' })).toBeInTheDocument();
   });
 
-  it('exposes Subsection on Body directly as Body.Subsection', () => {
-    // Body.Subsection is the same component as Body.Section.Subsection.
-    expect(FlyoutTemplate.Body.Subsection).toBe(FlyoutTemplate.Body.Section.Subsection);
-    expect(FlyoutTemplate.Body.Subsection).toBe(FlyoutTemplate.Body.Accordion.Subsection);
+  it('exposes Subsection only through Section and Accordion', () => {
+    expect('Subsection' in FlyoutTemplate.Body).toBe(false);
+    expect(FlyoutTemplate.Body.Section.Subsection).toBe(FlyoutTemplate.Body.Accordion.Subsection);
   });
 });
 
-describe('FlyoutTemplate header meta', () => {
+describe('FlyoutTemplate header metadata', () => {
   const body = (
     <FlyoutTemplate.Body>
       <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
@@ -1031,8 +1030,10 @@ describe('FlyoutTemplate header meta', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Meta title="Last updated">Dec 3, 2025</FlyoutTemplate.Header.Meta>
-          <FlyoutTemplate.Header.Meta title="Owner">Platform</FlyoutTemplate.Header.Meta>
+          <FlyoutTemplate.Header.Metadata title="Last updated">
+            Dec 3, 2025
+          </FlyoutTemplate.Header.Metadata>
+          <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
@@ -1048,9 +1049,9 @@ describe('FlyoutTemplate header meta', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Meta title="Last updated by">
+          <FlyoutTemplate.Header.Metadata title="Last updated by">
             <EuiLink href="/profile">name@elastic.co</EuiLink>
-          </FlyoutTemplate.Header.Meta>
+          </FlyoutTemplate.Header.Metadata>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
@@ -1068,10 +1069,10 @@ describe('FlyoutTemplate header meta', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Meta title="One">1</FlyoutTemplate.Header.Meta>
-          <FlyoutTemplate.Header.Meta title="Two">2</FlyoutTemplate.Header.Meta>
-          <FlyoutTemplate.Header.Meta title="Three">3</FlyoutTemplate.Header.Meta>
-          <FlyoutTemplate.Header.Meta title="Four">4</FlyoutTemplate.Header.Meta>
+          <FlyoutTemplate.Header.Metadata title="One">1</FlyoutTemplate.Header.Metadata>
+          <FlyoutTemplate.Header.Metadata title="Two">2</FlyoutTemplate.Header.Metadata>
+          <FlyoutTemplate.Header.Metadata title="Three">3</FlyoutTemplate.Header.Metadata>
+          <FlyoutTemplate.Header.Metadata title="Four">4</FlyoutTemplate.Header.Metadata>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
@@ -1079,12 +1080,14 @@ describe('FlyoutTemplate header meta', () => {
 
     expect(screen.getByText('Three')).toBeInTheDocument();
     expect(screen.queryByText('Four')).toBeNull();
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('Header.Meta is limited to 3 pairs'));
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('Header.Metadata is limited to 3 pairs')
+    );
 
     warn.mockRestore();
   });
 
-  it('renders no meta row when the header has no Meta parts', () => {
+  it('renders no metadata row when the header has no Metadata parts', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
         <FlyoutTemplate.Header title="Alert details" />
@@ -1095,11 +1098,11 @@ describe('FlyoutTemplate header meta', () => {
     expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert details');
   });
 
-  it('keeps Meta parts out of the info blocks layout', () => {
+  it('keeps Metadata parts out of the info blocks layout', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Meta title="Owner">Platform</FlyoutTemplate.Header.Meta>
+          <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>

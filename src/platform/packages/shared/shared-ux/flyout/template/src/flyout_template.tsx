@@ -18,7 +18,7 @@ import { Body, BodyZone, BODY_PART_NAME } from './body/body';
 import { Header, HeaderZone, HEADER_PART_NAME } from './header/header';
 import { Footer, FooterZone, FOOTER_PART_NAME } from './footer/footer';
 import { tabPart } from './header/tab';
-import type { TabDescriptor } from './types';
+import type { HeaderTabDescriptor } from './header/tab/types';
 import type {
   FlyoutBodyProps,
   FlyoutFooterProps,
@@ -40,7 +40,10 @@ const pickZone = (items: ParsedItem[], partName: string): ParsedPart | undefined
   return matches[0];
 };
 
-const resolveDefaultSelectedTabId = (tabs: TabDescriptor[], defaultId: string | undefined) => {
+const resolveDefaultSelectedTabId = (
+  tabs: HeaderTabDescriptor[],
+  defaultId: string | undefined
+) => {
   if (defaultId !== undefined && tabs.some((tab) => tab.id === defaultId)) {
     return defaultId;
   }
@@ -95,12 +98,12 @@ const FlyoutTemplateRoot = ({
   };
   const hasMenuProps = Object.keys(mergedMenuProps).length > 0;
 
-  const tabs = useMemo<TabDescriptor[]>(() => {
+  const tabs = useMemo<HeaderTabDescriptor[]>(() => {
     if (!headerAttrs?.children) return [];
     const tabParts = tabPart.parseChildren(headerAttrs.children);
 
     const seen = new Set<string>();
-    const descriptors: TabDescriptor[] = [];
+    const descriptors: HeaderTabDescriptor[] = [];
     for (const [index, part] of tabParts.entries()) {
       const descriptor = tabPart.resolve(part, undefined);
       if (!descriptor) continue;

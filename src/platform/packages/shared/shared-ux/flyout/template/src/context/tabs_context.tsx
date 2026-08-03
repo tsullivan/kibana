@@ -9,10 +9,10 @@
 
 import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import type { TabDescriptor } from '../types';
+import type { HeaderTabDescriptor } from '../header/tab/types';
 
 export interface FlyoutTabsState {
-  tabs: TabDescriptor[];
+  tabs: HeaderTabDescriptor[];
   selectedTabId: string | undefined;
   selectTab: (id: string) => void;
 }

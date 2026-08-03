@@ -7,17 +7,16 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { headerAssembly } from '../../assembly';
-import type { HeaderTabPartDescriptor } from './types';
+import type { FlyoutHeaderMetadataProps } from '../../types';
+import { metadataPart } from './part';
 
-/** Part name used for identifying `Header.Tab` children. */
-export const TAB_PART_NAME = 'tab';
-
-/** Part factory for `FlyoutTemplate.Header.Tab`. Resolves to a `HeaderTabPartDescriptor`. */
-export const tabPart = headerAssembly.definePart<
-  Record<string, never>,
-  HeaderTabPartDescriptor,
-  void
->({
-  name: TAB_PART_NAME,
+/** Declarative `FlyoutTemplate.Header.Metadata`. */
+export const Metadata = metadataPart.createComponent<FlyoutHeaderMetadataProps>({
+  resolve: ({ title, children, 'data-test-subj': dataTestSubj }) => ({
+    title,
+    value: children,
+    'data-test-subj': dataTestSubj,
+  }),
 });
+
+Metadata.displayName = 'FlyoutTemplate.Header.Metadata';

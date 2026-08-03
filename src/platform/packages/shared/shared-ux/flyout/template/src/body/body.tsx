@@ -108,7 +108,6 @@ export const Body = Object.assign(BaseBody, {
   Accordion: Object.assign(Accordion, { Subsection }),
   PlainSection,
   TabPanel,
-  Subsection,
 });
 
 /** Internal renderer for the body zone, with optional tab-panel mode. */

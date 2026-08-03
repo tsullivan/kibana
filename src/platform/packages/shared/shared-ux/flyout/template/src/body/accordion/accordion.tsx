@@ -15,18 +15,18 @@ import {
   EuiTitle,
   useGeneratedHtmlId,
 } from '@elastic/eui';
-import type { FlyoutAccordionProps } from '../../types';
-import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../adornments';
+import type { FlyoutBodyAccordionProps } from '../../types';
+import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../title_adornments';
 import { SectionContent } from '../section_content';
 import { accordionPart } from './part';
 
-type AccordionSectionProps = FlyoutAccordionProps & {
+type AccordionRendererProps = FlyoutBodyAccordionProps & {
   /** Render a divider below this accordion; hidden while it is open. */
   showBottomDivider: boolean;
 };
 
 /** Internal renderer for hook-backed accordion state. */
-const AccordionSection = ({
+const AccordionRenderer = ({
   id,
   title,
   icon,
@@ -36,7 +36,7 @@ const AccordionSection = ({
   showBottomDivider,
   children,
   'data-test-subj': dataTestSubj,
-}: AccordionSectionProps) => {
+}: AccordionRendererProps) => {
   const accordionId = useGeneratedHtmlId({ conditionalId: id, prefix: 'flyoutAccordion' });
 
   // Delay initial open so EuiAccordion measures nonzero height inside the animated flyout.
@@ -80,9 +80,9 @@ const AccordionSection = ({
 };
 
 /** Declarative `FlyoutTemplate.Body.Accordion`. */
-export const Accordion = accordionPart.createComponent<FlyoutAccordionProps>({
+export const Accordion = accordionPart.createComponent<FlyoutBodyAccordionProps>({
   resolve: (attributes, { showBottomDivider }) => (
-    <AccordionSection {...attributes} showBottomDivider={showBottomDivider} />
+    <AccordionRenderer {...attributes} showBottomDivider={showBottomDivider} />
   ),
 });
 

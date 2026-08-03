@@ -9,11 +9,11 @@
 
 import React from 'react';
 import { EuiHorizontalRule, EuiPanel, EuiSpacer, EuiTitle } from '@elastic/eui';
-import type { FlyoutSubsectionProps } from '../../types';
+import type { FlyoutBodySubsectionProps } from '../../types';
 import { subsectionPart } from './part';
 
-/** Declarative `FlyoutTemplate.Body.Subsection`. */
-export const Subsection = subsectionPart.createComponent<FlyoutSubsectionProps>({
+/** Declarative body subsection, exposed through Section and Accordion. */
+export const Subsection = subsectionPart.createComponent<FlyoutBodySubsectionProps>({
   resolve: (
     { title, children, 'data-test-subj': dataTestSubj },
     { hasBorder, showBottomDivider }
@@ -46,4 +46,4 @@ export const Subsection = subsectionPart.createComponent<FlyoutSubsectionProps>(
   },
 });
 
-Subsection.displayName = 'FlyoutTemplate.Body.Subsection';
+Subsection.displayName = 'FlyoutTemplate.Body.Section.Subsection';

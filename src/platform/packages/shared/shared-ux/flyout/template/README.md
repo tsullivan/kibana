@@ -48,6 +48,8 @@ Headerless flyouts can pass `aria-label` or `aria-labelledby` directly.
 ## Zones and parts (current slice)
 
 - `FlyoutTemplate.Header` — required `title` (rendered as an H3). Accepts:
+  - `FlyoutTemplate.Header.Metadata` — up to three title/value pairs rendered
+    between the description and badges.
   - `FlyoutTemplate.Header.InfoBlock` — `title` plus a `children` value,
     resolved into `@kbn/shared-ux-info-blocks`.
 - `FlyoutTemplate.Body` — the only required zone. Accepts:
@@ -59,8 +61,8 @@ Headerless flyouts can pass `aria-label` or `aria-labelledby` directly.
     row as `Section` (`title`, `icon`/`tooltip`, `action`) plus `initialIsOpen`.
     Content is always wrapped in an outlined box. A body uses either `Section` or
     `Accordion` parts, not both.
-  - `FlyoutTemplate.Body.Section.Subsection` (also `Body.Accordion.Subsection`
-    and `Body.Subsection`) — a subsection inside a `Section` or `Accordion`.
+  - `FlyoutTemplate.Body.Section.Subsection` (also
+    `Body.Accordion.Subsection`) — a subsection inside a `Section` or `Accordion`.
     `title` renders as H5. Rendering adapts to context: inside an `Accordion`
     each subsection gets its own outlined box; inside a `Section` subsections
     are separated by horizontal-rule dividers. Subsections are the maximum
@@ -89,5 +91,4 @@ in production; they never throw.
 
 ## Not yet implemented
 
-Header `Metadata` / `Badge`, `Footer.Left`, and a dedicated `Menu` assembly are
-planned follow-ups.
+Header `Badge`, `Footer.Left`, and a dedicated `Menu` assembly are planned follow-ups.

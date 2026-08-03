@@ -7,16 +7,6 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { FlyoutHeaderMetaProps } from '../../types';
-import { metaPart } from './part';
-
-/** Declarative `FlyoutTemplate.Header.Meta`. */
-export const Meta = metaPart.createComponent<FlyoutHeaderMetaProps>({
-  resolve: ({ title, children, 'data-test-subj': dataTestSubj }) => ({
-    title,
-    value: children,
-    'data-test-subj': dataTestSubj,
-  }),
-});
-
-Meta.displayName = 'FlyoutTemplate.Header.Meta';
+export { Metadata } from './metadata';
+export { metadataPart, METADATA_PART_NAME } from './part';
+export type { HeaderMetadataDescriptor } from './types';

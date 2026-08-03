@@ -9,11 +9,11 @@
 
 import React from 'react';
 import { EuiSpacer } from '@elastic/eui';
-import type { FlyoutPlainSectionProps } from '../../types';
+import type { FlyoutBodyPlainSectionProps } from '../../types';
 import { plainSectionPart } from './part';
 
 /** Declarative `FlyoutTemplate.Body.PlainSection`; content only, no title or chrome. */
-export const PlainSection = plainSectionPart.createComponent<FlyoutPlainSectionProps>({
+export const PlainSection = plainSectionPart.createComponent<FlyoutBodyPlainSectionProps>({
   resolve: ({ children, 'data-test-subj': dataTestSubj }, { showBottomSpacer }) => (
     <>
       <div data-test-subj={dataTestSubj}>{children}</div>

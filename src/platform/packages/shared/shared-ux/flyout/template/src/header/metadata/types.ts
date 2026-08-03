@@ -7,5 +7,11 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { Meta } from './meta';
-export { metaPart, META_PART_NAME } from './part';
+import type { ReactNode } from 'react';
+
+/** Descriptor produced by resolving a `Header.Metadata` part. */
+export interface HeaderMetadataDescriptor {
+  title: ReactNode;
+  value: ReactNode;
+  'data-test-subj'?: string;
+}

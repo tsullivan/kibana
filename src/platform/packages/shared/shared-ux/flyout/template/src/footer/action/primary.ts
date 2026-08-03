@@ -9,11 +9,11 @@
 
 import React from 'react';
 import { EuiButton } from '@elastic/eui';
-import type { FlyoutFooterActionProps } from '../../types';
+import type { FlyoutFooterPrimaryActionProps } from '../../types';
 import { primaryActionPart } from './part';
 
 /** Declarative `FlyoutTemplate.Footer.PrimaryAction`. */
-export const PrimaryAction = primaryActionPart.createComponent<FlyoutFooterActionProps>({
+export const PrimaryAction = primaryActionPart.createComponent<FlyoutFooterPrimaryActionProps>({
   resolve: ({
     label,
     onClick,

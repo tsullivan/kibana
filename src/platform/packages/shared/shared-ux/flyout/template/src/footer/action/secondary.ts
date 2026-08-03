@@ -9,32 +9,33 @@
 
 import React from 'react';
 import { EuiButtonEmpty } from '@elastic/eui';
-import type { FlyoutFooterActionProps } from '../../types';
+import type { FlyoutFooterSecondaryActionProps } from '../../types';
 import { secondaryActionPart } from './part';
 
 /** Declarative `FlyoutTemplate.Footer.SecondaryAction`. */
-export const SecondaryAction = secondaryActionPart.createComponent<FlyoutFooterActionProps>({
-  resolve: ({
-    label,
-    onClick,
-    iconType,
-    color,
-    isLoading,
-    isDisabled,
-    'data-test-subj': dataTestSubj,
-  }) =>
-    React.createElement(
-      EuiButtonEmpty,
-      {
-        color,
-        iconType,
-        isLoading,
-        isDisabled,
-        onClick,
-        'data-test-subj': dataTestSubj,
-      },
-      label
-    ),
-});
+export const SecondaryAction =
+  secondaryActionPart.createComponent<FlyoutFooterSecondaryActionProps>({
+    resolve: ({
+      label,
+      onClick,
+      iconType,
+      color,
+      isLoading,
+      isDisabled,
+      'data-test-subj': dataTestSubj,
+    }) =>
+      React.createElement(
+        EuiButtonEmpty,
+        {
+          color,
+          iconType,
+          isLoading,
+          isDisabled,
+          onClick,
+          'data-test-subj': dataTestSubj,
+        },
+        label
+      ),
+  });
 
 SecondaryAction.displayName = 'FlyoutTemplate.Footer.SecondaryAction';

@@ -31,10 +31,10 @@ import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
 import { InfoBlocks } from '@kbn/shared-ux-info-blocks';
 import { flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
-import type { FlyoutHeaderProps, MetaPartDescriptor } from '../types';
-import { renderTitleIcon, renderTitleWithIcon } from '../adornments';
+import type { FlyoutHeaderProps } from '../types';
+import { renderTitleIcon, renderTitleWithIcon } from '../title_adornments';
 import { InfoBlock, infoBlockPart } from './info_block';
-import { Meta, metaPart } from './meta';
+import { Metadata, metadataPart, type HeaderMetadataDescriptor } from './metadata';
 import { Tab } from './tab';
 
 /** Part name used for identifying the `Header` zone. */
@@ -46,7 +46,7 @@ const headerPart = flyoutAssembly.definePart({ name: HEADER_PART_NAME });
 const BaseHeader = headerPart.createComponent<FlyoutHeaderProps>();
 BaseHeader.displayName = 'FlyoutTemplate.Header';
 
-export const Header = Object.assign(BaseHeader, { InfoBlock, Meta, Tab });
+export const Header = Object.assign(BaseHeader, { InfoBlock, Metadata, Tab });
 
 /** Maps `paddingSize` to the header's horizontal padding; `undefined` follows EuiFlyout's `'l'` default. */
 const resolveHorizontalPadding = (
@@ -88,9 +88,9 @@ const FullBleedDivider = ({ horizontalPadding }: { horizontalPadding: string }) 
 };
 
 /** PRD caps the metadata line at three key-value pairs. */
-const MAX_META_ITEMS = 3;
+const MAX_METADATA_ITEMS = 3;
 
-const metaStyles = ({ euiTheme }: UseEuiTheme) => ({
+const metadataStyles = ({ euiTheme }: UseEuiTheme) => ({
   // The row stays on one line, so each pair ellipsizes rather than wrapping.
   item: css`
     overflow: hidden;
@@ -109,8 +109,8 @@ const metaStyles = ({ euiTheme }: UseEuiTheme) => ({
 });
 
 /** Single line of key-value pairs rendered between the title and the badges. */
-const MetaRow = ({ items }: { items: MetaPartDescriptor[] }) => {
-  const styles = useEuiMemoizedStyles(metaStyles);
+const MetadataRow = ({ items }: { items: HeaderMetadataDescriptor[] }) => {
+  const styles = useEuiMemoizedStyles(metadataStyles);
 
   return (
     <EuiFlexGroup gutterSize="m" responsive={false} wrap={false} alignItems="center">
@@ -203,26 +203,26 @@ export const HeaderZone = ({
       .filter((item): item is InfoBlockItem => item !== undefined);
   }, [children]);
 
-  const metaItems = useMemo(() => {
-    const resolved = metaPart
+  const metadataItems = useMemo(() => {
+    const resolved = metadataPart
       .parseChildren(children)
-      .map((item) => metaPart.resolve(item, undefined))
-      .filter((item): item is MetaPartDescriptor => item !== undefined);
+      .map((item) => metadataPart.resolve(item, undefined))
+      .filter((item): item is HeaderMetadataDescriptor => item !== undefined);
 
-    if (process.env.NODE_ENV !== 'production' && resolved.length > MAX_META_ITEMS) {
+    if (process.env.NODE_ENV !== 'production' && resolved.length > MAX_METADATA_ITEMS) {
       // eslint-disable-next-line no-console
       console.warn(
-        `[FlyoutTemplate] Header.Meta is limited to ${MAX_META_ITEMS} pairs; extra pairs are not rendered.`
+        `[FlyoutTemplate] Header.Metadata is limited to ${MAX_METADATA_ITEMS} pairs; extra pairs are not rendered.`
       );
     }
-    return resolved.slice(0, MAX_META_ITEMS);
+    return resolved.slice(0, MAX_METADATA_ITEMS);
   }, [children]);
 
   // Conditional badges (`cond && <EuiBadge />`) arrive as `false`; drop them before counting.
   const badgeList = useMemo(() => React.Children.toArray(badges).filter(Boolean), [badges]);
 
   const hasDescription = Boolean(description);
-  const hasMeta = metaItems.length > 0;
+  const hasMetadata = metadataItems.length > 0;
   const hasBadges = badgeList.length > 0;
   const hasInfoBlocks = infoBlockItems.length > 0;
   const hasTabs = tabs.length > 0;
@@ -252,10 +252,10 @@ export const HeaderZone = ({
           </EuiText>
         </>
       )}
-      {hasMeta && (
+      {hasMetadata && (
         <>
           <EuiSpacer size="xs" />
-          <MetaRow items={metaItems} />
+          <MetadataRow items={metadataItems} />
         </>
       )}
       {hasBadges && (

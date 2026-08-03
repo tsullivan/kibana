@@ -9,13 +9,13 @@
 
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiTitle } from '@elastic/eui';
-import type { FlyoutSectionProps } from '../../types';
-import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../adornments';
+import type { FlyoutBodySectionProps } from '../../types';
+import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../title_adornments';
 import { SectionContent } from '../section_content';
 import { sectionPart } from './part';
 
 /** Declarative `FlyoutTemplate.Body.Section`. */
-export const Section = sectionPart.createComponent<FlyoutSectionProps>({
+export const Section = sectionPart.createComponent<FlyoutBodySectionProps>({
   resolve: (
     { title, children, icon, tooltip, action, hasBorder, 'data-test-subj': dataTestSubj },
     { showBottomDivider }
