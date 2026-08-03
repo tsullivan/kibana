@@ -55,6 +55,10 @@ export interface FlyoutHeaderProps {
   'data-test-subj'?: string;
   /** `Header.InfoBlock` and `Header.Tab` parts. */
   children?: ReactNode;
+  /** Subdued text below the title (e.g. a timestamp or short context string). */
+  description?: ReactNode;
+  /** Badges below the description; each item should be an `EuiBadge`. Capped at 5 visible; extras collapse into a "+N more" badge. */
+  badges?: ReactNode[];
   /** Initial selected tab id (uncontrolled); ignored when `selectedTabId` is provided. */
   defaultSelectedTabId?: string;
   /** Currently selected tab id (controlled); `onTabChange` fires on every click. */

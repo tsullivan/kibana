@@ -10,10 +10,13 @@
 import React, { useMemo } from 'react';
 import { css } from '@emotion/react';
 import {
+  EuiBadge,
+  EuiBadgeGroup,
   EuiFlyoutHeader,
   EuiSpacer,
   EuiTab,
   EuiTabs,
+  EuiText,
   EuiTitle,
   useEuiMemoizedStyles,
   useEuiTheme,
@@ -77,6 +80,10 @@ const FullBleedDivider = ({ horizontalPadding }: { horizontalPadding: string }) 
   );
 };
 
+/** Max badges shown before overflow collapses extras into a "+N more" badge. */
+const MAX_VISIBLE_BADGES = 5;
+const MAX_BADGES_BEFORE_OVERFLOW = 4;
+
 type HeaderZoneProps = FlyoutHeaderProps & {
   flyoutTitleId?: string;
 };
@@ -84,6 +91,8 @@ type HeaderZoneProps = FlyoutHeaderProps & {
 /** Internal renderer for the header zone; dividers are template-owned for full bleed. */
 export const HeaderZone = ({
   title,
+  description,
+  badges,
   children,
   flyoutTitleId,
   'data-test-subj': dataTestSubj,
@@ -99,9 +108,20 @@ export const HeaderZone = ({
       .filter((item): item is InfoBlockItem => item !== undefined);
   }, [children]);
 
+  const hasDescription = description != null;
+  const hasBadges = badges != null && badges.length > 0;
   const hasInfoBlocks = infoBlockItems.length > 0;
   const hasTabs = tabs.length > 0;
   const horizontalPadding = resolveHorizontalPadding(euiTheme, paddingSize);
+
+  const visibleBadges =
+    hasBadges && badges!.length > MAX_VISIBLE_BADGES
+      ? badges!.slice(0, MAX_BADGES_BEFORE_OVERFLOW)
+      : (badges ?? []);
+  const overflowCount =
+    hasBadges && badges!.length > MAX_VISIBLE_BADGES
+      ? badges!.length - MAX_BADGES_BEFORE_OVERFLOW
+      : 0;
 
   return (
     <EuiFlyoutHeader
@@ -111,6 +131,25 @@ export const HeaderZone = ({
       <EuiTitle size="m">
         <h3 id={flyoutTitleId}>{title}</h3>
       </EuiTitle>
+      {hasDescription && (
+        <>
+          <EuiSpacer size="xs" />
+          <EuiText size="s" color="subdued">
+            <p>{description}</p>
+          </EuiText>
+        </>
+      )}
+      {hasBadges && (
+        <>
+          <EuiSpacer size="s" />
+          <EuiBadgeGroup gutterSize="s">
+            {visibleBadges.map((badge, i) => (
+              <React.Fragment key={i}>{badge}</React.Fragment>
+            ))}
+            {overflowCount > 0 && <EuiBadge color="hollow">+{overflowCount} more</EuiBadge>}
+          </EuiBadgeGroup>
+        </>
+      )}
       {hasInfoBlocks && (
         <>
           <EuiSpacer size="m" />

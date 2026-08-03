@@ -10,7 +10,15 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiHealth, EuiPanel, EuiText } from '@elastic/eui';
+import {
+  EuiBadge,
+  EuiButton,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiHealth,
+  EuiPanel,
+  EuiText,
+} from '@elastic/eui';
 import { FlyoutTemplate } from './flyout_template';
 import type { FlyoutTemplateProps } from './types';
 
@@ -36,6 +44,8 @@ interface Args {
   numSubsections: number;
   numTabs: number;
   numPlainSections: number;
+  description: boolean;
+  numBadges: number;
 }
 
 const meta: Meta<Args> = {
@@ -55,6 +65,8 @@ const meta: Meta<Args> = {
     type: 'overlay',
     ownFocus: false,
     numPlainSections: 2,
+    description: false,
+    numBadges: 0,
   },
   argTypes: {
     menuBarActions: { name: 'Menu bar actions', control: { type: 'boolean' } },
@@ -75,7 +87,6 @@ const meta: Meta<Args> = {
     footerActions: {
       name: 'Footer actions',
       control: { type: 'boolean' },
-      // Only meaningful when the footer zone is present.
       if: { arg: 'footer', eq: true },
     },
     resizable: { name: 'Resizable', control: { type: 'boolean' } },
@@ -83,12 +94,16 @@ const meta: Meta<Args> = {
     ownFocus: {
       name: 'Own focus',
       control: { type: 'boolean' },
-      // `ownFocus` only applies to overlay flyouts, so hide it for push.
       if: { arg: 'type', eq: 'overlay' },
     },
     numPlainSections: {
       name: 'Plain sections',
       control: { type: 'range', min: 1, max: 3, step: 1 },
+    },
+    description: { name: 'Header description', control: { type: 'boolean' } },
+    numBadges: {
+      name: 'Header badges',
+      control: { type: 'range', min: 0, max: 8, step: 1 },
     },
   },
 };
@@ -122,6 +137,21 @@ const buildSectionProps = (args: Args) => ({
   hasBorder: args.sectionHasBorder,
   ...buildTitleAdornments(args),
 });
+
+const HEADER_DESCRIPTION = 'Mar 30, 2022 @ 10:01:21.313';
+
+const BADGE_POOL = [
+  <EuiBadge key="type" iconType="warning" color="default">Type</EuiBadge>,
+  <EuiBadge key="urgency" color="warning">Urgency</EuiBadge>,
+  <EuiBadge key="meta1" color="hollow">Meta data 1</EuiBadge>,
+  <EuiBadge key="meta2" color="hollow">Meta data 2</EuiBadge>,
+  <EuiBadge key="meta3" color="hollow">Meta data very long label</EuiBadge>,
+  <EuiBadge key="meta4" color="hollow">Meta data 4</EuiBadge>,
+  <EuiBadge key="meta5" color="hollow">Meta data 5</EuiBadge>,
+  <EuiBadge key="meta6" color="hollow">Meta data 6</EuiBadge>,
+];
+
+const badgeParts = (count: number) => BADGE_POOL.slice(0, count);
 
 const INFO_BLOCK_POOL = [
   <FlyoutTemplate.Header.InfoBlock key="owner" title="Owner">
@@ -267,7 +297,11 @@ export const RegularSections: Story = {
 
         {open === 'simple' && (
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
-            <FlyoutTemplate.Header title="Service details">
+            <FlyoutTemplate.Header
+              title="Service details"
+              description={args.description ? HEADER_DESCRIPTION : undefined}
+              badges={badgeParts(args.numBadges)}
+            >
               {infoBlockParts(args.infoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -288,7 +322,11 @@ export const RegularSections: Story = {
 
         {open === 'subsections' && (
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
-            <FlyoutTemplate.Header title="Alert details">
+            <FlyoutTemplate.Header
+              title="Alert details"
+              description={args.description ? HEADER_DESCRIPTION : undefined}
+              badges={badgeParts(args.numBadges)}
+            >
               {infoBlockParts(args.infoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -374,7 +412,11 @@ export const Accordions: Story = {
 
         {open === 'simple' && (
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
-            <FlyoutTemplate.Header title="Alert details">
+            <FlyoutTemplate.Header
+              title="Alert details"
+              description={args.description ? HEADER_DESCRIPTION : undefined}
+              badges={badgeParts(args.numBadges)}
+            >
               {infoBlockParts(args.infoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -395,7 +437,11 @@ export const Accordions: Story = {
 
         {open === 'subsections' && (
           <FlyoutTemplate onClose={onClose} size="m" {...buildFlyoutProps(args)}>
-            <FlyoutTemplate.Header title="Alert details">
+            <FlyoutTemplate.Header
+              title="Alert details"
+              description={args.description ? HEADER_DESCRIPTION : undefined}
+              badges={badgeParts(args.numBadges)}
+            >
               {infoBlockParts(args.infoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -457,7 +503,11 @@ export const PlainSections: Story = {
 
     return (
       <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
-        <FlyoutTemplate.Header title="Document">
+        <FlyoutTemplate.Header
+          title="Document"
+          description={args.description ? HEADER_DESCRIPTION : undefined}
+          badges={badgeParts(args.numBadges)}
+        >
           {infoBlockParts(args.infoBlocks)}
           {tabs.map(({ id, label }) => (
             <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
