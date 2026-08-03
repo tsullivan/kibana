@@ -117,7 +117,7 @@ export const HeaderZone = ({
   const visibleBadges =
     hasBadges && badges!.length > MAX_VISIBLE_BADGES
       ? badges!.slice(0, MAX_BADGES_BEFORE_OVERFLOW)
-      : (badges ?? []);
+      : badges ?? [];
   const overflowCount =
     hasBadges && badges!.length > MAX_VISIBLE_BADGES
       ? badges!.length - MAX_BADGES_BEFORE_OVERFLOW

@@ -69,41 +69,80 @@ const meta: Meta<Args> = {
     numBadges: 0,
   },
   argTypes: {
-    menuBarActions: { name: 'Menu bar actions', control: { type: 'boolean' } },
+    menuBarActions: {
+      name: 'Actions',
+      control: { type: 'boolean' },
+      table: { category: 'Menu bar' },
+    },
+    description: {
+      name: 'Description',
+      control: { type: 'boolean' },
+      table: { category: 'Header' },
+    },
     infoBlocks: {
-      name: 'Header info blocks',
+      name: 'Info blocks',
       control: { type: 'range', min: 0, max: 10, step: 1 },
+      table: { category: 'Header' },
     },
-    numTabs: { name: 'Header tabs', control: { type: 'range', min: 0, max: 10, step: 1 } },
-    numSections: { name: 'Body sections', control: { type: 'range', min: 1, max: 4, step: 1 } },
-    sectionIcon: { name: 'Body section icon', control: { type: 'boolean' } },
-    sectionAction: { name: 'Body section action', control: { type: 'boolean' } },
-    sectionHasBorder: { name: 'Body section has border', control: { type: 'boolean' } },
-    numSubsections: {
-      name: 'Body subsections',
+    numBadges: {
+      name: 'Badges',
+      control: { type: 'range', min: 0, max: 8, step: 1 },
+      table: { category: 'Header' },
+    },
+    numTabs: {
+      name: 'Tabs',
+      control: { type: 'range', min: 0, max: 10, step: 1 },
+      table: { category: 'Header' },
+    },
+    numSections: {
+      name: 'Sections',
       control: { type: 'range', min: 1, max: 4, step: 1 },
+      table: { category: 'Body' },
     },
-    footer: { name: 'Footer', control: { type: 'boolean' } },
-    footerActions: {
-      name: 'Footer actions',
+    sectionIcon: {
+      name: 'Section icon',
       control: { type: 'boolean' },
-      if: { arg: 'footer', eq: true },
+      table: { category: 'Body' },
     },
-    resizable: { name: 'Resizable', control: { type: 'boolean' } },
-    type: { name: 'Flyout type', control: { type: 'inline-radio' }, options: ['overlay', 'push'] },
-    ownFocus: {
-      name: 'Own focus',
+    sectionAction: {
+      name: 'Section action',
       control: { type: 'boolean' },
-      if: { arg: 'type', eq: 'overlay' },
+      table: { category: 'Body' },
+    },
+    sectionHasBorder: {
+      name: 'Section has border',
+      control: { type: 'boolean' },
+      table: { category: 'Body' },
+    },
+    numSubsections: {
+      name: 'Subsections',
+      control: { type: 'range', min: 1, max: 4, step: 1 },
+      table: { category: 'Body' },
     },
     numPlainSections: {
       name: 'Plain sections',
       control: { type: 'range', min: 1, max: 3, step: 1 },
+      table: { category: 'Body' },
     },
-    description: { name: 'Header description', control: { type: 'boolean' } },
-    numBadges: {
-      name: 'Header badges',
-      control: { type: 'range', min: 0, max: 8, step: 1 },
+    footer: { name: 'Footer', control: { type: 'boolean' }, table: { category: 'Footer' } },
+    footerActions: {
+      name: 'Footer actions',
+      control: { type: 'boolean' },
+      if: { arg: 'footer', eq: true },
+      table: { category: 'Footer' },
+    },
+    resizable: { name: 'Resizable', control: { type: 'boolean' }, table: { category: 'Flyout' } },
+    type: {
+      name: 'Type',
+      control: { type: 'inline-radio' },
+      options: ['overlay', 'push'],
+      table: { category: 'Flyout' },
+    },
+    ownFocus: {
+      name: 'Own focus',
+      control: { type: 'boolean' },
+      if: { arg: 'type', eq: 'overlay' },
+      table: { category: 'Flyout' },
     },
   },
 };
@@ -141,14 +180,30 @@ const buildSectionProps = (args: Args) => ({
 const HEADER_DESCRIPTION = 'Mar 30, 2022 @ 10:01:21.313';
 
 const BADGE_POOL = [
-  <EuiBadge key="type" iconType="warning" color="default">Type</EuiBadge>,
-  <EuiBadge key="urgency" color="warning">Urgency</EuiBadge>,
-  <EuiBadge key="meta1" color="hollow">Meta data 1</EuiBadge>,
-  <EuiBadge key="meta2" color="hollow">Meta data 2</EuiBadge>,
-  <EuiBadge key="meta3" color="hollow">Meta data very long label</EuiBadge>,
-  <EuiBadge key="meta4" color="hollow">Meta data 4</EuiBadge>,
-  <EuiBadge key="meta5" color="hollow">Meta data 5</EuiBadge>,
-  <EuiBadge key="meta6" color="hollow">Meta data 6</EuiBadge>,
+  <EuiBadge key="type" iconType="warning" color="default">
+    Type
+  </EuiBadge>,
+  <EuiBadge key="urgency" color="warning">
+    Urgency
+  </EuiBadge>,
+  <EuiBadge key="meta1" color="hollow">
+    Meta data 1
+  </EuiBadge>,
+  <EuiBadge key="meta2" color="hollow">
+    Meta data 2
+  </EuiBadge>,
+  <EuiBadge key="meta3" color="hollow">
+    Meta data very long label
+  </EuiBadge>,
+  <EuiBadge key="meta4" color="hollow">
+    Meta data 4
+  </EuiBadge>,
+  <EuiBadge key="meta5" color="hollow">
+    Meta data 5
+  </EuiBadge>,
+  <EuiBadge key="meta6" color="hollow">
+    Meta data 6
+  </EuiBadge>,
 ];
 
 const badgeParts = (count: number) => BADGE_POOL.slice(0, count);
