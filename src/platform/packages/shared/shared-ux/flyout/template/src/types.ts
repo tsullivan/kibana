@@ -53,7 +53,7 @@ export interface FlyoutHeaderProps {
   /** Title rendered by the header. Rendered as an H3 (heading level is owned by the template). */
   title: ReactNode;
   'data-test-subj'?: string;
-  /** `Header.InfoBlock` and `Header.Tab` parts. */
+  /** `Header.Meta`, `Header.InfoBlock`, and `Header.Tab` parts. */
   children?: ReactNode;
   /** Icon beside the title; defaults to `info` when `titleTooltip` is set. */
   titleIcon?: EuiIconProps['type'];
@@ -69,6 +69,24 @@ export interface FlyoutHeaderProps {
   selectedTabId?: string;
   /** Called when the user clicks a tab. */
   onTabChange?: (id: string) => void;
+}
+
+/** Descriptor produced by resolving a `Header.Meta` part. */
+export interface MetaPartDescriptor {
+  title: ReactNode;
+  value: ReactNode;
+  'data-test-subj'?: string;
+}
+
+/** Props for the declarative `FlyoutTemplate.Header.Meta` part. */
+export interface FlyoutHeaderMetaProps {
+  /** Optional explicit instance id; auto-generated when omitted. */
+  id?: string;
+  /** The pair's key, rendered bold ahead of the value. */
+  title: ReactNode;
+  /** The pair's value; accepts rich content such as links. */
+  children: ReactNode;
+  'data-test-subj'?: string;
 }
 
 /** Props for the declarative `FlyoutTemplate.Header.InfoBlock` part. */

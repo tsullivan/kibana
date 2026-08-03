@@ -10,7 +10,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { EuiBadge } from '@elastic/eui';
+import { EuiBadge, EuiLink } from '@elastic/eui';
 import { KbnInfoCallout } from '@kbn/ui-callout';
 import { FlyoutTemplate } from './flyout_template';
 
@@ -1017,6 +1017,95 @@ describe('FlyoutTemplate subsections', () => {
     // Body.Subsection is the same component as Body.Section.Subsection.
     expect(FlyoutTemplate.Body.Subsection).toBe(FlyoutTemplate.Body.Section.Subsection);
     expect(FlyoutTemplate.Body.Subsection).toBe(FlyoutTemplate.Body.Accordion.Subsection);
+  });
+});
+
+describe('FlyoutTemplate header meta', () => {
+  const body = (
+    <FlyoutTemplate.Body>
+      <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+    </FlyoutTemplate.Body>
+  );
+
+  it('renders key-value pairs on a single line below the title', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.Meta title="Last updated">Dec 3, 2025</FlyoutTemplate.Header.Meta>
+          <FlyoutTemplate.Header.Meta title="Owner">Platform</FlyoutTemplate.Header.Meta>
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('Last updated')).toBeInTheDocument();
+    expect(screen.getByText('Dec 3, 2025')).toBeInTheDocument();
+    expect(screen.getByText('Owner')).toBeInTheDocument();
+    expect(screen.getByText('Platform')).toBeInTheDocument();
+  });
+
+  it('accepts rich value content such as links', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.Meta title="Last updated by">
+            <EuiLink href="/profile">name@elastic.co</EuiLink>
+          </FlyoutTemplate.Header.Meta>
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByRole('link', { name: 'name@elastic.co' })).toHaveAttribute(
+      'href',
+      '/profile'
+    );
+  });
+
+  it('renders at most three pairs and warns about the rest', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.Meta title="One">1</FlyoutTemplate.Header.Meta>
+          <FlyoutTemplate.Header.Meta title="Two">2</FlyoutTemplate.Header.Meta>
+          <FlyoutTemplate.Header.Meta title="Three">3</FlyoutTemplate.Header.Meta>
+          <FlyoutTemplate.Header.Meta title="Four">4</FlyoutTemplate.Header.Meta>
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('Three')).toBeInTheDocument();
+    expect(screen.queryByText('Four')).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('Header.Meta is limited to 3 pairs'));
+
+    warn.mockRestore();
+  });
+
+  it('renders no meta row when the header has no Meta parts', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details" />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert details');
+  });
+
+  it('keeps Meta parts out of the info blocks layout', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.Meta title="Owner">Platform</FlyoutTemplate.Header.Meta>
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.queryByTestId('infoBlock')).not.toBeInTheDocument();
   });
 });
 

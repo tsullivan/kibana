@@ -16,6 +16,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHealth,
+  EuiLink,
   EuiPanel,
   EuiText,
 } from '@elastic/eui';
@@ -45,6 +46,7 @@ interface Args {
   numTabs: number;
   titleIcon: boolean;
   description: boolean;
+  numMeta: number;
   numBadges: number;
 }
 
@@ -62,6 +64,7 @@ const meta: Meta<Args> = {
     numSubsections: 2,
     titleIcon: false,
     description: true,
+    numMeta: 3,
     numBadges: 8,
     footer: true,
     resizable: true,
@@ -82,6 +85,12 @@ const meta: Meta<Args> = {
     description: {
       name: 'Description',
       control: { type: 'boolean' },
+      table: { category: 'Header' },
+    },
+    numMeta: {
+      // One above the cap, to exercise the dev warning.
+      name: 'Meta pairs',
+      control: { type: 'range', min: 0, max: 4, step: 1 },
       table: { category: 'Header' },
     },
     numInfoBlocks: {
@@ -183,6 +192,23 @@ const buildTitleIconProps = (args: Args) =>
   args.titleIcon
     ? { titleIcon: 'info' as const, titleTooltip: 'Additional context about this flyout.' }
     : {};
+
+const META_POOL = [
+  <FlyoutTemplate.Header.Meta key="updated" title="Last updated">
+    Dec 3, 2025
+  </FlyoutTemplate.Header.Meta>,
+  <FlyoutTemplate.Header.Meta key="updatedBy" title="Last updated by">
+    <EuiLink href="#">name@elastic.co</EuiLink>
+  </FlyoutTemplate.Header.Meta>,
+  <FlyoutTemplate.Header.Meta key="owner" title="Owner">
+    Platform
+  </FlyoutTemplate.Header.Meta>,
+  <FlyoutTemplate.Header.Meta key="creator" title="Created by">
+    automation
+  </FlyoutTemplate.Header.Meta>,
+];
+
+const metaItems = (count: number) => META_POOL.slice(0, count);
 
 const BADGE_POOL = [
   <EuiBadge key="type" iconType="warning" color="default">
@@ -358,6 +384,7 @@ export const RegularSections: Story = {
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
+              {metaItems(args.numMeta)}
               {infoBlockParts(args.numInfoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -384,6 +411,7 @@ export const RegularSections: Story = {
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
+              {metaItems(args.numMeta)}
               {infoBlockParts(args.numInfoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -475,6 +503,7 @@ export const Accordions: Story = {
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
+              {metaItems(args.numMeta)}
               {infoBlockParts(args.numInfoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -501,6 +530,7 @@ export const Accordions: Story = {
               description={args.description ? HEADER_DESCRIPTION : undefined}
               badges={badgeItems(args.numBadges)}
             >
+              {metaItems(args.numMeta)}
               {infoBlockParts(args.numInfoBlocks)}
               {tabs.map(({ id, label }) => (
                 <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -568,6 +598,7 @@ export const PlainSections: Story = {
           description={args.description ? HEADER_DESCRIPTION : undefined}
           badges={badgeItems(args.numBadges)}
         >
+          {metaItems(args.numMeta)}
           {infoBlockParts(args.numInfoBlocks)}
           {tabs.map(({ id, label }) => (
             <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
