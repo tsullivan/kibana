@@ -1063,7 +1063,7 @@ describe('FlyoutTemplate header metadata', () => {
     );
   });
 
-  it('renders at most three pairs and warns about the rest', () => {
+  it('renders every pair but warns past the designed maximum', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     renderTemplate(
@@ -1078,11 +1078,10 @@ describe('FlyoutTemplate header metadata', () => {
       </FlyoutTemplate>
     );
 
+    // The cap is a design guideline, not a limit: extra pairs still render.
     expect(screen.getByText('Three')).toBeInTheDocument();
-    expect(screen.queryByText('Four')).toBeNull();
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('Header.Metadata is limited to 3 pairs')
-    );
+    expect(screen.getByText('Four')).toBeInTheDocument();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('designed for up to 3 pairs'));
 
     warn.mockRestore();
   });

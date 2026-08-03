@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { FlyoutHeaderMetadataProps } from '../../types';
+import type { FlyoutHeaderMetadataProps } from '@kbn/shared-ux-flyout-common';
 import { metadataPart } from './part';
 
 /** Declarative `FlyoutTemplate.Header.Metadata`. */

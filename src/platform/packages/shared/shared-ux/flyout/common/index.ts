@@ -7,11 +7,14 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { FlyoutTemplate } from './src/flyout_template';
+export {
+  FLYOUT_MIN_CELL_WIDTH,
+  FLYOUT_MAX_GRID_COLUMNS,
+  MAX_METADATA_ITEMS,
+} from './src/constants';
 
-// The prop types live in `@kbn/shared-ux-flyout-common`, shared with the standalone
-// `MetadataPairs` and `InfoBlocks` packages. Re-exported here so consumers of the template
-// need only one import.
+export type { InfoBlockItem, InfoBlocksProps } from './src/info_block_types';
+export type { MetadataItem, MetadataPairsProps } from './src/metadata_types';
 export type {
   FlyoutTemplateProps,
   FlyoutHeaderProps,
@@ -26,6 +29,7 @@ export type {
   FlyoutBodySubsectionProps,
   FlyoutBodyAccordionProps,
   FlyoutFooterProps,
+  FlyoutFooterActionBaseProps,
   FlyoutFooterPrimaryActionProps,
   FlyoutFooterSecondaryActionProps,
-} from '@kbn/shared-ux-flyout-common';
+} from './src/template_types';

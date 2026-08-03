@@ -9,4 +9,3 @@
 
 export { Metadata } from './metadata';
 export { metadataPart, METADATA_PART_NAME } from './part';
-export type { HeaderMetadataDescriptor } from './types';

@@ -7,8 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-module.exports = {
-  preset: '@kbn/test',
-  rootDir: '../../../../../..',
-  roots: ['<rootDir>/src/platform/packages/shared/shared-ux/info-blocks'],
-};
+export { MetadataPairs } from './src/metadata_pairs';
+
+// Re-exported so consumers can adopt this component with a single import.
+export type { MetadataItem, MetadataPairsProps } from '@kbn/shared-ux-flyout-common';

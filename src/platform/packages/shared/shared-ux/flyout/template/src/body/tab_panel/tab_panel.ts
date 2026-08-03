@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { FlyoutBodyTabPanelProps } from '../../types';
+import type { FlyoutBodyTabPanelProps } from '@kbn/shared-ux-flyout-common';
 import { tabPanelPart } from './part';
 
 /** Declarative `FlyoutTemplate.Body.TabPanel`. */

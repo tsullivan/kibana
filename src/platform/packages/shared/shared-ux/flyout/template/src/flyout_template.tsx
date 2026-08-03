@@ -11,6 +11,12 @@ import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { EuiFlyout, useGeneratedHtmlId } from '@elastic/eui';
 import type { ParsedPart } from '@kbn/content-list-assembly';
 import type { ParsedItem } from '@kbn/content-list-assembly';
+import type {
+  FlyoutBodyProps,
+  FlyoutFooterProps,
+  FlyoutHeaderProps,
+  FlyoutTemplateProps,
+} from '@kbn/shared-ux-flyout-common';
 import { flyoutAssembly } from './assembly';
 import { FlyoutTabsProvider, FlyoutTemplateConfigProvider } from './context';
 import type { FlyoutTabsState } from './context';
@@ -19,12 +25,6 @@ import { Header, HeaderZone, HEADER_PART_NAME } from './header/header';
 import { Footer, FooterZone, FOOTER_PART_NAME } from './footer/footer';
 import { tabPart } from './header/tab';
 import type { HeaderTabDescriptor } from './header/tab/types';
-import type {
-  FlyoutBodyProps,
-  FlyoutFooterProps,
-  FlyoutHeaderProps,
-  FlyoutTemplateProps,
-} from './types';
 
 /** Selects a singleton zone; duplicate zones warn in dev and the first wins. */
 const pickZone = (items: ParsedItem[], partName: string): ParsedPart | undefined => {

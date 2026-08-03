@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { EuiSpacer } from '@elastic/eui';
-import type { FlyoutBodyPlainSectionProps } from '../../types';
+import type { FlyoutBodyPlainSectionProps } from '@kbn/shared-ux-flyout-common';
 import { plainSectionPart } from './part';
 
 /** Declarative `FlyoutTemplate.Body.PlainSection`; content only, no title or chrome. */

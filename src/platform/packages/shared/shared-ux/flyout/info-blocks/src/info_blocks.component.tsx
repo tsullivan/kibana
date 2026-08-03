@@ -10,22 +10,18 @@
 import React, { useState, type CSSProperties, type FunctionComponent } from 'react';
 import { css } from '@emotion/react';
 import { EuiPanel, useEuiTheme, useResizeObserver } from '@elastic/eui';
+import {
+  FLYOUT_MIN_CELL_WIDTH,
+  FLYOUT_MAX_GRID_COLUMNS,
+  type InfoBlocksProps,
+} from '@kbn/shared-ux-flyout-common';
 import { InfoBlock } from './info_block.component';
-import type { InfoBlocksProps } from './types';
-
-/** Maximum number of columns */
-const MAX_COLUMNS = 3;
-
-/**
- * Minimum cell width before the grid drops a column. Exported because the flyout template's
- * header metadata reflows against the same thresholds, so the two collapse in step.
- */
-export const INFO_BLOCKS_MIN_CELL_WIDTH = 140;
 
 /** Pick 1-3 columns from measured width and visible item count. */
 export const getInfoBlocksColumnCount = (width: number, itemCount: number): number => {
-  const fitColumns = width > 0 ? Math.floor(width / INFO_BLOCKS_MIN_CELL_WIDTH) : MAX_COLUMNS;
-  return Math.max(1, Math.min(MAX_COLUMNS, fitColumns, itemCount || 1));
+  const fitColumns =
+    width > 0 ? Math.floor(width / FLYOUT_MIN_CELL_WIDTH) : FLYOUT_MAX_GRID_COLUMNS;
+  return Math.max(1, Math.min(FLYOUT_MAX_GRID_COLUMNS, fitColumns, itemCount || 1));
 };
 
 /** Computed grid placement + divider hints for a single cell. */

@@ -12,8 +12,8 @@ import type { ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { EuiBadge, EuiHealth, EuiLink, EuiPanel, EuiText } from '@elastic/eui';
+import type { FlyoutTemplateProps } from '@kbn/shared-ux-flyout-common';
 import { FlyoutTemplate } from './flyout_template';
-import type { FlyoutTemplateProps } from './types';
 
 const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
   customActions: [

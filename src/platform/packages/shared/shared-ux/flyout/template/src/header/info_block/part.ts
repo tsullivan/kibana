@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
+import type { InfoBlockItem } from '@kbn/shared-ux-flyout-info-blocks';
 import { headerAssembly } from '../../assembly';
 
 /** Part name used for identifying `Header.InfoBlock` children. */

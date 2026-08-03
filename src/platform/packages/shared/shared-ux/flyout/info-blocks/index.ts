@@ -7,11 +7,8 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { ReactNode } from 'react';
+export { InfoBlocks } from './src/info_blocks.component';
+export { InfoBlock } from './src/info_block.component';
 
-/** Descriptor produced by resolving a `Header.Metadata` part. */
-export interface HeaderMetadataDescriptor {
-  title: ReactNode;
-  value: ReactNode;
-  'data-test-subj'?: string;
-}
+// Re-exported so consumers can adopt these components with a single import.
+export type { InfoBlockItem, InfoBlocksProps } from '@kbn/shared-ux-flyout-common';

@@ -7,8 +7,8 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { headerAssembly } from '../../assembly';
 import type { HeaderTabPartDescriptor } from './types';
+import { headerAssembly } from '../../assembly';
 
 /** Part name used for identifying `Header.Tab` children. */
 export const TAB_PART_NAME = 'tab';

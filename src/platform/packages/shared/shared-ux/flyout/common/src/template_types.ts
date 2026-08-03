@@ -9,7 +9,7 @@
 
 import type { MouseEventHandler, ReactNode } from 'react';
 import type { EuiButtonProps, EuiFlyoutProps, EuiIconProps } from '@elastic/eui';
-import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
+import type { InfoBlockItem } from './info_block_types';
 
 /** Props for the declarative `FlyoutTemplate.Header.Tab` part. */
 export interface FlyoutHeaderTabProps {

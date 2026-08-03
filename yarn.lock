@@ -9417,11 +9417,19 @@
   version "0.0.0"
   uid ""
 
-"@kbn/shared-ux-flyout-template@link:src/platform/packages/shared/shared-ux/flyout/template":
+"@kbn/shared-ux-flyout-common@link:src/platform/packages/shared/shared-ux/flyout/common":
   version "0.0.0"
   uid ""
 
-"@kbn/shared-ux-info-blocks@link:src/platform/packages/shared/shared-ux/info-blocks":
+"@kbn/shared-ux-flyout-info-blocks@link:src/platform/packages/shared/shared-ux/flyout/info-blocks":
+  version "0.0.0"
+  uid ""
+
+"@kbn/shared-ux-flyout-metadata@link:src/platform/packages/shared/shared-ux/flyout/metadata":
+  version "0.0.0"
+  uid ""
+
+"@kbn/shared-ux-flyout-template@link:src/platform/packages/shared/shared-ux/flyout/template":
   version "0.0.0"
   uid ""
 

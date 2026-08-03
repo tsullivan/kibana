@@ -7,17 +7,13 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import type { MetadataItem } from '@kbn/shared-ux-flyout-common';
 import { headerAssembly } from '../../assembly';
-import type { HeaderMetadataDescriptor } from './types';
 
 /** Part name used for identifying `Header.Metadata` children. */
 export const METADATA_PART_NAME = 'metadata';
 
-/** Part factory for `FlyoutTemplate.Header.Metadata`. Resolves to a `HeaderMetadataDescriptor`. */
-export const metadataPart = headerAssembly.definePart<
-  Record<string, never>,
-  HeaderMetadataDescriptor,
-  void
->({
+/** Part factory for `FlyoutTemplate.Header.Metadata`. Resolves to a `MetadataItem`. */
+export const metadataPart = headerAssembly.definePart<Record<string, never>, MetadataItem, void>({
   name: METADATA_PART_NAME,
 });

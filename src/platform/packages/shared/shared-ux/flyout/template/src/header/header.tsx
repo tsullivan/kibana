@@ -25,14 +25,14 @@ import {
 } from '@elastic/eui';
 import type { EuiFlyoutProps, UseEuiTheme } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
-import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
-import { InfoBlocks, INFO_BLOCKS_MIN_CELL_WIDTH } from '@kbn/shared-ux-info-blocks';
+import type { FlyoutHeaderProps, InfoBlockItem, MetadataItem } from '@kbn/shared-ux-flyout-common';
+import { InfoBlocks } from '@kbn/shared-ux-flyout-info-blocks';
+import { MetadataPairs } from '@kbn/shared-ux-flyout-metadata';
 import { flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
-import type { FlyoutHeaderProps } from '../types';
 import { renderTitleIcon, renderTitleWithIcon } from '../title_adornments';
 import { InfoBlock, infoBlockPart } from './info_block';
-import { Metadata, metadataPart, type HeaderMetadataDescriptor } from './metadata';
+import { Metadata, metadataPart } from './metadata';
 import { Tab } from './tab';
 
 /** Part name used for identifying the `Header` zone. */
@@ -82,87 +82,6 @@ const FullBleedDivider = ({ horizontalPadding }: { horizontalPadding: string }) 
         marginInlineEnd: `-${horizontalPadding}`,
       }}
     />
-  );
-};
-
-/** PRD caps the metadata line at three key-value pairs. */
-const MAX_METADATA_ITEMS = 3;
-
-/**
- * The metadata row keys its layout off a container query rather than a media query: the
- * flyout is resizable and `push` flyouts inset the page, so its width is independent of
- * the viewport's.
- */
-const METADATA_CONTAINER_NAME = 'flyoutTemplateMetadata';
-
-const metadataStyles = ({ euiTheme }: UseEuiTheme) => {
-  // Shared with InfoBlocks so both header parts drop a column at the same container width,
-  // rather than reflowing at staggered widths.
-  const twoColumnBelow = MAX_METADATA_ITEMS * INFO_BLOCKS_MIN_CELL_WIDTH;
-  const oneColumnBelow = 2 * INFO_BLOCKS_MIN_CELL_WIDTH;
-
-  return {
-    container: css`
-      container-type: inline-size;
-      container-name: ${METADATA_CONTAINER_NAME};
-    `,
-    row: css`
-      display: grid;
-      /* Column flow so only the pairs actually present get a track — an explicit
-         three-track template would leave empty tracks contributing phantom gaps. */
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(0, auto);
-      justify-content: start;
-      align-items: center;
-      gap: ${euiTheme.size.xs} ${euiTheme.size.m};
-
-      /* Cramped: 2 across, with a trailing odd pair spanning both columns. */
-      @container ${METADATA_CONTAINER_NAME} (width < ${twoColumnBelow}px) {
-        grid-auto-flow: row;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-
-        & > :last-child:nth-child(odd) {
-          grid-column: 1 / -1;
-        }
-      }
-
-      /* Very narrow: one pair per row. The span above collapses to the single column. */
-      @container ${METADATA_CONTAINER_NAME} (width < ${oneColumnBelow}px) {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    `,
-    // Each pair ellipsizes rather than wrapping, at every layout.
-    item: css`
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    `,
-    key: css`
-      font-weight: ${euiTheme.font.weight.bold};
-    `,
-    // Keep link values from inheriting the key's weight.
-    value: css`
-      a {
-        font-weight: ${euiTheme.font.weight.regular};
-      }
-    `,
-  };
-};
-
-/** Key-value pairs rendered between the title and the badges. */
-const MetadataRow = ({ items }: { items: HeaderMetadataDescriptor[] }) => {
-  const styles = useEuiMemoizedStyles(metadataStyles);
-
-  return (
-    <div css={styles.container}>
-      <div css={styles.row}>
-        {items.map((item, index) => (
-          <EuiText key={index} size="s" css={styles.item} data-test-subj={item['data-test-subj']}>
-            <span css={styles.key}>{item.title}</span> <span css={styles.value}>{item.value}</span>
-          </EuiText>
-        ))}
-      </div>
-    </div>
   );
 };
 
@@ -244,19 +163,12 @@ export const HeaderZone = ({
       .filter((item): item is InfoBlockItem => item !== undefined);
   }, [children]);
 
+  // `MetadataPairs` owns the count guideline and its dev warning.
   const metadataItems = useMemo(() => {
-    const resolved = metadataPart
+    return metadataPart
       .parseChildren(children)
       .map((item) => metadataPart.resolve(item, undefined))
-      .filter((item): item is HeaderMetadataDescriptor => item !== undefined);
-
-    if (process.env.NODE_ENV !== 'production' && resolved.length > MAX_METADATA_ITEMS) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[FlyoutTemplate] Header.Metadata is limited to ${MAX_METADATA_ITEMS} pairs; extra pairs are not rendered.`
-      );
-    }
-    return resolved.slice(0, MAX_METADATA_ITEMS);
+      .filter((item): item is MetadataItem => item !== undefined);
   }, [children]);
 
   // Conditional badges (`cond && <EuiBadge />`) arrive as `false`; drop them before counting.
@@ -296,7 +208,7 @@ export const HeaderZone = ({
       {hasMetadata && (
         <>
           <EuiSpacer size="xs" />
-          <MetadataRow items={metadataItems} />
+          <MetadataPairs items={metadataItems} />
         </>
       )}
       {hasBadges && (
