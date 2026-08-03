@@ -27,6 +27,7 @@ interface Args {
   sectionIcon: boolean;
   sectionAction: boolean;
   menuBarActions: boolean;
+  footer: boolean;
   footerActions: boolean;
   resizable: boolean;
   type: NonNullable<FlyoutTemplateProps['type']>;
@@ -40,27 +41,43 @@ interface Args {
 const meta: Meta<Args> = {
   title: 'Flyout/Flyout Template',
   args: {
+    menuBarActions: true,
     infoBlocks: 6,
+    numTabs: 3,
+    numSections: 2,
     sectionIcon: true,
     sectionAction: true,
     sectionHasBorder: false,
-    menuBarActions: true,
+    numSubsections: 2,
+    footer: true,
     footerActions: true,
     resizable: true,
     type: 'overlay',
     ownFocus: false,
-    numSections: 2,
-    numSubsections: 3,
-    numTabs: 3,
     numPlainSections: 2,
   },
   argTypes: {
-    infoBlocks: { name: 'Header info blocks', control: { type: 'range', min: 0, max: 10, step: 1 } },
-    sectionHasBorder: { name: 'Section has border', control: { type: 'boolean' } },
-    sectionIcon: { name: 'Section icon', control: { type: 'boolean' } },
-    sectionAction: { name: 'Section action', control: { type: 'boolean' } },
     menuBarActions: { name: 'Menu bar actions', control: { type: 'boolean' } },
-    footerActions: { name: 'Footer actions', control: { type: 'boolean' } },
+    infoBlocks: {
+      name: 'Header info blocks',
+      control: { type: 'range', min: 0, max: 10, step: 1 },
+    },
+    numTabs: { name: 'Header tabs', control: { type: 'range', min: 0, max: 10, step: 1 } },
+    numSections: { name: 'Body sections', control: { type: 'range', min: 1, max: 4, step: 1 } },
+    sectionIcon: { name: 'Body section icon', control: { type: 'boolean' } },
+    sectionAction: { name: 'Body section action', control: { type: 'boolean' } },
+    sectionHasBorder: { name: 'Body section has border', control: { type: 'boolean' } },
+    numSubsections: {
+      name: 'Body subsections',
+      control: { type: 'range', min: 1, max: 4, step: 1 },
+    },
+    footer: { name: 'Footer', control: { type: 'boolean' } },
+    footerActions: {
+      name: 'Footer actions',
+      control: { type: 'boolean' },
+      // Only meaningful when the footer zone is present.
+      if: { arg: 'footer', eq: true },
+    },
     resizable: { name: 'Resizable', control: { type: 'boolean' } },
     type: { name: 'Flyout type', control: { type: 'inline-radio' }, options: ['overlay', 'push'] },
     ownFocus: {
@@ -69,9 +86,6 @@ const meta: Meta<Args> = {
       // `ownFocus` only applies to overlay flyouts, so hide it for push.
       if: { arg: 'type', eq: 'overlay' },
     },
-    numSections: { name: 'Sections', control: { type: 'range', min: 1, max: 4, step: 1 } },
-    numSubsections: { name: 'Subsections', control: { type: 'range', min: 1, max: 4, step: 1 } },
-    numTabs: { name: 'Header tabs', control: { type: 'range', min: 0, max: 10, step: 1 } },
     numPlainSections: {
       name: 'Plain sections',
       control: { type: 'range', min: 1, max: 3, step: 1 },
@@ -110,19 +124,56 @@ const buildSectionProps = (args: Args) => ({
 });
 
 const INFO_BLOCK_POOL = [
-  <FlyoutTemplate.Header.InfoBlock key="owner" title="Owner">Platform</FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="latency" title="Latency"><EuiHealth color="success">Healthy</EuiHealth></FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="throughput" title="Throughput">1.2k tpm</FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="risk" title="Risk score" size="xl" color="danger">90</FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="env" title="Environment">Production</FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="version" title="Version">2.4.1</FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="region" title="Region">us-east-1</FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="uptime" title="Uptime">99.9%</FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="last-seen" title="Last seen">2m ago</FlyoutTemplate.Header.InfoBlock>,
-  <FlyoutTemplate.Header.InfoBlock key="errors" title="Errors" color="warning">12</FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="owner" title="Owner">
+    Platform
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="latency" title="Latency">
+    <EuiHealth color="success">Healthy</EuiHealth>
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="throughput" title="Throughput">
+    1.2k tpm
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="risk" title="Risk score" size="xl" color="danger">
+    90
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="env" title="Environment">
+    Production
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="version" title="Version">
+    2.4.1
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="region" title="Region">
+    us-east-1
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="uptime" title="Uptime">
+    99.9%
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="last-seen" title="Last seen">
+    2m ago
+  </FlyoutTemplate.Header.InfoBlock>,
+  <FlyoutTemplate.Header.InfoBlock key="errors" title="Errors" color="warning">
+    12
+  </FlyoutTemplate.Header.InfoBlock>,
 ];
 
 const infoBlockParts = (count: number) => INFO_BLOCK_POOL.slice(0, count);
+
+/**
+ * The footer zone, which is optional. Called inline (not rendered as a component)
+ * so the root still sees `FlyoutTemplate.Footer` as its own child. With the zone
+ * present but no actions, the template renders no footer at all.
+ */
+const footerZone = (args: Args) =>
+  args.footer ? (
+    <FlyoutTemplate.Footer>
+      {args.footerActions && (
+        <>
+          <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+          <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
+        </>
+      )}
+    </FlyoutTemplate.Footer>
+  ) : null;
 
 const TABS: Array<{ id: string; label: string; content: string }> = [
   { id: 'overview', label: 'Overview', content: 'Overview panel content.' },
@@ -231,15 +282,7 @@ export const RegularSections: Story = {
                   ))
                 : simpleSections}
             </FlyoutTemplate.Body>
-            {args.footerActions && (
-              <FlyoutTemplate.Footer>
-                <FlyoutTemplate.Footer.SecondaryAction
-                  label="Discard"
-                  onClick={action('discard')}
-                />
-                <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-              </FlyoutTemplate.Footer>
-            )}
+            {footerZone(args)}
           </FlyoutTemplate>
         )}
 
@@ -260,15 +303,7 @@ export const RegularSections: Story = {
                   ))
                 : subsectionSections}
             </FlyoutTemplate.Body>
-            {args.footerActions && (
-              <FlyoutTemplate.Footer>
-                <FlyoutTemplate.Footer.SecondaryAction
-                  label="Discard"
-                  onClick={action('discard')}
-                />
-                <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-              </FlyoutTemplate.Footer>
-            )}
+            {footerZone(args)}
           </FlyoutTemplate>
         )}
       </>
@@ -281,7 +316,7 @@ export const Accordions: Story = {
   args: { numSections: 3 },
   argTypes: {
     sectionHasBorder: { table: { disable: true } },
-    numSections: { name: 'Accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
+    numSections: { name: 'Body accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
     numPlainSections: { table: { disable: true } },
   },
   render: function Render(args) {
@@ -354,15 +389,7 @@ export const Accordions: Story = {
                   ))
                 : simpleAccordions}
             </FlyoutTemplate.Body>
-            {args.footerActions && (
-              <FlyoutTemplate.Footer>
-                <FlyoutTemplate.Footer.SecondaryAction
-                  label="Discard"
-                  onClick={action('discard')}
-                />
-                <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-              </FlyoutTemplate.Footer>
-            )}
+            {footerZone(args)}
           </FlyoutTemplate>
         )}
 
@@ -383,15 +410,7 @@ export const Accordions: Story = {
                   ))
                 : subsectionAccordions}
             </FlyoutTemplate.Body>
-            {args.footerActions && (
-              <FlyoutTemplate.Footer>
-                <FlyoutTemplate.Footer.SecondaryAction
-                  label="Discard"
-                  onClick={action('discard')}
-                />
-                <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-              </FlyoutTemplate.Footer>
-            )}
+            {footerZone(args)}
           </FlyoutTemplate>
         )}
       </>
@@ -405,7 +424,7 @@ export const PlainSections: Story = {
     sectionAction: { table: { disable: true } },
     numSubsections: { table: { disable: true } },
     // Plain sections can stand alone, so allow a body with no titled sections.
-    numSections: { name: 'Sections', control: { type: 'range', min: 0, max: 4, step: 1 } },
+    numSections: { name: 'Body sections', control: { type: 'range', min: 0, max: 4, step: 1 } },
   },
   render: (args) => {
     const tabs = TABS.slice(0, args.numTabs);
@@ -453,12 +472,7 @@ export const PlainSections: Story = {
               ))
             : bodyContent()}
         </FlyoutTemplate.Body>
-        {args.footerActions && (
-          <FlyoutTemplate.Footer>
-            <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
-            <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
-          </FlyoutTemplate.Footer>
-        )}
+        {footerZone(args)}
       </FlyoutTemplate>
     );
   },
