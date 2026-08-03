@@ -7,6 +7,6 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { InfoBlocks } from './src/info_blocks.component';
+export { InfoBlocks, INFO_BLOCKS_MIN_CELL_WIDTH } from './src/info_blocks.component';
 export { InfoBlock } from './src/info_block.component';
 export type { InfoBlockItem, InfoBlocksProps } from './src/types';

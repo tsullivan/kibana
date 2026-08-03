@@ -13,8 +13,6 @@ import { css } from '@emotion/react';
 import {
   EuiBadge,
   EuiBadgeGroup,
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiFlyoutHeader,
   EuiPopover,
   EuiSpacer,
@@ -28,7 +26,7 @@ import {
 import type { EuiFlyoutProps, UseEuiTheme } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import type { InfoBlockItem } from '@kbn/shared-ux-info-blocks';
-import { InfoBlocks } from '@kbn/shared-ux-info-blocks';
+import { InfoBlocks, INFO_BLOCKS_MIN_CELL_WIDTH } from '@kbn/shared-ux-info-blocks';
 import { flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import type { FlyoutHeaderProps } from '../types';
@@ -90,38 +88,81 @@ const FullBleedDivider = ({ horizontalPadding }: { horizontalPadding: string }) 
 /** PRD caps the metadata line at three key-value pairs. */
 const MAX_METADATA_ITEMS = 3;
 
-const metadataStyles = ({ euiTheme }: UseEuiTheme) => ({
-  // The row stays on one line, so each pair ellipsizes rather than wrapping.
-  item: css`
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  `,
-  key: css`
-    font-weight: ${euiTheme.font.weight.bold};
-  `,
-  // Keep link values from inheriting the key's weight.
-  value: css`
-    a {
-      font-weight: ${euiTheme.font.weight.regular};
-    }
-  `,
-});
+/**
+ * The metadata row keys its layout off a container query rather than a media query: the
+ * flyout is resizable and `push` flyouts inset the page, so its width is independent of
+ * the viewport's.
+ */
+const METADATA_CONTAINER_NAME = 'flyoutTemplateMetadata';
 
-/** Single line of key-value pairs rendered between the title and the badges. */
+const metadataStyles = ({ euiTheme }: UseEuiTheme) => {
+  // Shared with InfoBlocks so both header parts drop a column at the same container width,
+  // rather than reflowing at staggered widths.
+  const twoColumnBelow = MAX_METADATA_ITEMS * INFO_BLOCKS_MIN_CELL_WIDTH;
+  const oneColumnBelow = 2 * INFO_BLOCKS_MIN_CELL_WIDTH;
+
+  return {
+    container: css`
+      container-type: inline-size;
+      container-name: ${METADATA_CONTAINER_NAME};
+    `,
+    row: css`
+      display: grid;
+      /* Column flow so only the pairs actually present get a track — an explicit
+         three-track template would leave empty tracks contributing phantom gaps. */
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, auto);
+      justify-content: start;
+      align-items: center;
+      gap: ${euiTheme.size.xs} ${euiTheme.size.m};
+
+      /* Cramped: 2 across, with a trailing odd pair spanning both columns. */
+      @container ${METADATA_CONTAINER_NAME} (width < ${twoColumnBelow}px) {
+        grid-auto-flow: row;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        & > :last-child:nth-child(odd) {
+          grid-column: 1 / -1;
+        }
+      }
+
+      /* Very narrow: one pair per row. The span above collapses to the single column. */
+      @container ${METADATA_CONTAINER_NAME} (width < ${oneColumnBelow}px) {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    `,
+    // Each pair ellipsizes rather than wrapping, at every layout.
+    item: css`
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    `,
+    key: css`
+      font-weight: ${euiTheme.font.weight.bold};
+    `,
+    // Keep link values from inheriting the key's weight.
+    value: css`
+      a {
+        font-weight: ${euiTheme.font.weight.regular};
+      }
+    `,
+  };
+};
+
+/** Key-value pairs rendered between the title and the badges. */
 const MetadataRow = ({ items }: { items: HeaderMetadataDescriptor[] }) => {
   const styles = useEuiMemoizedStyles(metadataStyles);
 
   return (
-    <EuiFlexGroup gutterSize="m" responsive={false} wrap={false} alignItems="center">
-      {items.map((item, index) => (
-        <EuiFlexItem key={index} grow={false} css={{ minInlineSize: 0 }}>
-          <EuiText size="s" css={styles.item} data-test-subj={item['data-test-subj']}>
+    <div css={styles.container}>
+      <div css={styles.row}>
+        {items.map((item, index) => (
+          <EuiText key={index} size="s" css={styles.item} data-test-subj={item['data-test-subj']}>
             <span css={styles.key}>{item.title}</span> <span css={styles.value}>{item.value}</span>
           </EuiText>
-        </EuiFlexItem>
-      ))}
-    </EuiFlexGroup>
+        ))}
+      </div>
+    </div>
   );
 };
 

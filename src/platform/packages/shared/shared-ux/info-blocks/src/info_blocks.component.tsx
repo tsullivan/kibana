@@ -15,12 +15,16 @@ import type { InfoBlocksProps } from './types';
 
 /** Maximum number of columns */
 const MAX_COLUMNS = 3;
-/** Minimum cell width before the grid drops a column. */
-const MIN_BLOCK_WIDTH = 140;
+
+/**
+ * Minimum cell width before the grid drops a column. Exported because the flyout template's
+ * header metadata reflows against the same thresholds, so the two collapse in step.
+ */
+export const INFO_BLOCKS_MIN_CELL_WIDTH = 140;
 
 /** Pick 1-3 columns from measured width and visible item count. */
 export const getInfoBlocksColumnCount = (width: number, itemCount: number): number => {
-  const fitColumns = width > 0 ? Math.floor(width / MIN_BLOCK_WIDTH) : MAX_COLUMNS;
+  const fitColumns = width > 0 ? Math.floor(width / INFO_BLOCKS_MIN_CELL_WIDTH) : MAX_COLUMNS;
   return Math.max(1, Math.min(MAX_COLUMNS, fitColumns, itemCount || 1));
 };
 
