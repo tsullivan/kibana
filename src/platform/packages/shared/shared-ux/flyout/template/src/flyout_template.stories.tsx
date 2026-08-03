@@ -206,7 +206,7 @@ const BADGE_POOL = [
   </EuiBadge>,
 ];
 
-const badgeParts = (count: number) => BADGE_POOL.slice(0, count);
+const badgeItems = (count: number) => BADGE_POOL.slice(0, count);
 
 const INFO_BLOCK_POOL = [
   <FlyoutTemplate.Header.InfoBlock key="owner" title="Owner">
@@ -355,7 +355,7 @@ export const RegularSections: Story = {
             <FlyoutTemplate.Header
               title="Service details"
               description={args.description ? HEADER_DESCRIPTION : undefined}
-              badges={badgeParts(args.numBadges)}
+              badges={badgeItems(args.numBadges)}
             >
               {infoBlockParts(args.infoBlocks)}
               {tabs.map(({ id, label }) => (
@@ -380,7 +380,7 @@ export const RegularSections: Story = {
             <FlyoutTemplate.Header
               title="Alert details"
               description={args.description ? HEADER_DESCRIPTION : undefined}
-              badges={badgeParts(args.numBadges)}
+              badges={badgeItems(args.numBadges)}
             >
               {infoBlockParts(args.infoBlocks)}
               {tabs.map(({ id, label }) => (
@@ -470,7 +470,7 @@ export const Accordions: Story = {
             <FlyoutTemplate.Header
               title="Alert details"
               description={args.description ? HEADER_DESCRIPTION : undefined}
-              badges={badgeParts(args.numBadges)}
+              badges={badgeItems(args.numBadges)}
             >
               {infoBlockParts(args.infoBlocks)}
               {tabs.map(({ id, label }) => (
@@ -495,7 +495,7 @@ export const Accordions: Story = {
             <FlyoutTemplate.Header
               title="Alert details"
               description={args.description ? HEADER_DESCRIPTION : undefined}
-              badges={badgeParts(args.numBadges)}
+              badges={badgeItems(args.numBadges)}
             >
               {infoBlockParts(args.infoBlocks)}
               {tabs.map(({ id, label }) => (
@@ -561,7 +561,7 @@ export const PlainSections: Story = {
         <FlyoutTemplate.Header
           title="Document"
           description={args.description ? HEADER_DESCRIPTION : undefined}
-          badges={badgeParts(args.numBadges)}
+          badges={badgeItems(args.numBadges)}
         >
           {infoBlockParts(args.infoBlocks)}
           {tabs.map(({ id, label }) => (

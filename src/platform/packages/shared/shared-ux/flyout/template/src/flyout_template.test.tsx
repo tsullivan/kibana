@@ -10,6 +10,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { EuiBadge } from '@elastic/eui';
 import { KbnInfoCallout } from '@kbn/ui-callout';
 import { FlyoutTemplate } from './flyout_template';
 
@@ -1016,5 +1017,138 @@ describe('FlyoutTemplate subsections', () => {
     // Body.Subsection is the same component as Body.Section.Subsection.
     expect(FlyoutTemplate.Body.Subsection).toBe(FlyoutTemplate.Body.Section.Subsection);
     expect(FlyoutTemplate.Body.Subsection).toBe(FlyoutTemplate.Body.Accordion.Subsection);
+  });
+});
+
+describe('FlyoutTemplate header description and badges', () => {
+  const body = (
+    <FlyoutTemplate.Body>
+      <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+    </FlyoutTemplate.Body>
+  );
+
+  it('renders the description below the title', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details" description="Mar 30, 2022 @ 10:01:21.313" />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('Mar 30, 2022 @ 10:01:21.313')).toBeInTheDocument();
+  });
+
+  it('does not wrap the description in a paragraph, so block content stays valid', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header
+          title="Alert details"
+          description={<div data-test-subj="blockDescription">block content</div>}
+        />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('blockDescription').closest('p')).toBeNull();
+  });
+
+  it('omits the description when it resolves falsy', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details" description={false && 'hidden'} />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert details');
+  });
+
+  it('renders every badge when at or below the visible maximum', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header
+          title="Alert details"
+          badges={['a', 'b', 'c', 'd', 'e'].map((id) => (
+            <EuiBadge key={id}>{`badge ${id}`}</EuiBadge>
+          ))}
+        />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('badge e')).toBeInTheDocument();
+    expect(screen.queryByText(/more$/)).toBeNull();
+  });
+
+  it('collapses past the visible maximum into an overflow badge', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header
+          title="Alert details"
+          badges={['a', 'b', 'c', 'd', 'e', 'f'].map((id) => (
+            <EuiBadge key={id}>{`badge ${id}`}</EuiBadge>
+          ))}
+        />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('badge d')).toBeInTheDocument();
+    expect(screen.queryByText('badge e')).toBeNull();
+    expect(screen.getByText('+2 more')).toBeInTheDocument();
+  });
+
+  it('reveals the collapsed badges from the overflow popover', async () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header
+          title="Alert details"
+          badges={['a', 'b', 'c', 'd', 'e', 'f'].map((id) => (
+            <EuiBadge key={id}>{`badge ${id}`}</EuiBadge>
+          ))}
+        />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    await userEvent.click(screen.getByText('+2 more'));
+
+    expect(screen.getByText('badge e')).toBeInTheDocument();
+    expect(screen.getByText('badge f')).toBeInTheDocument();
+  });
+
+  it('ignores falsy badge entries when counting and rendering', () => {
+    const showBadge = false;
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header
+          title="Alert details"
+          badges={[
+            <EuiBadge key="real">visible badge</EuiBadge>,
+            showBadge && <EuiBadge key="hidden">hidden badge</EuiBadge>,
+            showBadge && <EuiBadge key="hidden2">hidden badge 2</EuiBadge>,
+          ]}
+        />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByText('visible badge')).toBeInTheDocument();
+    expect(screen.queryByText(/more$/)).toBeNull();
+  });
+
+  it('renders no badge group when every entry is falsy', () => {
+    const showBadge = false;
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header
+          title="Alert details"
+          badges={[showBadge && <EuiBadge key="hidden">hidden badge</EuiBadge>]}
+        />
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert details');
   });
 });
