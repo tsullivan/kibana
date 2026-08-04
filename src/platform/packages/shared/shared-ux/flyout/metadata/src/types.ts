@@ -9,10 +9,7 @@
 
 import type { ReactNode } from 'react';
 
-/**
- * A single key-value pair rendered by `MetadataPairs`. Also the descriptor produced by
- * resolving the template's `Header.Metadata` part.
- */
+/** A single key-value pair rendered by `MetadataPairs`. */
 export interface MetadataItem {
   /** The pair's key, rendered bold ahead of the value. */
   title: ReactNode;
@@ -21,7 +18,6 @@ export interface MetadataItem {
   'data-test-subj'?: string;
 }
 
-/** Props for the standalone `MetadataPairs` component. */
 export interface MetadataPairsProps {
   /**
    * The pairs to render. Unbounded, though `MAX_METADATA_ITEMS` is the designed maximum —

@@ -14,7 +14,6 @@ export {
 } from './src/constants';
 
 export type { InfoBlockItem, InfoBlocksProps } from './src/info_block_types';
-export type { MetadataItem, MetadataPairsProps } from './src/metadata_types';
 export type {
   FlyoutTemplateProps,
   FlyoutHeaderProps,

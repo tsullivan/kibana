@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { type FC, useState } from 'react';
+import React, { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -418,7 +418,7 @@ export default meta;
 
 type Story = StoryObj<Args>;
 
-const RegularSectionsRender: FC<Args> = (args) => {
+const RegularSectionsRender = (args: Args): React.JSX.Element => {
   const pagination = usePaginationProps(args);
   const subsections = SUBSECTIONS.slice(0, args.numSubsections);
 
@@ -450,7 +450,7 @@ export const RegularSections: Story = {
   render: RegularSectionsRender,
 };
 
-const AccordionsRender: FC<Args> = (args) => {
+const AccordionsRender = (args: Args): React.JSX.Element => {
   const pagination = usePaginationProps(args);
   const subsections = SUBSECTIONS.slice(0, args.numSubsections);
 
@@ -491,7 +491,7 @@ export const Accordions: Story = {
   render: AccordionsRender,
 };
 
-const PlainSectionsRender: FC<Args> = (args) => {
+const PlainSectionsRender = (args: Args): React.JSX.Element => {
   const pagination = usePaginationProps(args);
   const plainSections = PLAIN_SECTIONS.slice(0, args.numPlainSections);
   const sections = SECTIONS.slice(0, args.numSections);

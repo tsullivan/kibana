@@ -25,9 +25,9 @@ import {
 } from '@elastic/eui';
 import type { EuiFlyoutProps, UseEuiTheme } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
-import type { FlyoutHeaderProps, InfoBlockItem, MetadataItem } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutHeaderProps, InfoBlockItem } from '@kbn/shared-ux-flyout-common';
 import { InfoBlocks } from '@kbn/shared-ux-flyout-info-blocks';
-import { MetadataPairs } from '@kbn/shared-ux-flyout-metadata';
+import { MetadataPairs, type MetadataItem } from '@kbn/shared-ux-flyout-metadata';
 import { flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import { renderTitleIcon, renderTitleWithIcon } from '../title_adornments';

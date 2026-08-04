@@ -7,7 +7,5 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { MetadataPairs } from './src/metadata_pairs';
-
-// Re-exported so consumers can adopt this component with a single import.
-export type { MetadataItem, MetadataPairsProps } from '@kbn/shared-ux-flyout-common';
+export { MetadataPairs } from './src/metadata_pairs.component';
+export type { MetadataItem, MetadataPairsProps } from './src/types';

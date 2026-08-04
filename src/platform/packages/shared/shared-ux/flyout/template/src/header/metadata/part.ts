@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { MetadataItem } from '@kbn/shared-ux-flyout-common';
+import type { MetadataItem } from '@kbn/shared-ux-flyout-metadata';
 import { headerAssembly } from '../../assembly';
 
 /** Part name used for identifying `Header.Metadata` children. */

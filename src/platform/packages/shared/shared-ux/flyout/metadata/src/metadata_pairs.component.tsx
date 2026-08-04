@@ -15,8 +15,8 @@ import {
   FLYOUT_MAX_GRID_COLUMNS,
   FLYOUT_MIN_CELL_WIDTH,
   MAX_METADATA_ITEMS,
-  type MetadataPairsProps,
 } from '@kbn/shared-ux-flyout-common';
+import type { MetadataPairsProps } from './types';
 
 /**
  * Layout keys off a container query rather than a media query: this renders inside a flyout
@@ -77,8 +77,7 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
 };
 
 /**
- * A compact, responsive row of key-value pairs. Usable on its own so a flyout can adopt this
- * presentation before migrating wholesale to `FlyoutTemplate`.
+ * A compact, responsive row of key-value pairs — the metadata line used beneath a flyout title.
  */
 export const MetadataPairs: FunctionComponent<MetadataPairsProps> = ({ items, ...rest }) => {
   const memoized = useEuiMemoizedStyles(styles);
