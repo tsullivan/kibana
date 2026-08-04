@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useState } from 'react';
+import React, { type FC, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -418,34 +418,67 @@ export default meta;
 
 type Story = StoryObj<Args>;
 
+const RegularSectionsRender: FC<Args> = (args) => {
+  const pagination = usePaginationProps(args);
+  const subsections = SUBSECTIONS.slice(0, args.numSubsections);
+
+  const bodyItems = SECTIONS.slice(0, args.numSections).map(({ id, title, content }) => (
+    <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
+      {subsections.length
+        ? subsections.map(({ id: subId, title: subTitle, content: subContent }) => (
+            <FlyoutTemplate.Body.Section.Subsection key={subId} id={subId} title={subTitle}>
+              {bodyText(subContent)}
+            </FlyoutTemplate.Body.Section.Subsection>
+          ))
+        : bodyText(content)}
+    </FlyoutTemplate.Body.Section>
+  ));
+
+  return (
+    <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
+      {headerZone(args, 'Service details')}
+      {bodyZone(args, () => bodyItems)}
+      {footerZone(args)}
+    </FlyoutTemplate>
+  );
+};
+
 export const RegularSections: Story = {
   argTypes: {
     numPlainSections: { table: { disable: true } },
   },
-  render: (args) => {
-    const pagination = usePaginationProps(args);
-    const subsections = SUBSECTIONS.slice(0, args.numSubsections);
+  render: RegularSectionsRender,
+};
 
-    const bodyItems = SECTIONS.slice(0, args.numSections).map(({ id, title, content }) => (
-      <FlyoutTemplate.Body.Section key={id} title={title} {...buildSectionProps(args)}>
-        {subsections.length
-          ? subsections.map(({ id: subId, title: subTitle, content: subContent }) => (
-              <FlyoutTemplate.Body.Section.Subsection key={subId} id={subId} title={subTitle}>
-                {bodyText(subContent)}
-              </FlyoutTemplate.Body.Section.Subsection>
-            ))
-          : bodyText(content)}
-      </FlyoutTemplate.Body.Section>
-    ));
+const AccordionsRender: FC<Args> = (args) => {
+  const pagination = usePaginationProps(args);
+  const subsections = SUBSECTIONS.slice(0, args.numSubsections);
 
-    return (
-      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
-        {headerZone(args, 'Service details')}
-        {bodyZone(args, () => bodyItems)}
-        {footerZone(args)}
-      </FlyoutTemplate>
-    );
-  },
+  const bodyItems = ACCORDIONS.slice(0, args.numSections).map(({ id, title, content }, index) => (
+    <FlyoutTemplate.Body.Accordion
+      key={id}
+      id={id}
+      title={title}
+      initialIsOpen={index === 0}
+      {...buildTitleAdornments(args)}
+    >
+      {subsections.length
+        ? subsections.map(({ id: subId, title: subTitle, content: subContent }) => (
+            <FlyoutTemplate.Body.Accordion.Subsection key={subId} id={subId} title={subTitle}>
+              {bodyText(subContent)}
+            </FlyoutTemplate.Body.Accordion.Subsection>
+          ))
+        : bodyText(content)}
+    </FlyoutTemplate.Body.Accordion>
+  ));
+
+  return (
+    <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
+      {headerZone(args, 'Alert details')}
+      {bodyZone(args, () => bodyItems)}
+      {footerZone(args)}
+    </FlyoutTemplate>
+  );
 };
 
 export const Accordions: Story = {
@@ -455,36 +488,43 @@ export const Accordions: Story = {
     numSections: { name: 'Body accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
     numPlainSections: { table: { disable: true } },
   },
-  render: (args) => {
-    const pagination = usePaginationProps(args);
-    const subsections = SUBSECTIONS.slice(0, args.numSubsections);
+  render: AccordionsRender,
+};
 
-    const bodyItems = ACCORDIONS.slice(0, args.numSections).map(({ id, title, content }, index) => (
-      <FlyoutTemplate.Body.Accordion
-        key={id}
-        id={id}
-        title={title}
-        initialIsOpen={index === 0}
-        {...buildTitleAdornments(args)}
-      >
-        {subsections.length
-          ? subsections.map(({ id: subId, title: subTitle, content: subContent }) => (
-              <FlyoutTemplate.Body.Accordion.Subsection key={subId} id={subId} title={subTitle}>
-                {bodyText(subContent)}
-              </FlyoutTemplate.Body.Accordion.Subsection>
-            ))
-          : bodyText(content)}
-      </FlyoutTemplate.Body.Accordion>
-    ));
+const PlainSectionsRender: FC<Args> = (args) => {
+  const pagination = usePaginationProps(args);
+  const plainSections = PLAIN_SECTIONS.slice(0, args.numPlainSections);
+  const sections = SECTIONS.slice(0, args.numSections);
 
-    return (
-      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
-        {headerZone(args, 'Alert details')}
-        {bodyZone(args, () => bodyItems)}
-        {footerZone(args)}
-      </FlyoutTemplate>
-    );
-  },
+  // `PlainSection` ids must stay unique per tab panel, so prefix them when tabbed.
+  const bodyItems = (tabId?: string) => (
+    <>
+      {plainSections.map(({ id, label, height }) => (
+        <FlyoutTemplate.Body.PlainSection key={id} id={tabId ? `${tabId}-${id}` : id}>
+          <EuiPanel color="primary" hasShadow={false} css={{ minHeight: height }}>
+            <EuiText size="s" textAlign="center">
+              <p>
+                <em>{label}</em>
+              </p>
+            </EuiText>
+          </EuiPanel>
+        </FlyoutTemplate.Body.PlainSection>
+      ))}
+      {sections.map(({ id, title, content }) => (
+        <FlyoutTemplate.Body.Section key={id} title={title} hasBorder={args.sectionHasBorder}>
+          {bodyText(content)}
+        </FlyoutTemplate.Body.Section>
+      ))}
+    </>
+  );
+
+  return (
+    <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
+      {headerZone(args, 'Document')}
+      {bodyZone(args, bodyItems)}
+      {footerZone(args)}
+    </FlyoutTemplate>
+  );
 };
 
 export const PlainSections: Story = {
@@ -495,39 +535,5 @@ export const PlainSections: Story = {
     // Plain sections can stand alone, so allow a body with no titled sections.
     numSections: { name: 'Body sections', control: { type: 'range', min: 0, max: 4, step: 1 } },
   },
-  render: (args) => {
-    const pagination = usePaginationProps(args);
-    const plainSections = PLAIN_SECTIONS.slice(0, args.numPlainSections);
-    const sections = SECTIONS.slice(0, args.numSections);
-
-    // `PlainSection` ids must stay unique per tab panel, so prefix them when tabbed.
-    const bodyItems = (tabId?: string) => (
-      <>
-        {plainSections.map(({ id, label, height }) => (
-          <FlyoutTemplate.Body.PlainSection key={id} id={tabId ? `${tabId}-${id}` : id}>
-            <EuiPanel color="primary" hasShadow={false} css={{ minHeight: height }}>
-              <EuiText size="s" textAlign="center">
-                <p>
-                  <em>{label}</em>
-                </p>
-              </EuiText>
-            </EuiPanel>
-          </FlyoutTemplate.Body.PlainSection>
-        ))}
-        {sections.map(({ id, title, content }) => (
-          <FlyoutTemplate.Body.Section key={id} title={title} hasBorder={args.sectionHasBorder}>
-            {bodyText(content)}
-          </FlyoutTemplate.Body.Section>
-        ))}
-      </>
-    );
-
-    return (
-      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
-        {headerZone(args, 'Document')}
-        {bodyZone(args, bodyItems)}
-        {footerZone(args)}
-      </FlyoutTemplate>
-    );
-  },
+  render: PlainSectionsRender,
 };
