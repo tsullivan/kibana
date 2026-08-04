@@ -28,6 +28,11 @@ const HoverableUserWithAvatarComponent: React.FC<HoverableUserWithAvatarProps> =
           <EuiFlexItem>
             <UserToolTip userInfo={userInfo}>
               <Username userInfo={userInfo} boldName={boldName} />
+            </UserToolTip>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 };
 HoverableUserWithAvatarComponent.displayName = 'HoverableUserWithAvatar';
