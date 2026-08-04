@@ -51,7 +51,7 @@ Headerless flyouts can pass `aria-label` or `aria-labelledby` directly.
   - `FlyoutTemplate.Header.Metadata` — up to three title/value pairs rendered
     between the description and badges.
   - `FlyoutTemplate.Header.InfoBlock` — `title` plus a `children` value,
-    resolved into `@kbn/shared-ux-info-blocks`.
+    resolved into `@kbn/shared-ux-flyout-info-blocks`.
 - `FlyoutTemplate.Body` — the only required zone. Accepts:
   - `FlyoutTemplate.Body.Section` — `title` (H4) plus content. Options: `icon`
     (+ optional `tooltip`) shown right of the title, `action` (a right-aligned
