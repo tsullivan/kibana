@@ -43,7 +43,7 @@ interface Args {
 }
 
 const meta: Meta<Args> = {
-  title: 'Flyout/Flyout Template',
+  title: 'Flyout Template/Template',
   args: {
     menuBarActions: true,
     numInfoBlocks: 5,
