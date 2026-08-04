@@ -15,19 +15,23 @@ import { EuiBadge, EuiHealth, EuiLink, EuiPanel, EuiText } from '@elastic/eui';
 import type { FlyoutTemplateProps } from '@kbn/shared-ux-flyout-common';
 import { FlyoutTemplate } from './flyout_template';
 
-const menuBarProps: FlyoutTemplateProps['flyoutMenuProps'] = {
-  customActions: [
-    { iconType: 'share', onClick: action('share'), 'aria-label': 'Share' },
-    { iconType: 'gear', onClick: action('settings'), 'aria-label': 'Settings' },
-  ],
-};
+const LEADING_ACTIONS: NonNullable<FlyoutTemplateProps['flyoutMenuProps']>['leadingActions'] = [
+  { iconType: 'documents', onClick: action('back'), 'aria-label': 'View surrounding documents', toolTipContent: 'View surrounding documents' },
+  { iconType: 'document', onClick: action('back'), 'aria-label': 'View document', toolTipContent: 'View document' },
+]; // prettier-ignore
+
+const TRAILING_ACTIONS: NonNullable<FlyoutTemplateProps['flyoutMenuProps']>['trailingActions'] = [
+  { iconType: 'share', onClick: action('share'), 'aria-label': 'Share', toolTipContent: 'Share' },
+  { iconType: 'gear', onClick: action('settings'), 'aria-label': 'Settings', toolTipContent: 'Settings' },
+]; // prettier-ignore
 
 interface Args {
   numInfoBlocks: number;
   sectionHasBorder: boolean;
   sectionIcon: boolean;
   sectionAction: boolean;
-  menuBarActions: boolean;
+  numLeadingActions: number;
+  numTrailingActions: number;
   numPages: number;
   paginationJump: boolean;
   footer: boolean;
@@ -47,7 +51,8 @@ interface Args {
 const meta: Meta<Args> = {
   title: 'Flyout Template/Template',
   args: {
-    menuBarActions: true,
+    numLeadingActions: 1,
+    numTrailingActions: 1,
     numPages: 0,
     paginationJump: false,
     numInfoBlocks: 5,
@@ -68,9 +73,14 @@ const meta: Meta<Args> = {
     ownFocus: false,
   },
   argTypes: {
-    menuBarActions: {
-      name: 'Actions',
-      control: { type: 'boolean' },
+    numLeadingActions: {
+      name: 'Leading actions',
+      control: { type: 'range', min: 0, max: 2, step: 1 },
+      table: { category: 'Menu bar' },
+    },
+    numTrailingActions: {
+      name: 'Trailing actions',
+      control: { type: 'range', min: 0, max: 2, step: 1 },
       table: { category: 'Menu bar' },
     },
     numPages: {
@@ -167,11 +177,16 @@ const buildFlyoutProps = (
   args: Args,
   paginationProps?: FlyoutTemplateProps['flyoutMenuProps']
 ): Omit<FlyoutTemplateProps, 'onClose' | 'children'> => {
-  const { menuBarActions, resizable, type, ownFocus } = args;
-  const flyoutMenuProps: FlyoutTemplateProps['flyoutMenuProps'] = paginationProps
-    ? { ...(menuBarActions ? menuBarProps : {}), ...paginationProps }
-    : menuBarActions
-    ? menuBarProps
+  const { numLeadingActions, numTrailingActions, resizable, type, ownFocus } = args;
+  const leadingActions = LEADING_ACTIONS.slice(0, numLeadingActions);
+  const trailingActions = TRAILING_ACTIONS.slice(0, numTrailingActions);
+  const hasMenuContent = leadingActions.length > 0 || trailingActions.length > 0 || paginationProps;
+  const flyoutMenuProps: FlyoutTemplateProps['flyoutMenuProps'] = hasMenuContent
+    ? {
+        ...(leadingActions.length > 0 ? { leadingActions } : {}),
+        ...(trailingActions.length > 0 ? { trailingActions } : {}),
+        ...paginationProps,
+      }
     : undefined;
   return {
     type,
@@ -183,9 +198,7 @@ const buildFlyoutProps = (
 };
 
 /** Returns flyoutMenuProps containing pagination, or undefined when numPages is 0. */
-const usePaginationProps = (
-  args: Args
-): FlyoutTemplateProps['flyoutMenuProps'] | undefined => {
+const usePaginationProps = (args: Args): FlyoutTemplateProps['flyoutMenuProps'] | undefined => {
   const [currentIndex, setCurrentIndex] = useState(0);
   if (args.numPages === 0) return undefined;
   const total = args.numPages;
