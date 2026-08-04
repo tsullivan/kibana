@@ -504,7 +504,7 @@ export class DataGridService extends FtrService {
   }
 
   public async isDocViewerNavigationVisible() {
-    return await this.testSubjects.exists('docViewerFlyoutNavigation');
+    return await this.testSubjects.exists('docViewerFlyout > euiFlyoutMenuPaginationNext');
   }
 
   public async clickDocViewerTab(id: string) {
@@ -535,18 +535,49 @@ export class DataGridService extends FtrService {
     return await this.testSubjects.getVisibleText(`tableDocViewRow-${fieldName}-value`);
   }
 
-  public async getDocViewerActivePage() {
-    const activePage = await this.find.byCssSelector(
-      '[data-test-subj^="docViewerFlyoutNavigationPage-"]'
-    );
-    const dataTestSubj = await activePage.getAttribute('data-test-subj');
-    const match = dataTestSubj?.match(/docViewerFlyoutNavigationPage-(\d+)/);
+  private async readDocViewerCounter() {
+    const menu = await this.testSubjects.find('docViewerRowDetailsTitle');
+    const text = await menu.getVisibleText();
+    const match = text.match(/(\d+)\s+of\s+(\d+)/);
 
     if (!match) {
-      throw new Error(`Unable to parse active flyout page from "${dataTestSubj}"`);
+      throw new Error(`Unable to parse active flyout page from "${text}"`);
     }
 
-    return Number(match[1]);
+    // Counter is 1-based; callers expect a zero-based index.
+    return { activePage: Number(match[1]) - 1, pageCount: Number(match[2]) };
+  }
+
+  public async getDocViewerActivePage() {
+    const { activePage } = await this.readDocViewerCounter();
+    return activePage;
+  }
+
+  public async getDocViewerPageCount() {
+    const { pageCount } = await this.readDocViewerCounter();
+    return pageCount;
+  }
+
+  public async expectDocViewerActivePage(activePage: number) {
+    await this.retry.waitFor(`doc viewer active page to be ${activePage}`, async () => {
+      return (await this.getDocViewerActivePage()) === activePage;
+    });
+  }
+
+  public async clickDocViewerNextPage() {
+    await this.testSubjects.click('docViewerFlyout > euiFlyoutMenuPaginationNext');
+  }
+
+  public async clickDocViewerPreviousPage() {
+    await this.testSubjects.click('docViewerFlyout > euiFlyoutMenuPaginationPrev');
+  }
+
+  public async clickDocViewerFirstPage() {
+    await this.testSubjects.click('docViewerFlyout > euiFlyoutMenuPaginationFirst');
+  }
+
+  public async clickDocViewerLastPage() {
+    await this.testSubjects.click('docViewerFlyout > euiFlyoutMenuPaginationLast');
   }
 
   public async getHeaderFields(): Promise<string[]> {
@@ -571,9 +602,22 @@ export class DataGridService extends FtrService {
     return textArr;
   }
 
+  /**
+   * Doc viewer flyout menu actions, in a stable order: single document first,
+   * surrounding documents second. Callers destructure by position, so the order
+   * is fixed here rather than left to the DOM — the two actions live in
+   * different menu slots (trailing and leading), which reverses document order.
+   * EUI flyout menu actions expose an aria-label only, no data-test-subj.
+   */
   public async getRowActions(): Promise<WebElementWrapper[]> {
     const detailsRow = await this.testSubjects.find('docViewerFlyout');
-    return await detailsRow.findAllByTestSubject('~docTableRowAction');
+    const actions: WebElementWrapper[] = [];
+
+    for (const label of ['View single document', 'View surrounding documents']) {
+      actions.push(...(await detailsRow.findAllByCssSelector(`button[aria-label="${label}"]`)));
+    }
+
+    return actions;
   }
 
   public async openColMenuByField(field: string) {

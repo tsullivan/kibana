@@ -37,6 +37,29 @@ jest.mock('@kbn/unified-doc-viewer-plugin/public', () => {
         <div data-test-subj="mockFlyoutTitle">
           {props.flyoutTitle ?? (props.isEsqlQuery ? 'Result' : 'Document')}
         </div>
+        {/* EUI's Jest flyout stub ignores flyoutMenuProps; surface actions for assertions. */}
+        <div data-test-subj="mockFlyoutMenuActions">
+          {[
+            ...(props.flyoutMenuLeadingActions ?? []).map((action) => ({
+              action,
+              slot: 'leading',
+            })),
+            ...(props.flyoutMenuTrailingActions ?? []).map((action) => ({
+              action,
+              slot: 'trailing',
+            })),
+          ].map(({ action, slot }) => (
+            <div
+              key={action['aria-label']}
+              data-test-subj={`mockFlyoutMenuAction-${action['aria-label']}`}
+              data-slot={slot}
+              data-icon-type={action.iconType}
+              data-tooltip={
+                typeof action.toolTipContent === 'string' ? action.toolTipContent : undefined
+              }
+            />
+          ))}
+        </div>
         <OriginalFlyout
           {...props}
           {...(mockRenderCustomHeader ? { renderCustomHeader: mockRenderCustomHeader } : {})}
@@ -115,10 +138,13 @@ describe('Discover flyout', function () {
   it('should be rendered correctly using an data view without timefield', async () => {
     const { props, user } = await renderComponent({});
 
-    expect(screen.getByTestId('docTableRowAction')).toHaveAttribute(
-      'href',
-      'mock-doc-redirect-url'
-    );
+    const singleDocument = screen.getByTestId('mockFlyoutMenuAction-View single document');
+    expect(singleDocument).toHaveAttribute('data-slot', 'trailing');
+    expect(singleDocument).toHaveAttribute('data-icon-type', 'maximize');
+    expect(singleDocument).toHaveAttribute('data-tooltip', 'View single document');
+    expect(
+      screen.queryByTestId('mockFlyoutMenuAction-View surrounding documents')
+    ).not.toBeInTheDocument();
 
     await user.click(screen.getByTestId('euiFlyoutCloseButton'));
     expect(props.onClose).toHaveBeenCalled();
@@ -127,90 +153,23 @@ describe('Discover flyout', function () {
   it('should be rendered correctly using an data view with timefield', async () => {
     const { props, user } = await renderComponent({ dataView: dataViewWithTimefieldMock });
 
-    const actions = screen.getAllByTestId('docTableRowAction');
-    expect(actions.length).toBe(2);
-    expect(actions[0]).toHaveAttribute('href', 'mock-doc-redirect-url');
-    expect(actions[1]).toHaveAttribute('href', 'mock-context-redirect-url');
+    expect(screen.getByTestId('mockFlyoutMenuAction-View single document')).toHaveAttribute(
+      'data-slot',
+      'trailing'
+    );
+
+    const surroundingDocuments = screen.getByTestId(
+      'mockFlyoutMenuAction-View surrounding documents'
+    );
+    expect(surroundingDocuments).toHaveAttribute('data-slot', 'leading');
+    expect(surroundingDocuments).toHaveAttribute('data-icon-type', 'documents');
+    expect(surroundingDocuments).toHaveAttribute(
+      'data-tooltip',
+      'Inspect documents that occurred before and after this document. Only pinned filters remain active in the Surrounding documents view.'
+    );
 
     await user.click(screen.getByTestId('euiFlyoutCloseButton'));
     expect(props.onClose).toHaveBeenCalled();
-  });
-
-  it('displays document navigation when there is more than 1 doc available', async () => {
-    await renderComponent({ dataView: dataViewWithTimefieldMock });
-
-    expect(screen.getByTestId('docViewerFlyoutNavigation')).toBeVisible();
-  });
-
-  it('displays no document navigation when there are 0 docs available', async () => {
-    await renderComponent({ records: [], expandedHit: esHitsMock[0] });
-
-    expect(screen.queryByTestId('docViewerFlyoutNavigation')).not.toBeInTheDocument();
-  });
-
-  it('displays no document navigation when the expanded doc is not part of the given docs', async () => {
-    // scenario: you've expanded a doc, and in the next request differed docs where fetched
-    const records = [
-      {
-        _index: 'new',
-        _id: '1',
-        _score: 1,
-        _type: '_doc',
-        _source: { date: '2020-20-01T12:12:12.123', message: 'test1', bytes: 20 },
-      },
-      {
-        _index: 'new',
-        _id: '2',
-        _score: 1,
-        _type: '_doc',
-        _source: { date: '2020-20-01T12:12:12.124', name: 'test2', extension: 'jpg' },
-      },
-    ].map((hit) => buildDataTableRecord(hit, dataViewMock));
-    await renderComponent({ records, expandedHit: esHitsMock[0] });
-
-    expect(screen.queryByTestId('docViewerFlyoutNavigation')).not.toBeInTheDocument();
-  });
-
-  it('allows you to navigate to the next doc, if expanded doc is the first', async () => {
-    // scenario: you've expanded a doc, and in the next request different docs where fetched
-    const { props, user } = await renderComponent({});
-
-    await user.click(screen.getByTestId('pagination-button-next'));
-
-    // we selected 1, so we'd expect 2
-    expect(props.setExpandedDoc).toHaveBeenCalledWith(props.hits[1]);
-  });
-
-  it('doesnt allow you to navigate to the previous doc, if expanded doc is the first', async () => {
-    // scenario: you've expanded a doc, and in the next request differed docs where fetched
-    const { props, user } = await renderComponent({});
-
-    await user.click(screen.getByTestId('pagination-button-previous'));
-
-    expect(props.setExpandedDoc).toHaveBeenCalledTimes(0);
-  });
-
-  it('doesnt allow you to navigate to the next doc, if expanded doc is the last', async () => {
-    // scenario: you've expanded a doc, and in the next request differed docs where fetched
-    const { props, user } = await renderComponent({
-      expandedHit: esHitsMock[esHitsMock.length - 1],
-    });
-
-    await user.click(screen.getByTestId('pagination-button-next'));
-
-    expect(props.setExpandedDoc).toHaveBeenCalledTimes(0);
-  });
-
-  it('allows you to navigate to the previous doc, if expanded doc is the last', async () => {
-    // scenario: you've expanded a doc, and in the next request differed docs where fetched
-    const { props, user } = await renderComponent({
-      expandedHit: esHitsMock[esHitsMock.length - 1],
-    });
-
-    await user.click(screen.getByTestId('pagination-button-previous'));
-
-    expect(props.setExpandedDoc).toHaveBeenCalledTimes(1);
-    expect(props.setExpandedDoc).toHaveBeenCalledWith(props.hits[props.hits.length - 2]);
   });
 
   it('allows navigating to the next document with the right arrow key', async () => {
@@ -268,7 +227,7 @@ describe('Discover flyout', function () {
       query: { esql: 'FROM indexpattern' },
     });
 
-    expect(screen.queryByTestId('docTableRowAction')).not.toBeInTheDocument();
+    expect(screen.getByTestId('mockFlyoutMenuActions')).toBeEmptyDOMElement();
     expect(screen.getByTestId('mockFlyoutTitle')).toHaveTextContent('Result');
   });
 

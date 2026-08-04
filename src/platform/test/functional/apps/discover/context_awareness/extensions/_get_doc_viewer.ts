@@ -16,11 +16,19 @@ import type { FtrProviderContext } from '../../ftr_provider_context';
 export default function ({ getService, getPageObjects }: FtrProviderContext) {
   const { common, discover, unifiedTabs } = getPageObjects(['common', 'discover', 'unifiedTabs']);
   const testSubjects = getService('testSubjects');
+  const find = getService('find');
   const dataViews = getService('dataViews');
   const dataGrid = getService('dataGrid');
   const esql = getService('esql');
   const incrementButtonTestSubj = 'example-restorable-state-doc-view-increment-button';
   const countTestSubj = 'example-restorable-state-doc-view-count';
+
+  // The flyout menu title is screen-reader-only, so read textContent rather
+  // than visible text.
+  const getDocViewerTitle = async () => {
+    const title = await find.byCssSelector('#docViewerFlyoutTitle');
+    return (await title.getAttribute('textContent'))?.trim();
+  };
 
   describe('extension getDocViewer', () => {
     describe('ES|QL mode', () => {
@@ -38,7 +46,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
         await testSubjects.existOrFail('docViewerTab-doc_view_source');
         await testSubjects.missingOrFail('docViewerTab-doc_view_example');
         await testSubjects.missingOrFail('docViewerTab-doc_view_restorable_state_example');
-        expect(await testSubjects.getVisibleText('docViewerRowDetailsTitle')).to.be('Result');
+        expect(await getDocViewerTitle()).to.be('Result');
       });
 
       it('should render custom doc viewer view and restorable state doc viewer', async () => {
@@ -174,7 +182,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
         await testSubjects.existOrFail('docViewerTab-doc_view_source');
         await testSubjects.missingOrFail('docViewerTab-doc_view_example');
         await testSubjects.missingOrFail('docViewerTab-doc_view_restorable_state_example');
-        expect(await testSubjects.getVisibleText('docViewerRowDetailsTitle')).to.be('Document');
+        expect(await getDocViewerTitle()).to.be('Document');
       });
 
       it('should render custom doc viewer view', async () => {
@@ -188,9 +196,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
         await testSubjects.existOrFail('docViewerTab-doc_view_source');
         await testSubjects.existOrFail('docViewerTab-doc_view_example');
         await testSubjects.existOrFail('docViewerTab-doc_view_restorable_state_example');
-        expect(await testSubjects.getVisibleText('docViewerRowDetailsTitle')).to.be(
-          'Record #my-example-logs::XdQFDpABfGznVC1bCHLo::'
-        );
+        expect(await getDocViewerTitle()).to.be('Record #my-example-logs::XdQFDpABfGznVC1bCHLo::');
       });
 
       it('should render custom doc viewer header', async () => {

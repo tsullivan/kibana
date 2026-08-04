@@ -12,15 +12,11 @@ import type { DocViewerProps } from '@kbn/unified-doc-viewer';
 import { DOC_VIEWER_FLYOUT_HISTORY_KEY } from '@kbn/unified-doc-viewer';
 import { i18n } from '@kbn/i18n';
 import type { DataView } from '@kbn/data-views-plugin/public';
-import type { EuiFlyoutProps } from '@elastic/eui';
+import type { EuiFlyoutMenuAction, EuiFlyoutMenuPagination, EuiFlyoutProps } from '@elastic/eui';
 import {
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiFlyout,
   EuiFlyoutBody,
   EuiFlyoutFooter,
-  EuiHorizontalRule,
-  EuiPagination,
   EuiPortal,
   EuiSpacer,
   isDOMNode,
@@ -45,7 +41,14 @@ export interface UnifiedDocViewerFlyoutProps
   'data-test-subj'?: string;
   flyoutTitle?: string;
   flyoutDefaultWidth?: EuiFlyoutProps['size'];
-  flyoutActions?: React.ReactNode;
+  /**
+   * Icon actions rendered in the flyout menu bar, after the pagination controls.
+   */
+  flyoutMenuLeadingActions?: EuiFlyoutMenuAction[];
+  /**
+   * Icon actions rendered in the flyout menu bar, immediately to the left of the close button.
+   */
+  flyoutMenuTrailingActions?: EuiFlyoutMenuAction[];
   flyoutType?: 'push' | 'overlay';
   flyoutWidthLocalStorageKey?: string;
   originDocType?: string;
@@ -91,7 +94,8 @@ export function UnifiedDocViewerFlyout({
   'data-test-subj': dataTestSubj,
   flyoutTitle,
   flyoutDefaultWidth,
-  flyoutActions,
+  flyoutMenuLeadingActions,
+  flyoutMenuTrailingActions,
   flyoutType,
   flyoutWidthLocalStorageKey,
   originDocType,
@@ -142,8 +146,6 @@ export function UnifiedDocViewerFlyout({
     return getIndexByDocId(hits, id);
   }, [hits, hit, pageCount]);
 
-  const renderSubheader = pageCount > 1 || flyoutActions;
-
   const setPage = useCallback(
     (index: number) => {
       if (hits && hits[index]) {
@@ -151,6 +153,25 @@ export function UnifiedDocViewerFlyout({
       }
     },
     [hits, setExpandedDoc]
+  );
+
+  // Pagination takes the left menu slot from back/history — harmless here
+  // because this flyout starts its own session. Supplying onFirst/onLast also
+  // switches EUI's default chevrons to the horizontal axis, matching the
+  // ArrowLeft/ArrowRight keyboard mapping below.
+  const pagination = useMemo<EuiFlyoutMenuPagination | undefined>(
+    () =>
+      activePage === -1
+        ? undefined
+        : {
+            currentIndex: activePage,
+            total: pageCount,
+            onFirst: () => setPage(0),
+            onPrevious: () => setPage(activePage - 1),
+            onNext: () => setPage(activePage + 1),
+            onLast: () => setPage(pageCount - 1),
+          },
+    [activePage, pageCount, setPage]
   );
 
   const onKeyDown = useCallback(
@@ -250,9 +271,14 @@ export function UnifiedDocViewerFlyout({
             session="start"
             historyKey={historyKey}
             flyoutMenuProps={{
+              // The title is not rendered visibly in the menu bar; it labels the
+              // flyout for assistive tech and names the session in flyout history.
               title: currentFlyoutTitle,
+              titleId: 'docViewerFlyoutTitle',
               'data-test-subj': 'docViewerRowDetailsTitle',
-              hideTitle: false,
+              pagination,
+              leadingActions: flyoutMenuLeadingActions,
+              trailingActions: flyoutMenuTrailingActions,
             }}
             className="DiscoverFlyout" // used to override the z-index of the flyout from SecuritySolution
             onClose={onClose}
@@ -275,37 +301,6 @@ export function UnifiedDocViewerFlyout({
             {...a11yProps}
           >
             {screenReaderDescription}
-            {renderSubheader && (
-              <>
-                <EuiFlexGroup
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="spaceBetween"
-                  responsive={false}
-                  wrap={true}
-                  css={{ paddingBlock: euiTheme.size.s, paddingInline: euiTheme.size.m }}
-                >
-                  {activePage !== -1 && (
-                    <EuiFlexItem data-test-subj={`docViewerFlyoutNavigationPage-${activePage}`}>
-                      <EuiPagination
-                        aria-label={i18n.translate('unifiedDocViewer.flyout.documentNavigation', {
-                          defaultMessage: 'Document pagination',
-                        })}
-                        pageCount={pageCount}
-                        activePage={activePage}
-                        onPageClick={setPage}
-                        compressed
-                        data-test-subj="docViewerFlyoutNavigation"
-                      />
-                    </EuiFlexItem>
-                  )}
-                  <EuiFlexItem grow={false} css={{ marginLeft: 'auto' }}>
-                    {isEsqlQuery || !flyoutActions ? null : <>{flyoutActions}</>}
-                  </EuiFlexItem>
-                </EuiFlexGroup>
-                <EuiHorizontalRule margin="none" />
-              </>
-            )}
             <EuiFlyoutBody>
               {renderCustomHeader && (
                 <>

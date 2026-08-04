@@ -20,7 +20,6 @@ import type { UnifiedDocViewerFlyoutProps } from '@kbn/unified-doc-viewer-plugin
 import { UnifiedDocViewerFlyout } from '@kbn/unified-doc-viewer-plugin/public';
 import { useDiscoverServices } from '../../hooks/use_discover_services';
 import { useFlyoutActions } from './use_flyout_actions';
-import { DiscoverGridFlyoutActions } from './discover_grid_flyout_actions';
 import { DocumentType, useProfileAccessor } from '../../context_awareness';
 import { recordHasContext } from '../../context_awareness/profiles_manager/record_has_context';
 
@@ -84,7 +83,7 @@ export function DiscoverGridFlyout({
   // Get actual hit with updated highlighted searches
   const actualHit = useMemo(() => hits?.find(({ id }) => id === hit?.id) || hit, [hit, hits]);
 
-  const { flyoutActions } = useFlyoutActions({
+  const { leadingActions, trailingActions } = useFlyoutActions({
     dataView,
     rowIndex: actualHit.raw._index,
     rowId: actualHit.raw._id,
@@ -115,11 +114,8 @@ export function DiscoverGridFlyout({
     <UnifiedDocViewerFlyout
       originDocType={originDocType}
       flyoutTitle={docViewer.title}
-      flyoutActions={
-        !isESQLQuery && flyoutActions.length > 0 ? (
-          <DiscoverGridFlyoutActions flyoutActions={flyoutActions} />
-        ) : null
-      }
+      flyoutMenuLeadingActions={isESQLQuery ? undefined : leadingActions}
+      flyoutMenuTrailingActions={isESQLQuery ? undefined : trailingActions}
       flyoutWidthLocalStorageKey={FLYOUT_WIDTH_KEY}
       services={services}
       docViewsRegistry={docViewer.docViewsRegistry}
