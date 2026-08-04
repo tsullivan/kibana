@@ -91,7 +91,7 @@ const meta: Meta<Args> = {
     paginationJump: {
       name: 'Jump controls',
       control: { type: 'boolean' },
-      if: { arg: 'numPages', gt: 0 },
+      if: { arg: 'numPages', truthy: true },
       table: { category: 'Menu bar' },
     },
     titleIcon: {
