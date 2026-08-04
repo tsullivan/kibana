@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -28,6 +28,8 @@ interface Args {
   sectionIcon: boolean;
   sectionAction: boolean;
   menuBarActions: boolean;
+  numPages: number;
+  paginationJump: boolean;
   footer: boolean;
   resizable: boolean;
   type: NonNullable<FlyoutTemplateProps['type']>;
@@ -46,6 +48,8 @@ const meta: Meta<Args> = {
   title: 'Flyout Template/Template',
   args: {
     menuBarActions: true,
+    numPages: 0,
+    paginationJump: false,
     numInfoBlocks: 5,
     numTabs: 3,
     numSections: 2,
@@ -67,6 +71,17 @@ const meta: Meta<Args> = {
     menuBarActions: {
       name: 'Actions',
       control: { type: 'boolean' },
+      table: { category: 'Menu bar' },
+    },
+    numPages: {
+      name: 'Pages',
+      control: { type: 'range', min: 0, max: 42, step: 1 },
+      table: { category: 'Menu bar' },
+    },
+    paginationJump: {
+      name: 'Jump controls',
+      control: { type: 'boolean' },
+      if: { arg: 'numPages', gt: 0 },
       table: { category: 'Menu bar' },
     },
     titleIcon: {
@@ -147,19 +162,48 @@ const meta: Meta<Args> = {
   },
 };
 
-/** Maps shared story args to `FlyoutTemplate` props. */
-const buildFlyoutProps = ({
-  menuBarActions,
-  resizable,
-  type,
-  ownFocus,
-}: Args): Omit<FlyoutTemplateProps, 'onClose' | 'children'> => ({
-  type,
-  resizable,
-  ...(resizable ? { minWidth: 320 } : {}),
-  ...(type === 'overlay' ? { ownFocus } : {}),
-  ...(menuBarActions ? { flyoutMenuProps: menuBarProps } : {}),
-});
+/** Maps shared story args to `FlyoutTemplate` props. Pagination is handled per-story via useState. */
+const buildFlyoutProps = (
+  args: Args,
+  paginationProps?: FlyoutTemplateProps['flyoutMenuProps']
+): Omit<FlyoutTemplateProps, 'onClose' | 'children'> => {
+  const { menuBarActions, resizable, type, ownFocus } = args;
+  const flyoutMenuProps: FlyoutTemplateProps['flyoutMenuProps'] = paginationProps
+    ? { ...(menuBarActions ? menuBarProps : {}), ...paginationProps }
+    : menuBarActions
+    ? menuBarProps
+    : undefined;
+  return {
+    type,
+    resizable,
+    ...(resizable ? { minWidth: 320 } : {}),
+    ...(type === 'overlay' ? { ownFocus } : {}),
+    ...(flyoutMenuProps ? { flyoutMenuProps } : {}),
+  };
+};
+
+/** Returns flyoutMenuProps containing pagination, or undefined when numPages is 0. */
+const usePaginationProps = (
+  args: Args
+): FlyoutTemplateProps['flyoutMenuProps'] | undefined => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  if (args.numPages === 0) return undefined;
+  const total = args.numPages;
+  return {
+    pagination: {
+      currentIndex,
+      total,
+      onPrevious: () => setCurrentIndex((i) => Math.max(0, i - 1)),
+      onNext: () => setCurrentIndex((i) => Math.min(total - 1, i + 1)),
+      ...(args.paginationJump
+        ? {
+            onFirst: () => setCurrentIndex(0),
+            onLast: () => setCurrentIndex(total - 1),
+          }
+        : {}),
+    },
+  };
+};
 
 /** Title-row props shared by `Body.Section` and `Body.Accordion`. */
 const buildTitleAdornments = (args: Args) => ({
@@ -366,6 +410,7 @@ export const RegularSections: Story = {
     numPlainSections: { table: { disable: true } },
   },
   render: (args) => {
+    const pagination = usePaginationProps(args);
     const subsections = SUBSECTIONS.slice(0, args.numSubsections);
 
     const bodyItems = SECTIONS.slice(0, args.numSections).map(({ id, title, content }) => (
@@ -381,7 +426,7 @@ export const RegularSections: Story = {
     ));
 
     return (
-      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
         {headerZone(args, 'Service details')}
         {bodyZone(args, () => bodyItems)}
         {footerZone(args)}
@@ -398,6 +443,7 @@ export const Accordions: Story = {
     numPlainSections: { table: { disable: true } },
   },
   render: (args) => {
+    const pagination = usePaginationProps(args);
     const subsections = SUBSECTIONS.slice(0, args.numSubsections);
 
     const bodyItems = ACCORDIONS.slice(0, args.numSections).map(({ id, title, content }, index) => (
@@ -419,7 +465,7 @@ export const Accordions: Story = {
     ));
 
     return (
-      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
         {headerZone(args, 'Alert details')}
         {bodyZone(args, () => bodyItems)}
         {footerZone(args)}
@@ -437,6 +483,7 @@ export const PlainSections: Story = {
     numSections: { name: 'Body sections', control: { type: 'range', min: 0, max: 4, step: 1 } },
   },
   render: (args) => {
+    const pagination = usePaginationProps(args);
     const plainSections = PLAIN_SECTIONS.slice(0, args.numPlainSections);
     const sections = SECTIONS.slice(0, args.numSections);
 
@@ -463,7 +510,7 @@ export const PlainSections: Story = {
     );
 
     return (
-      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
         {headerZone(args, 'Document')}
         {bodyZone(args, bodyItems)}
         {footerZone(args)}
