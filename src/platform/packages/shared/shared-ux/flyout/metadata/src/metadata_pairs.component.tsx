@@ -14,15 +14,10 @@ import type { UseEuiTheme } from '@elastic/eui';
 import { FLYOUT_MAX_GRID_COLUMNS, FLYOUT_MIN_CELL_WIDTH } from '@kbn/shared-ux-flyout-common';
 import type { MetadataPairsProps } from './types';
 
-/**
- * Layout keys off a container query rather than a media query: this renders inside a flyout
- * that is resizable and can be `push` type, so its width is independent of the viewport's.
- */
+/** Layout keys off a container query. */
 const CONTAINER_NAME = 'flyoutMetadataPairs';
 
 const styles = ({ euiTheme }: UseEuiTheme) => {
-  // Shared with InfoBlocks so both drop a column at the same container width, rather than
-  // reflowing at staggered widths.
   const twoColumnBelow = FLYOUT_MAX_GRID_COLUMNS * FLYOUT_MIN_CELL_WIDTH;
   const oneColumnBelow = 2 * FLYOUT_MIN_CELL_WIDTH;
 
@@ -33,14 +28,12 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
     `,
     grid: css`
       display: grid;
-      /* Up to three columns, wrapping into further rows — the item count is unbounded.
-         Tracks are content-sized and start-aligned to keep pairs visually compact. */
       grid-template-columns: repeat(${FLYOUT_MAX_GRID_COLUMNS}, minmax(0, auto));
       justify-content: start;
       align-items: center;
       gap: ${euiTheme.size.xs} ${euiTheme.size.m};
 
-      /* Cramped: 2 across, with a trailing odd pair spanning both columns. */
+      /* 2 across, with a second row spanning both columns. */
       @container ${CONTAINER_NAME} (width < ${twoColumnBelow}px) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
 
@@ -49,12 +42,12 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
         }
       }
 
-      /* Very narrow: one pair per row. The span above collapses to the single column. */
+      /* one pair per row */
       @container ${CONTAINER_NAME} (width < ${oneColumnBelow}px) {
         grid-template-columns: minmax(0, 1fr);
       }
     `,
-    // Each pair ellipsizes rather than wrapping, at every layout.
+    // Each pair ellipsizes at every layout.
     item: css`
       overflow: hidden;
       text-overflow: ellipsis;
@@ -73,8 +66,8 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
 };
 
 /**
- * A compact, responsive row of key-value pairs — the metadata line used beneath a flyout title.
- * TODO: Warn in dev mode if the number of items exceeds 3, per UX guideline
+ * A compact, responsive row of key-value pairs.
+ * TODO: Warn in dev mode if the number of items exceeds 3, per UX guideline.
  */
 export const MetadataPairs: FunctionComponent<MetadataPairsProps> = ({ items, ...rest }) => {
   const memoized = useEuiMemoizedStyles(styles);

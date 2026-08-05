@@ -33,7 +33,7 @@ const meta: Meta<typeof MetadataPairs> = {
 };
 export default meta;
 
-// Plain text pairs — the common case, and the designed maximum is three.
+// Plain text pairs
 const TEXT_ITEMS: MetadataItem[] = [
   { title: 'Last updated', value: 'Dec 3, 2025' },
   { title: 'Owner', value: 'Platform' },
@@ -43,7 +43,7 @@ const TEXT_ITEMS: MetadataItem[] = [
   { title: 'Namespace', value: 'kube-system' },
 ];
 
-// Rich values: links and badges keep their own weight and layout.
+// Rich values
 const RICH_ITEMS: MetadataItem[] = [
   {
     title: 'Rule',
