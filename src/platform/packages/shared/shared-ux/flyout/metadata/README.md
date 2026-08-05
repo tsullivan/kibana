@@ -17,7 +17,6 @@ import { MetadataPairs } from '@kbn/shared-ux-flyout-metadata';
 
 ## Behavior
 
--   Up to three columns, wrapping into further rows. The item count is unbounded, though (3) is the designed maximum.
--   Responsive flow thresholds derive from `FLYOUT_MIN_CELL_WIDTH` from '@kbn/flyout-common'
+-   Pairs flow onto one line and wrap when they no longer fit. The item count is unbounded, though (3) is the designed maximum.
 -   Titles and values accept arbitrary `ReactNode`, to allow rich content.
 -   An empty `items` array renders nothing.
