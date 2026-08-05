@@ -225,7 +225,7 @@ export const HeaderZone = ({
           <EuiSpacer size="m" />
           <FullBleedDivider horizontalPadding={horizontalPadding} />
           <EuiSpacer size="m" />
-          <InfoBlocks items={infoBlockItems} />
+          <InfoBlocks items={infoBlockItems} maxColumns="auto" />
         </>
       )}
       {hasTabs && (
