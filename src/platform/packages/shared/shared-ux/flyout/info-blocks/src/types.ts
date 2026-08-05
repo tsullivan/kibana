@@ -15,11 +15,14 @@ export interface InfoBlockItem {
   title: string;
   /** Arbitrary content rendered as the block value. */
   value: ReactNode;
-  /** Optional EUI font scale for the value; ignored when compressed. */
-  size?: _EuiThemeFontScale;
   /** Color for the value text, passed through to `EuiText` (e.g. `'success'`). */
   color?: EuiTextProps['color'];
   'data-test-subj'?: string;
+  /**
+   * Optional EUI font scale for the value; ignored when compressed.
+   * Replace this if EUI publicly exports a type for the `scale` prop of `EuiText`.
+   */
+  size?: _EuiThemeFontScale;
 }
 
 export interface InfoBlocksProps {
