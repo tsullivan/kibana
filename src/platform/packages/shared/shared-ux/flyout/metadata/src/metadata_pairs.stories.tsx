@@ -74,7 +74,7 @@ interface StoryArgs {
 }
 
 const meta: Meta<MetadataPairsProps & StoryArgs> = {
-  title: 'Flyout Template/Metadata Pairs',
+  title: 'Flyout Template/Metadata',
   component: MetadataPairs,
   argTypes: {
     items: { table: { disable: true } },
