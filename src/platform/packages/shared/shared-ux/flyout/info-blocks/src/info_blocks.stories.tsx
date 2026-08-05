@@ -21,7 +21,6 @@ import {
   EuiHealth,
   EuiIcon,
   EuiLink,
-  EuiSwitch,
   EuiSpacer,
   EuiTitle,
   EuiToolTip,
@@ -30,15 +29,13 @@ import {
   EuiFlyoutBody,
 } from '@elastic/eui';
 import { InfoBlocks } from './info_blocks.component';
-import type { InfoBlockItem } from './types';
+import type { InfoBlockItem, InfoBlocksMaxColumns } from './types';
 
 const meta: Meta<typeof InfoBlocks> = {
   title: 'Flyout Template/Info Blocks',
   component: InfoBlocks,
   argTypes: {
     items: { table: { disable: true } },
-    hasLeadingSpacer: { table: { disable: true } },
-    compressed: { table: { disable: true } },
     'data-test-subj': { table: { disable: true } },
   },
 };
@@ -46,50 +43,8 @@ export default meta;
 
 interface DefaultArgs {
   numberOfItems: number;
+  maxColumns: InfoBlocksMaxColumns | 'auto';
 }
-
-const SAMPLE_ITEMS: InfoBlockItem[] = [
-  { title: 'Owner', value: 'Platform' },
-  { title: 'Latency', value: <EuiHealth color="success">Healthy</EuiHealth> },
-  {
-    // Long value that must truncate within its column, with a trailing copy action.
-    title: 'Resource',
-    value: (
-      <EuiFlexGroup responsive={false} gutterSize="xs" alignItems="center">
-        <EuiFlexItem
-          grow={true}
-          css={css`
-            min-width: 0;
-          `}
-        >
-          <EuiLink
-            href="#"
-            className="eui-textTruncate"
-            css={css`
-              display: block;
-            `}
-          >
-            etcd-cspm-control-plane-8fO2b-1a2b3c4d5e6f7g8h9i0j-kube-system
-          </EuiLink>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiToolTip content="Copy resource identifier" disableScreenReaderOutput>
-            <EuiButtonIcon
-              iconType="copyClipboard"
-              color="text"
-              size="xs"
-              aria-label="Copy resource identifier"
-            />
-          </EuiToolTip>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    ),
-  },
-  { title: 'Throughput', value: '1.2k tpm' },
-  { title: 'Environment', value: 'production' },
-  { title: 'Error rate', value: <EuiHealth color="warning">0.4%</EuiHealth> },
-  { title: 'Version', value: 'v8.19.0' },
-];
 
 // A truncating link with a trailing copy action.
 const RESOURCE_LINK = (
@@ -124,8 +79,15 @@ const RESOURCE_LINK = (
   </EuiFlexGroup>
 );
 
-// Examples of custom value content.
-const ACTIONABLE_ITEMS: InfoBlockItem[] = [
+const SAMPLE_ITEMS: InfoBlockItem[] = [
+  { title: 'Owner', value: 'Platform' },
+  { title: 'Latency', value: <EuiHealth color="success">Healthy</EuiHealth> },
+  // Long value that must truncate within its column.
+  { title: 'Resource', value: RESOURCE_LINK },
+  { title: 'Throughput', value: '1.2k tpm' },
+  { title: 'Environment', value: 'production' },
+  { title: 'Error rate', value: <EuiHealth color="warning">0.4%</EuiHealth> },
+  { title: 'Version', value: 'v8.19.0' },
   {
     title: 'Assigned',
     value: (
@@ -203,19 +165,6 @@ const ACTIONABLE_ITEMS: InfoBlockItem[] = [
   },
 ];
 
-// A mix of large and regular values.
-const BIG_NUMBER_ITEMS: InfoBlockItem[] = [
-  { title: 'Risk score', value: '90', size: 'xl' },
-  ...SAMPLE_ITEMS.slice(0, 3),
-  { title: 'Healthy', value: '5', size: 'xl', color: 'success' },
-];
-
-// The first block starts its own row; the rest resume on the next row.
-const LEADING_SPACER_ITEMS: InfoBlockItem[] = [
-  { title: 'Risk score', value: '90', size: 'xl' },
-  ...SAMPLE_ITEMS.slice(0, 4),
-];
-
 const FlyoutWrapper: React.FC<{ children: React.ReactNode; title: string }> = ({
   children,
   title,
@@ -238,67 +187,6 @@ const FlyoutWrapper: React.FC<{ children: React.ReactNode; title: string }> = ({
   </EuiFlyout>
 );
 
-type Story = StoryObj<typeof InfoBlocks>;
-
-const GalleryDemo: React.FC = () => {
-  const [useCompressed, setUseCompressed] = React.useState(false);
-
-  return (
-    <div>
-      <EuiSwitch
-        id="compressed-toggle"
-        label="Use compressed layout"
-        checked={useCompressed}
-        onChange={() => setUseCompressed(!useCompressed)}
-      />
-
-      <FlyoutWrapper title="Info blocks gallery">
-        <EuiTitle size="s">
-          <h3>Sample set</h3>
-        </EuiTitle>
-        <EuiSpacer size="m" />
-        <InfoBlocks items={[...SAMPLE_ITEMS, ...ACTIONABLE_ITEMS]} compressed={useCompressed} />
-
-        <EuiSpacer size="xl" />
-        <EuiTitle size="s">
-          <h3>Big number</h3>
-        </EuiTitle>
-        <EuiSpacer size="m" />
-        <InfoBlocks items={BIG_NUMBER_ITEMS} compressed={useCompressed} />
-
-        <EuiSpacer size="xl" />
-        <EuiTitle size="s">
-          <h3>Leading spacer</h3>
-        </EuiTitle>
-        <EuiSpacer size="m" />
-        <InfoBlocks items={LEADING_SPACER_ITEMS} hasLeadingSpacer compressed={useCompressed} />
-      </FlyoutWrapper>
-    </div>
-  );
-};
-
-export const Gallery: Story = {
-  parameters: { controls: { hideNoControlsWarning: true } },
-  render: () => <GalleryDemo />,
-};
-
-export const LeadingSpacer: StoryObj<DefaultArgs> = {
-  argTypes: {
-    numberOfItems: {
-      description: 'Number of info blocks to render',
-      control: { type: 'range', min: 1, max: LEADING_SPACER_ITEMS.length, step: 1 },
-    },
-  },
-  args: {
-    numberOfItems: LEADING_SPACER_ITEMS.length,
-  },
-  render: ({ numberOfItems }) => (
-    <FlyoutWrapper title="Leading spacer">
-      <InfoBlocks items={LEADING_SPACER_ITEMS.slice(0, numberOfItems)} hasLeadingSpacer />
-    </FlyoutWrapper>
-  ),
-};
-
 // Tall content sets the row height.
 const TALL_SVG = (
   <svg
@@ -319,24 +207,58 @@ const TALL_SVG = (
   </svg>
 );
 
-export const InlineSvg: StoryObj<DefaultArgs> = {
+export const Default: StoryObj<DefaultArgs> = {
+  name: 'InfoBlocks',
   argTypes: {
     numberOfItems: {
-      description: 'Number of additional info blocks to render',
-      control: { type: 'range', min: 0, max: LEADING_SPACER_ITEMS.length, step: 1 },
+      description: 'Number of items in each panel',
+      control: { type: 'range', min: 1, max: SAMPLE_ITEMS.length, step: 1 },
+    },
+    maxColumns: {
+      description:
+        'Widest column count, or `auto` to derive it from the item count; resize the flyout to see it step down',
+      control: { type: 'inline-radio' },
+      options: [2, 3, 4, 'auto'],
     },
   },
   args: {
-    numberOfItems: LEADING_SPACER_ITEMS.length,
+    numberOfItems: SAMPLE_ITEMS.length,
+    maxColumns: 'auto',
   },
-  render: ({ numberOfItems }) => (
-    <FlyoutWrapper title="Inline SVG">
+  render: ({ numberOfItems, maxColumns }) => (
+    <FlyoutWrapper title="Info blocks gallery">
+      <EuiTitle size="s">
+        <h3>Sample set</h3>
+      </EuiTitle>
+      <EuiSpacer size="m" />
+      <InfoBlocks items={SAMPLE_ITEMS.slice(0, numberOfItems)} maxColumns={maxColumns} />
+
+      <EuiSpacer size="xl" />
+      <EuiTitle size="s">
+        <h3>Big number</h3>
+      </EuiTitle>
+      <EuiSpacer size="m" />
       <InfoBlocks
         items={[
-          // non-hideable item
-          { title: 'Trend', value: TALL_SVG },
-          ...[...SAMPLE_ITEMS, ...ACTIONABLE_ITEMS].slice(0, numberOfItems),
-        ]}
+          {
+            title: 'Risk score',
+            value: '90',
+            size: 'xl' as const,
+            color: 'danger',
+          },
+          ...SAMPLE_ITEMS,
+        ].slice(0, numberOfItems)}
+        maxColumns={maxColumns}
+      />
+
+      <EuiSpacer size="xl" />
+      <EuiTitle size="s">
+        <h3>Inline SVG</h3>
+      </EuiTitle>
+      <EuiSpacer size="m" />
+      <InfoBlocks
+        items={[{ title: 'Trend', value: TALL_SVG }, ...SAMPLE_ITEMS].slice(0, numberOfItems)}
+        maxColumns={maxColumns}
       />
     </FlyoutWrapper>
   ),

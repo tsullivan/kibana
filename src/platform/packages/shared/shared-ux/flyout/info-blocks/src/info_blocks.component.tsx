@@ -13,18 +13,79 @@ import { EuiPanel, useEuiMemoizedStyles } from '@elastic/eui';
 import type { UseEuiTheme } from '@elastic/eui';
 import { FLYOUT_MIN_CELL_WIDTH, FLYOUT_MAX_GRID_COLUMNS } from '@kbn/shared-ux-flyout-common';
 import { InfoBlock } from './info_block.component';
-import type { InfoBlocksProps } from './types';
+import type { InfoBlocksMaxColumns, InfoBlocksProps } from './types';
 
 const CONTAINER_NAME = 'infoBlocks';
 
+/**
+ * Grid and divider rules for a `columns`-wide state. The `:nth-child(n)` resets tie on specificity
+ * with the rules that follow, so those win on source order.
+ */
+const columnState = (columns: number) => `
+  grid-template-columns: repeat(${columns}, minmax(0, 1fr));
+
+  & > :nth-child(n)::before {
+    display: block;
+  }
+  & > :nth-child(${columns}n)::before {
+    display: none;
+  }
+
+  & > :nth-child(n)::after {
+    display: none;
+  }
+  & > :nth-child(${columns}n + 1)::after {
+    display: block;
+  }
+  & > :nth-child(1)::after {
+    display: none;
+  }
+`;
+
+/** Widest state first; container queries tie on specificity, so the narrowest must come last. */
+const responsiveGrid = (maxColumns: number) => {
+  let steps = '';
+  for (let columns = maxColumns - 1; columns >= 1; columns--) {
+    // Each state needs `columns * FLYOUT_MIN_CELL_WIDTH` to fit.
+    steps += `
+      @container ${CONTAINER_NAME} (width < ${(columns + 1) * FLYOUT_MIN_CELL_WIDTH}px) {
+        ${columnState(columns)}
+      }
+    `;
+  }
+  return css`
+    ${columnState(maxColumns)}
+    ${steps}
+  `;
+};
+
+/** Caps `'auto'` picks from, widest first; two columns reads too sparse. */
+const AUTO_COLUMN_CANDIDATES = [FLYOUT_MAX_GRID_COLUMNS, 3] as const;
+
+/** Empty cells trailing the last row at a given cap. */
+const gapsFor = (itemCount: number, columns: number) => (columns - (itemCount % columns)) % columns;
+
+/**
+ * Widest cap whose last row has at most one gap, else the fullest last row, preferring the wider cap
+ * on a tie. Governs the widest state only; narrower containers still step down from it.
+ */
+export const resolveMaxColumns = (itemCount: number): InfoBlocksMaxColumns => {
+  // Sets small enough for one row get a column each, never narrower than two.
+  if (itemCount <= 2) return 2;
+  if (itemCount === 3) return 3;
+
+  const clean = AUTO_COLUMN_CANDIDATES.find((columns) => gapsFor(itemCount, columns) <= 1);
+  if (clean !== undefined) return clean;
+
+  return gapsFor(itemCount, 4) <= gapsFor(itemCount, 3) ? 4 : 3;
+};
+
 const styles = ({ euiTheme }: UseEuiTheme) => {
-  const twoColumnBelow = FLYOUT_MAX_GRID_COLUMNS * FLYOUT_MIN_CELL_WIDTH; // 420
-  const oneColumnBelow = 2 * FLYOUT_MIN_CELL_WIDTH; // 280
   const color = euiTheme.border.color;
   const thickness = euiTheme.border.width.thin;
   // Keeps dividers clear of the panel's rounded corners.
   const cornerGap = euiTheme.size.base;
-  // Container-wide, so a row separator stays continuous across a partial row; 2px covers the borders.
+  // Container-wide so a partial row's separator stays continuous; 2px allows for the panel borders.
   const rowLineWidth = `calc(100cqw - ${cornerGap} * 2 - 2px)`;
 
   return {
@@ -35,7 +96,6 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
 
     panel: css`
       display: grid;
-      grid-template-columns: repeat(${FLYOUT_MAX_GRID_COLUMNS}, minmax(0, 1fr));
 
       & > * {
         position: relative;
@@ -64,131 +124,17 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
         background-color: ${color};
         display: none;
       }
-
-      /* ── 3-column state (default) ── */
-      & > :nth-child(3n)::before {
-        display: none;
-      }
-      & > :nth-child(3n + 1)::after {
-        display: block;
-      }
-      & > :nth-child(1)::after {
-        display: none;
-      }
-
-      /* ── 2-column state ── */
-      @container ${CONTAINER_NAME} (width < ${twoColumnBelow}px) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-
-        /* :nth-child(n) resets every cell at equal specificity; the exceptions below win on order. */
-        & > :nth-child(n)::before {
-          display: block;
-        }
-        & > :nth-child(2n)::before {
-          display: none;
-        }
-
-        & > :nth-child(n)::after {
-          display: none;
-        }
-        & > :nth-child(2n + 1)::after {
-          display: block;
-        }
-        & > :nth-child(1)::after {
-          display: none;
-        }
-      }
-
-      /* ── 1-column state ── */
-      @container ${CONTAINER_NAME} (width < ${oneColumnBelow}px) {
-        grid-template-columns: minmax(0, 1fr);
-
-        & > :nth-child(n)::before {
-          display: none;
-        }
-        & > :nth-child(n)::after {
-          display: block;
-        }
-        & > :nth-child(1)::after {
-          display: none;
-        }
-      }
     `,
 
-    /*
-     * The panel's own ::before is a grid item reserving the rest of row 1, so the first block
-     * stands alone. Every later block shifts one column over, which the selectors below mirror.
-     */
-    leadingSpacer: css`
-      &::before {
-        content: '';
-        grid-column: 2 / -1;
-        grid-row: 1;
-      }
+    /** One variant per supported cap, since each has its own breakpoint ladder. */
+    grids: {
+      2: responsiveGrid(2),
+      3: responsiveGrid(3),
+      4: responsiveGrid(FLYOUT_MAX_GRID_COLUMNS),
+    },
 
-      /* ── 3-column state ── row 1 holds only the first block, so rows now start at 2, 5, 8… */
-      /* Reset first: after the shift the base 3n rule lands on the middle column. */
-      & > :nth-child(n)::before {
-        display: block;
-      }
-      & > :nth-child(3n + 1)::before {
-        display: none;
-      }
-      & > :nth-child(3n + 1)::after {
-        display: none;
-      }
-      & > :nth-child(3n + 2)::after {
-        display: block;
-      }
-      /* The block before the spacer keeps its column divider. */
-      & > :nth-child(1)::before {
-        display: block;
-      }
-
-      /* ── 2-column state ── rows start at 2, 4, 6… */
-      @container ${CONTAINER_NAME} (width < ${twoColumnBelow}px) {
-        & > :nth-child(n)::before {
-          display: block;
-        }
-        & > :nth-child(2n + 1)::before {
-          display: none;
-        }
-        & > :nth-child(1)::before {
-          display: block;
-        }
-
-        & > :nth-child(n)::after {
-          display: none;
-        }
-        & > :nth-child(2n)::after {
-          display: block;
-        }
-      }
-
-      /* ── 1-column state ── a single column has no room to reserve. */
-      @container ${CONTAINER_NAME} (width < ${oneColumnBelow}px) {
-        &::before {
-          content: none;
-        }
-
-        & > :nth-child(n)::before {
-          display: none;
-        }
-        & > :nth-child(n)::after {
-          display: block;
-        }
-        & > :nth-child(1)::after {
-          display: none;
-        }
-      }
-    `,
-
-    cellDefault: css`
+    cell: css`
       padding: ${euiTheme.size.m};
-    `,
-
-    cellCompressed: css`
-      padding: ${euiTheme.size.s};
     `,
   };
 };
@@ -196,13 +142,11 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
 /** Responsive card for a small set of labeled values. */
 export const InfoBlocks: FunctionComponent<InfoBlocksProps> = ({
   items,
-  hasLeadingSpacer,
-  compressed,
+  maxColumns = 3,
   ...rest
 }) => {
   const memoized = useEuiMemoizedStyles(styles);
-  // Compressed mode opts out of the row-shaping leading spacer.
-  const effectiveHasLeadingSpacer = Boolean(hasLeadingSpacer) && !compressed;
+  const columns = maxColumns === 'auto' ? resolveMaxColumns(items.length) : maxColumns;
 
   return (
     <div css={memoized.wrapper}>
@@ -210,15 +154,12 @@ export const InfoBlocks: FunctionComponent<InfoBlocksProps> = ({
         paddingSize="none"
         hasShadow={false}
         hasBorder
-        css={[memoized.panel, effectiveHasLeadingSpacer && memoized.leadingSpacer]}
+        css={[memoized.panel, memoized.grids[columns]]}
         data-test-subj={rest['data-test-subj'] ?? 'infoBlocks'}
       >
         {items.map((item, index) => (
-          <div
-            key={item['data-test-subj'] ?? index}
-            css={compressed ? memoized.cellCompressed : memoized.cellDefault}
-          >
-            <InfoBlock {...item} compressed={compressed} />
+          <div key={item['data-test-subj'] ?? index} css={memoized.cell}>
+            <InfoBlock {...item} />
           </div>
         ))}
       </EuiPanel>
