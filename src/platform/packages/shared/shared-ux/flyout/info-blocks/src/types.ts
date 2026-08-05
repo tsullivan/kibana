@@ -29,8 +29,13 @@ export interface InfoBlockItem {
   size?: InfoBlockSize;
 }
 
+/** Column count the grid uses at its widest. */
+export type InfoBlocksMaxColumns = 2 | 3 | 4;
+
 export interface InfoBlocksProps {
   /** The blocks to render. Designed for small sets, typically up to 8 blocks. */
   items: readonly InfoBlockItem[];
+  /** Widest column count; narrower containers step down one column at a time toward one. */
+  maxColumns?: InfoBlocksMaxColumns;
   'data-test-subj'?: string;
 }
