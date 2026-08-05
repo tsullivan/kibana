@@ -7,35 +7,30 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import {
   EuiBadge,
+  EuiButton,
   EuiFlyout,
   EuiFlyoutBody,
+  EuiFlyoutFooter,
   EuiFlyoutHeader,
   EuiLink,
   EuiSpacer,
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { MAX_METADATA_ITEMS } from '@kbn/shared-ux-flyout-common';
 import { MetadataPairs } from './metadata_pairs.component';
-import type { MetadataItem } from './types';
+import type { MetadataItem, MetadataPairsProps } from './types';
 
-const meta: Meta<typeof MetadataPairs> = {
-  title: 'Flyout Template/Metadata Pairs',
-  component: MetadataPairs,
-  argTypes: {
-    items: { table: { disable: true } },
-    'data-test-subj': { table: { disable: true } },
-  },
-};
-export default meta;
-
-// Plain text pairs — the common case, and the designed maximum is three.
+// Plain text pairs
 const TEXT_ITEMS: MetadataItem[] = [
+  {
+    title: 'Resource',
+    value: 'etcd-cspm-control-plane-8fO2b-1a2b3c4d5e6f7g8h9i0j-kube-system',
+  },
   { title: 'Last updated', value: 'Dec 3, 2025' },
   { title: 'Owner', value: 'Platform' },
   { title: 'Environment', value: 'production' },
@@ -44,7 +39,7 @@ const TEXT_ITEMS: MetadataItem[] = [
   { title: 'Namespace', value: 'kube-system' },
 ];
 
-// Rich values: links and badges keep their own weight and layout.
+// Rich values
 const RICH_ITEMS: MetadataItem[] = [
   {
     title: 'Rule',
@@ -68,37 +63,45 @@ const RICH_ITEMS: MetadataItem[] = [
   { title: 'Assignee', value: 'Alex Braun' },
 ];
 
-// Leads the set: a value long enough to exceed its column, so truncation is always visible.
-const LONG_ITEM: MetadataItem = {
-  title: 'Resource',
-  value: 'etcd-cspm-control-plane-8fO2b-1a2b3c4d5e6f7g8h9i0j-kube-system',
-};
+const ALL_ITEMS: MetadataItem[] = [...TEXT_ITEMS, ...RICH_ITEMS];
 
-// Interleaved so a row mixes plain and rich values.
-const ITEMS: MetadataItem[] = [
-  LONG_ITEM,
-  ...TEXT_ITEMS.flatMap((item, index) => [item, RICH_ITEMS[index]]),
-];
-// Randomize ITEMS
-const shuffledItems = ITEMS.sort(() => Math.random() - 0.5);
-// Take the top 5 items
-const topItems = shuffledItems.slice(0, 5);
+// Copy before sorting: sort() mutates in place.
+const getRandomItems = (count: number) =>
+  [...ALL_ITEMS].sort(() => 0.5 - Math.random()).slice(0, count);
 
 interface StoryArgs {
   numberOfItems: number;
 }
 
-export const Metadata: StoryObj<StoryArgs> = {
+const meta: Meta<MetadataPairsProps & StoryArgs> = {
+  title: 'Flyout Template/Metadata Pairs',
+  component: MetadataPairs,
   argTypes: {
+    items: { table: { disable: true } },
+    'data-test-subj': { table: { disable: true } },
     numberOfItems: {
-      description: `Number of pairs to render. ${MAX_METADATA_ITEMS} is the designed maximum — beyond it the component warns in development but still renders every pair. At 0 it renders nothing.`,
-      control: { type: 'range', min: 0, max: topItems.length, step: 1 },
+      description: `Number of pairs to render. (3) is the designed maximum. At 0 it renders nothing.`,
+      control: { type: 'range', min: 0, max: ALL_ITEMS.length, step: 1 },
     },
   },
   args: {
-    numberOfItems: MAX_METADATA_ITEMS,
+    numberOfItems: 3,
   },
-  render: ({ numberOfItems }) => (
+};
+export default meta;
+
+const MetadataDemo: React.FC<StoryArgs> = ({ numberOfItems }) => {
+  const [items, setItems] = useState<MetadataItem[]>(() => getRandomItems(numberOfItems));
+
+  const setRandomItems = () => {
+    setItems(getRandomItems(numberOfItems));
+  };
+
+  useEffect(() => {
+    setItems(getRandomItems(numberOfItems));
+  }, [numberOfItems]);
+
+  return (
     <EuiFlyout
       onClose={action('Flyout closed')}
       size="m"
@@ -109,20 +112,24 @@ export const Metadata: StoryObj<StoryArgs> = {
     >
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
-          <h2 id="flyoutTitle">Unusual process spawned</h2>
+          <h2 id="flyoutTitle">Metadata Pairs</h2>
         </EuiTitle>
         <EuiSpacer size="s" />
-        <MetadataPairs items={topItems.slice(0, numberOfItems)} />
+        <MetadataPairs items={items} />
       </EuiFlyoutHeader>
 
       <EuiFlyoutBody>
-        <EuiText size="s">
-          <p>
-            The metadata line sits beneath the flyout title, above the body content. Resize the
-            flyout to watch the grid reflow.
-          </p>
+        <EuiText>
+          <p>Metadata component is in the flyout header with {numberOfItems} key-value pairs.</p>
         </EuiText>
       </EuiFlyoutBody>
+      <EuiFlyoutFooter>
+        <EuiButton onClick={setRandomItems}>Randomize Items</EuiButton>
+      </EuiFlyoutFooter>
     </EuiFlyout>
-  ),
+  );
+};
+
+export const Metadata: StoryObj<typeof meta> = {
+  render: ({ numberOfItems }) => <MetadataDemo numberOfItems={numberOfItems} />,
 };
