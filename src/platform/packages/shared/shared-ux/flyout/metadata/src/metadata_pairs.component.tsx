@@ -15,26 +15,35 @@ import type { MetadataPairsProps } from './types';
 
 const styles = ({ euiTheme }: UseEuiTheme) => {
   return {
-    // Pairs are inline text, so content decides the layout — no width breakpoints.
+    // Pairs are inline text
     list: css`
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: ${euiTheme.size.xs} ${euiTheme.size.m};
     `,
-    // Pairs wrap rather than shrink; only one too wide for its own line truncates.
+    // Pairs wrap as necessary
     item: css`
+      display: flex;
+      align-items: center;
+      gap: ${euiTheme.size.xs};
+      flex: 0 1 auto;
+      min-width: 0;
+    `,
+    // The key never truncates
+    key: css`
+      flex: 0 0 auto;
+      white-space: nowrap;
+      font-weight: ${euiTheme.font.weight.bold};
+    `,
+    value: css`
       flex: 0 1 auto;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-    `,
-    key: css`
-      font-weight: ${euiTheme.font.weight.bold};
-    `,
-    // Keep link values from inheriting the key's weight.
-    value: css`
+
+      /* Keep link values from inheriting the key's weight. */
       a {
         font-weight: ${euiTheme.font.weight.regular};
       }
@@ -57,7 +66,7 @@ export const MetadataPairs: FunctionComponent<MetadataPairsProps> = ({ items, ..
     <div css={memoized.list} data-test-subj={rest['data-test-subj'] ?? 'metadataPairs'}>
       {items.map((item, index) => (
         <EuiText key={index} size="s" css={memoized.item} data-test-subj={item['data-test-subj']}>
-          <span css={memoized.key}>{item.title}</span>{' '}
+          <span css={memoized.key}>{item.title}</span>
           <span css={memoized.value}>{item.value}</span>
         </EuiText>
       ))}
