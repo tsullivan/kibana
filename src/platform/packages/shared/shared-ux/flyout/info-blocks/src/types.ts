@@ -8,7 +8,6 @@
  */
 
 import type { ReactNode } from 'react';
-import type { _EuiThemeFontScale, EuiTextProps } from '@elastic/eui';
 import type { EuiTextProps } from '@elastic/eui';
 
 /**
