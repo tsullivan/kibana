@@ -11,11 +11,7 @@ import React, { type FunctionComponent } from 'react';
 import { css } from '@emotion/react';
 import { EuiText, useEuiMemoizedStyles } from '@elastic/eui';
 import type { UseEuiTheme } from '@elastic/eui';
-import {
-  FLYOUT_MAX_GRID_COLUMNS,
-  FLYOUT_MIN_CELL_WIDTH,
-  MAX_METADATA_ITEMS,
-} from '@kbn/shared-ux-flyout-common';
+import { FLYOUT_MAX_GRID_COLUMNS, FLYOUT_MIN_CELL_WIDTH } from '@kbn/shared-ux-flyout-common';
 import type { MetadataPairsProps } from './types';
 
 /**
@@ -78,17 +74,10 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
 
 /**
  * A compact, responsive row of key-value pairs — the metadata line used beneath a flyout title.
+ * TODO: Warn in dev mode if the number of items exceeds 3, per UX guideline
  */
 export const MetadataPairs: FunctionComponent<MetadataPairsProps> = ({ items, ...rest }) => {
   const memoized = useEuiMemoizedStyles(styles);
-
-  // All pairs render; the cap is a design guideline, so overshooting only warns.
-  if (process.env.NODE_ENV !== 'production' && items.length > MAX_METADATA_ITEMS) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[MetadataPairs] designed for up to ${MAX_METADATA_ITEMS} pairs; ${items.length} were provided.`
-    );
-  }
 
   if (items.length === 0) {
     return null;

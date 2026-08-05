@@ -9,9 +9,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MAX_METADATA_ITEMS } from '@kbn/shared-ux-flyout-common';
 import { MetadataPairs } from './metadata_pairs.component';
-import type { MetadataItem } from './types';
 
 describe('MetadataPairs', () => {
   it('renders each pair title and node value', () => {
@@ -48,23 +46,5 @@ describe('MetadataPairs', () => {
     );
 
     expect(screen.getByTestId('ownerPair')).toBeInTheDocument();
-  });
-
-  it('warns but still renders every pair beyond the designed maximum', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const items: MetadataItem[] = Array.from({ length: MAX_METADATA_ITEMS + 1 }, (_, i) => ({
-      title: `Key ${i}`,
-      value: `Value ${i}`,
-      'data-test-subj': `pair-${i}`,
-    }));
-
-    render(<MetadataPairs items={items} />);
-
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('[MetadataPairs]'));
-    expect(screen.getByTestId('metadataPairs').firstElementChild!.children).toHaveLength(
-      items.length
-    );
-
-    warn.mockRestore();
   });
 });

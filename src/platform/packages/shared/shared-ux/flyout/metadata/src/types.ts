@@ -11,18 +11,14 @@ import type { ReactNode } from 'react';
 
 /** A single key-value pair rendered by `MetadataPairs`. */
 export interface MetadataItem {
-  /** The pair's key, rendered bold ahead of the value. */
+  /** The pair's key. */
   title: ReactNode;
-  /** The pair's value; accepts rich content such as links. */
+  /** The pair's value. */
   value: ReactNode;
   'data-test-subj'?: string;
 }
 
 export interface MetadataPairsProps {
-  /**
-   * The pairs to render. Unbounded, though `MAX_METADATA_ITEMS` is the designed maximum —
-   * exceeding it warns in development but still renders every pair.
-   */
   items: readonly MetadataItem[];
   'data-test-subj'?: string;
 }

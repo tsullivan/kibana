@@ -20,7 +20,6 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { MAX_METADATA_ITEMS } from '@kbn/shared-ux-flyout-common';
 import { MetadataPairs } from './metadata_pairs.component';
 import type { MetadataItem } from './types';
 
@@ -91,12 +90,12 @@ interface StoryArgs {
 export const Metadata: StoryObj<StoryArgs> = {
   argTypes: {
     numberOfItems: {
-      description: `Number of pairs to render. ${MAX_METADATA_ITEMS} is the designed maximum — beyond it the component warns in development but still renders every pair. At 0 it renders nothing.`,
+      description: `Number of pairs to render. (3) is the designed maximum. At 0 it renders nothing.`,
       control: { type: 'range', min: 0, max: topItems.length, step: 1 },
     },
   },
   args: {
-    numberOfItems: MAX_METADATA_ITEMS,
+    numberOfItems: 3,
   },
   render: ({ numberOfItems }) => (
     <EuiFlyout
