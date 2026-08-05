@@ -9,6 +9,13 @@
 
 import type { ReactNode } from 'react';
 import type { _EuiThemeFontScale, EuiTextProps } from '@elastic/eui';
+import type { EuiTextProps } from '@elastic/eui';
+
+/**
+ * EUI font-scale keys, declared independently to avoid depending on EUI's underscore-prefixed internal.
+ * Replace this if EUI publicly exports a type for the `scale` prop of `EuiText`.
+ */
+export type InfoBlockSize = 'xxxs' | 'xxs' | 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl';
 
 export interface InfoBlockItem {
   /** Fixed-style text label rendered above the value. */
@@ -18,17 +25,12 @@ export interface InfoBlockItem {
   /** Color for the value text, passed through to `EuiText` (e.g. `'success'`). */
   color?: EuiTextProps['color'];
   'data-test-subj'?: string;
-  /**
-   * Optional EUI font scale for the value; ignored when compressed.
-   * Replace this if EUI publicly exports a type for the `scale` prop of `EuiText`.
-   */
-  size?: _EuiThemeFontScale;
+  /** Optional EUI font scale for the value. */
+  size?: InfoBlockSize;
 }
 
 export interface InfoBlocksProps {
   /** The blocks to render. Designed for small sets, typically up to 8 blocks. */
   items: readonly InfoBlockItem[];
-  /** Compact spacing/sizing for dense presentations. */
-  compressed?: boolean;
   'data-test-subj'?: string;
 }
