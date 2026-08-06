@@ -1017,6 +1017,29 @@ describe('FlyoutTemplate subsections', () => {
     expect('Subsection' in FlyoutTemplate.Body).toBe(false);
     expect(FlyoutTemplate.Body.Section.Subsection).toBe(FlyoutTemplate.Body.Accordion.Subsection);
   });
+
+  it('warns when a subsection is declared directly in the body', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Body>
+          <FlyoutTemplate.Body.Section title="One">one</FlyoutTemplate.Body.Section>
+          <FlyoutTemplate.Body.Section.Subsection title="Orphan">
+            orphan content
+          </FlyoutTemplate.Body.Section.Subsection>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    // A misnested part renders nothing, so the warning is the only signal.
+    expect(screen.queryByText('orphan content')).not.toBeInTheDocument();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        '<FlyoutTemplate.Body.Section.Subsection> is a "subsection" part of FlyoutTemplateSection'
+      )
+    );
+    warn.mockRestore();
+  });
 });
 
 describe('FlyoutTemplate header metadata', () => {
