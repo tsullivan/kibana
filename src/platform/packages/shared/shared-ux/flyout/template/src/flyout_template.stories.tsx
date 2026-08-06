@@ -657,3 +657,96 @@ export const MenuBarHistory: Story = {
   },
   render: WithHistoryRender,
 };
+
+const PlaygroundRender = (): React.JSX.Element => {
+  const historyKey = useRef(Symbol('playgroundHistory')).current;
+
+  const [isSettingsFlyoutOpen, setIsSettingsFlyoutOpen] = useState(true);
+  const [isToolsFlyoutOpen, setIsToolsFlyoutOpen] = useState(true);
+
+  return (
+    <>
+      <EuiButton onClick={() => setIsToolsFlyoutOpen(true)} disabled={isToolsFlyoutOpen}>
+        Open tools flyout
+      </EuiButton>
+      <EuiSpacer size="s" />
+      <EuiButton onClick={() => setIsSettingsFlyoutOpen(true)} disabled={isSettingsFlyoutOpen}>
+        Open settings flyout
+      </EuiButton>
+
+      {isSettingsFlyoutOpen && (
+        <FlyoutTemplate
+          onClose={() => setIsSettingsFlyoutOpen(false)}
+          size="m"
+          historyKey={historyKey}
+          type="overlay"
+          ownFocus={false}
+          flyoutMenuProps={{
+            leadingActions: [
+              {
+                iconType: 'gear',
+                onClick: action('click settings action'),
+                'aria-label': 'Settings action',
+              },
+            ],
+          }}
+        >
+          <FlyoutTemplate.Body>
+            <EuiText size="s">
+              <p>
+                <strong>Settings flyout</strong>
+              </p>
+            </EuiText>
+            <EuiSpacer size="m" />
+            <EuiPanel color="primary" hasShadow={false} css={{ minHeight: 320 }}>
+              <EuiText size="s" textAlign="center">
+                <p>
+                  <em>Settings area</em>
+                </p>
+              </EuiText>
+            </EuiPanel>
+          </FlyoutTemplate.Body>
+        </FlyoutTemplate>
+      )}
+
+      {isToolsFlyoutOpen && (
+        <FlyoutTemplate
+          onClose={() => setIsToolsFlyoutOpen(false)}
+          size="m"
+          historyKey={historyKey}
+          type="overlay"
+          ownFocus={false}
+          flyoutMenuProps={{
+            leadingActions: [
+              {
+                iconType: 'wrench',
+                onClick: action('click tool action'),
+                'aria-label': 'Tool action',
+              },
+            ],
+          }}
+        >
+          <FlyoutTemplate.Body>
+            <EuiText size="s">
+              <p>
+                <strong>Tools flyout</strong>
+              </p>
+            </EuiText>
+            <EuiSpacer size="m" />
+            <EuiPanel color="primary" hasShadow={false} css={{ minHeight: 320 }}>
+              <EuiText size="s" textAlign="center">
+                <p>
+                  <em>Tools area</em>
+                </p>
+              </EuiText>
+            </EuiPanel>
+          </FlyoutTemplate.Body>
+        </FlyoutTemplate>
+      )}
+    </>
+  );
+};
+
+export const Playground: Story = {
+  render: PlaygroundRender,
+};
