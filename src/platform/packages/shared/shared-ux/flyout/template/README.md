@@ -1,19 +1,19 @@
 # @kbn/shared-ux-flyout-template
 
-`FlyoutTemplate` is a declarative flyout that adheres to Elastic UX Guidelines.
-Consumers compose a flyout with JSX children that mirror the UI, while the
-template owns rendering, layout, PRD constraints, and EUI composition.
+`FlyoutTemplate` gives you a flyout that already follows the Elastic UX
+guidelines. You describe the content with JSX that mirrors what you want on
+screen; you never set spacing, dividers, heading levels, or the underlying EUI
+components yourself.
 
 ```tsx
 import { FlyoutTemplate } from '@kbn/shared-ux-flyout-template';
 
 <FlyoutTemplate onClose={onClose} size="m">
-  <FlyoutTemplate.Header title="Service inventory" />
+  <FlyoutTemplate.Header title="Alert details" description="Mar 30, 2022 @ 10:01:21.313" />
 
   <FlyoutTemplate.Body>
     <FlyoutTemplate.Body.Section title="Summary">
-      {/* consumer content */}
-      <ServiceSummary service={service} />
+      <AlertSummary alert={alert} />
     </FlyoutTemplate.Body.Section>
   </FlyoutTemplate.Body>
 
@@ -24,68 +24,156 @@ import { FlyoutTemplate } from '@kbn/shared-ux-flyout-template';
 </FlyoutTemplate>;
 ```
 
-## Managed flyouts
+`Body` is the only zone you must provide. Zones always render in template order
+(header, body, footer) no matter how you order them in JSX.
 
-`FlyoutTemplate` defaults to a **managed** flyout (`session="start"`), so EUI's
-flyout manager auto-provides the top menu bar. This requires an
-`EuiFlyoutManager`, which `EuiProvider` supplies (Kibana apps get this via the
-render context). Configure the menu bar with the passthrough props `session`,
-`historyKey`, `onActive`, `flyoutMenuProps`, and `flyoutMenuDisplayMode`. Pass
-`session="never"` to render a standard (unmanaged) flyout.
+## Header
 
-## Other passthrough props
+`title` is the only required prop; it renders as an H3, and the template owns
+the heading level.
 
-`onClose`, `size`, `minWidth`, `type`, `maxWidth`, `paddingSize`, `ownFocus`,
-`resizable`, and `onResize` are forwarded to the underlying `EuiFlyout` as-is.
-Structural close-button and `side` props are intentionally not exposed; the
-template and (in managed mode) the EUI menu bar own the close affordance.
-When a header is present, its visible title names the flyout via `aria-labelledby`.
-Headerless flyouts can pass `aria-label` or `aria-labelledby` directly.
+- `titleIcon` — an icon beside the title. Defaults to `info` when `titleTooltip`
+  is set.
+- `titleTooltip` — turns the title icon into a focusable tooltip anchor.
+- `description` — subdued text below the title, such as a timestamp. Accepts
+  block content.
+- `badges` — an array of `EuiBadge` elements below the description.
 
-## Zones and parts (current slice)
+Five badges render as-is. Past that, the first four are shown and the remainder
+collapse into a `+N more` badge that reveals them in a popover. Conditional
+entries that resolve falsy
+(`showBadge && <EuiBadge />`) are dropped before counting, so they never produce
+an empty badge row.
 
-- `FlyoutTemplate.Header` — required `title` (rendered as an H3). Accepts:
-  - `FlyoutTemplate.Header.Metadata` — up to three title/value pairs rendered
-    between the description and badges.
-  - `FlyoutTemplate.Header.InfoBlock` — `title` plus a `children` value,
-    resolved into `@kbn/shared-ux-flyout-info-blocks`.
-- `FlyoutTemplate.Body` — the only required zone. Accepts:
-  - `FlyoutTemplate.Body.Section` — `title` (H4) plus content. Options: `icon`
-    (+ optional `tooltip`) shown right of the title, `action` (a right-aligned
-    link on the title row), and `hasBorder` to wrap the content (not the title)
-    in an outlined box — the same treatment as `Accordion`.
-  - `FlyoutTemplate.Body.Accordion` — a collapsible section with the same title
-    row as `Section` (`title`, `icon`/`tooltip`, `action`) plus `initialIsOpen`.
-    Content is always wrapped in an outlined box. A body uses either `Section` or
-    `Accordion` parts, not both.
-  - `FlyoutTemplate.Body.Section.Subsection` (also
-    `Body.Accordion.Subsection`) — a subsection inside a `Section` or `Accordion`.
-    `title` renders as H5. Rendering adapts to context: inside an `Accordion`
-    each subsection gets its own outlined box; inside a `Section` subsections
-    are separated by horizontal-rule dividers. Subsections are the maximum
-    allowed hierarchy level (PRD §17).
-  - `FlyoutTemplate.Body.PlainSection` — an untitled container with no icon,
-    outline, or action, for content that owns its own layout (a filter bar, a
-    data grid). Plain sections may lead the body, above the first `Section` or
-    `Accordion`; placing one after a titled section logs a dev-mode warning.
-  - passthrough children (callouts, announcements, search, filters).
-- `FlyoutTemplate.Footer` — optional. Accepts:
-  - `FlyoutTemplate.Footer.PrimaryAction` — right-aligned, filled button.
-  - `FlyoutTemplate.Footer.SecondaryAction` — empty button, left of primary.
+Two parts go inside the header as children:
+
+- **`Header.Metadata`** — a key/value pair rendered on a single wrapping line
+  between the description and the badges. Takes `title` (the key) and `children`
+  (the value, which may be rich content such as a link). The design calls for at
+  most three pairs; this is a guideline, not a limit, and extra pairs still
+  render.
+- **`Header.InfoBlock`** — a labelled value block, laid out by
+  `@kbn/shared-ux-flyout-info-blocks` below a full-width divider. Takes `title`,
+  `children`, and optional `size` and `color`.
 
 ```tsx
-<FlyoutTemplate.Header title="Alert details">
+<FlyoutTemplate.Header title="Alert details" titleIcon="warning">
+  <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
+
   <FlyoutTemplate.Header.InfoBlock title="Risk score">{riskScore}</FlyoutTemplate.Header.InfoBlock>
-  <FlyoutTemplate.Header.InfoBlock title="Latency">
+  <FlyoutTemplate.Header.InfoBlock title="Status">
     <EuiHealth color="success">Healthy</EuiHealth>
   </FlyoutTemplate.Header.InfoBlock>
 </FlyoutTemplate.Header>
 ```
 
-Zones render in PRD order (header, body, footer) regardless of JSX order.
-Invalid combinations and duplicate singleton zones warn in development and no-op
-in production; they never throw.
+## Body
 
-## Not yet implemented
+Choose either `Section` or `Accordion` for a given flyout, not both. Dividers
+between siblings are added for you.
 
-Header `Badge`, `Footer.Left`, and a dedicated `Menu` assembly are planned follow-ups.
+- **`Body.Section`** — `title` (an H4) plus content. Options: `icon` (with an
+  optional `tooltip`) shown right of the title, `action` for a right-aligned link
+  on the title row, and `hasBorder` to wrap the content — but not the title — in
+  an outlined box.
+- **`Body.Accordion`** — a collapsible section with the same title row as
+  `Section` (`title`, `icon`/`tooltip`, `action`) plus `initialIsOpen`. Its
+  content is always in an outlined box.
+- **`Body.Section.Subsection`** (also `Body.Accordion.Subsection`) — one level
+  deeper, with a `title` rendered as an H5. Subsections are the deepest level the
+  template allows. When the parent boxes its content — always for `Accordion`,
+  and for `Section` when you set `hasBorder` — each subsection gets its own box
+  and the parent's single outer box is dropped. Otherwise subsections are
+  separated by horizontal rules.
+- **`Body.PlainSection`** — an untitled container with no icon, outline, or
+  action, for content that owns its own layout such as a filter bar or a data
+  grid. Plain sections are meant to lead the body; putting one after a titled
+  section logs a development warning.
+
+Anything else you put in the body — callouts, an announcement, a search box —
+renders in place, in JSX order relative to the sections around it. Sections and
+accordions accept the same kind of passthrough content alongside subsections.
+
+## Tabs
+
+Declare `Header.Tab` parts in the header and a matching `Body.TabPanel` for each
+one. The template renders the tab bar at the bottom of the header, wires up the
+`tab`/`tabpanel` accessibility relationship, and renders only the selected
+panel.
+
+```tsx
+<FlyoutTemplate onClose={onClose}>
+  <FlyoutTemplate.Header title="Alert details">
+    <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
+    <FlyoutTemplate.Header.Tab id="metadata" label="Metadata" />
+  </FlyoutTemplate.Header>
+
+  <FlyoutTemplate.Body>
+    <FlyoutTemplate.Body.TabPanel tabId="overview">
+      <FlyoutTemplate.Body.Section title="Summary">{summary}</FlyoutTemplate.Body.Section>
+    </FlyoutTemplate.Body.TabPanel>
+    <FlyoutTemplate.Body.TabPanel tabId="metadata">{metadata}</FlyoutTemplate.Body.TabPanel>
+  </FlyoutTemplate.Body>
+</FlyoutTemplate>
+```
+
+Each tab takes an `id`, a `label`, and optional `disabled`, `prepend`, and
+`append`. Selection is uncontrolled by default and starts on the first tab; set
+`defaultSelectedTabId` on the header to start elsewhere. To drive it yourself,
+set `selectedTabId` and `onTabChange` on the header — `onTabChange` fires on
+every tab click either way.
+
+Once the body contains a `TabPanel`, everything must live inside a panel:
+top-level sections and passthrough children in the body are not rendered.
+
+## Footer
+
+The footer is optional and holds at most one action of each kind:
+`Footer.PrimaryAction` (a filled button, right-aligned) and
+`Footer.SecondaryAction` (an empty button to its left). Both take `label`,
+`onClick`, and optional `iconType`, `color`, `isLoading`, and `isDisabled`; the
+primary action also accepts `fill={false}`.
+
+A footer with no actions renders nothing, and the template never adds a default
+Cancel button.
+
+## Flyout props
+
+`onClose`, `size`, `minWidth`, `type`, `maxWidth`, `paddingSize`, `ownFocus`,
+`resizable`, and `onResize` are forwarded to the underlying `EuiFlyout`
+unchanged. Structural close-button props and `side` are not exposed, so the
+close affordance stays consistent across flyouts.
+
+### Sessions and the flyout menu
+
+The template defaults to `session="start"`, which registers the flyout with
+EUI's flyout manager as the start of a new session. Use `session="inherit"` for
+a flyout opened from within another one, and `session="never"` for a standard,
+unmanaged flyout.
+
+Managed mode requires an `EuiFlyoutManager`, which `EuiProvider` supplies —
+Kibana apps get this through the rendering context.
+
+Being managed does not automatically show the menu bar at the top of the
+flyout. Under the default `flyoutMenuDisplayMode="auto"`, EUI renders the menu
+only when it has something to show: a back button, session history, leading or
+trailing actions, pagination, or a title you have explicitly unhidden with
+`flyoutMenuProps={{ hideTitle: false }}`. A lone flyout typically shows EUI's
+standard close button instead. Pass
+`flyoutMenuDisplayMode="always"` to force the menu, and use `historyKey`,
+`onActive`, and `flyoutMenuProps` to configure session history and menu
+contents. Your header title is passed through to the menu automatically so
+history entries are labelled.
+
+### Accessibility
+
+When the flyout has a header, its visible title names the flyout through
+`aria-labelledby`, and any `aria-label` or `aria-labelledby` you pass is
+ignored. Only headerless flyouts need — and get — an `aria-label` or
+`aria-labelledby` of your own.
+
+### Test subjects
+
+Every zone and part accepts its own `data-test-subj`. A `data-test-subj` on the
+root also seeds the zones, so `data-test-subj="myFlyout"` yields
+`myFlyoutHeader`, `myFlyoutBody`, and `myFlyoutFooter`.
