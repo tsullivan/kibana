@@ -68,7 +68,7 @@ interface Args {
   numTabs: number;
   titleIcon: boolean;
   description: boolean;
-  numMetadata: number;
+  numMetaBlocks: number;
   numBadges: number;
   secondaryActionIcon: boolean;
 }
@@ -90,7 +90,7 @@ const meta: Meta<Args> = {
     numSubsections: 0,
     titleIcon: false,
     description: true,
-    numMetadata: 3,
+    numMetaBlocks: 3,
     numBadges: 8,
     footer: true,
     secondaryActionIcon: true,
@@ -130,8 +130,8 @@ const meta: Meta<Args> = {
       control: { type: 'boolean' },
       table: { category: 'Header' },
     },
-    numMetadata: {
-      name: 'Metadata pairs',
+    numMetaBlocks: {
+      name: 'MetaBlocks',
       // Max is one above the cap, to exercise the dev warning.
       control: { type: 'range', min: 0, max: 4, step: 1 },
       table: { category: 'Header' },
@@ -275,22 +275,22 @@ const buildTitleIconProps = (args: Args) =>
     ? { titleIcon: 'info' as const, titleTooltip: 'Additional context about this flyout.' }
     : {};
 
-const METADATA_POOL = [
-  <FlyoutTemplate.Header.Metadata key="updated" title="Last updated">
+const METABLOCKS_POOL = [
+  <FlyoutTemplate.Header.MetaBlock key="updated" title="Last updated">
     Dec 3, 2025
-  </FlyoutTemplate.Header.Metadata>,
-  <FlyoutTemplate.Header.Metadata key="updatedBy" title="Last updated by">
+  </FlyoutTemplate.Header.MetaBlock>,
+  <FlyoutTemplate.Header.MetaBlock key="updatedBy" title="Last updated by">
     <EuiLink href="#">name@elastic.co</EuiLink>
-  </FlyoutTemplate.Header.Metadata>,
-  <FlyoutTemplate.Header.Metadata key="owner" title="Owner">
+  </FlyoutTemplate.Header.MetaBlock>,
+  <FlyoutTemplate.Header.MetaBlock key="owner" title="Owner">
     Platform
-  </FlyoutTemplate.Header.Metadata>,
-  <FlyoutTemplate.Header.Metadata key="creator" title="Created by">
+  </FlyoutTemplate.Header.MetaBlock>,
+  <FlyoutTemplate.Header.MetaBlock key="creator" title="Created by">
     automation
-  </FlyoutTemplate.Header.Metadata>,
+  </FlyoutTemplate.Header.MetaBlock>,
 ];
 
-const metadataItems = (count: number) => METADATA_POOL.slice(0, count);
+const metaBlocksItems = (count: number) => METABLOCKS_POOL.slice(0, count);
 
 const BADGE_POOL = [
   <FlyoutTemplate.Header.Badge key="type" iconType="warning" color="default">
@@ -425,7 +425,7 @@ const headerZone = (args: Args, title: string) => (
     {...buildTitleIconProps(args)}
     description={args.description ? HEADER_DESCRIPTION : undefined}
   >
-    {metadataItems(args.numMetadata)}
+    {metaBlocksItems(args.numMetaBlocks)}
     {badgeItems(args.numBadges)}
     {infoBlockItems(args.numInfoBlocks)}
     {TABS.slice(0, args.numTabs).map(({ id, label }) => (
@@ -608,7 +608,7 @@ export const Tabs: Story = {
     numTrailingActions: { table: { disable: true } },
     numPages: { table: { disable: true } },
     paginationJump: { table: { disable: true } },
-    numMetadata: { table: { disable: true } },
+    numMetaBlocks: { table: { disable: true } },
     numBadges: { table: { disable: true } },
     numInfoBlocks: { table: { disable: true } },
     numSections: { table: { disable: true } },
@@ -716,7 +716,7 @@ export const MenuBarHistory: Story = {
   argTypes: {
     titleIcon: { table: { disable: true } },
     description: { table: { disable: true } },
-    numMetadata: { table: { disable: true } },
+    numMetaBlocks: { table: { disable: true } },
     numBadges: { table: { disable: true } },
     numSubsections: { table: { disable: true } },
     numPages: { table: { disable: true } },
@@ -736,7 +736,7 @@ export const MenuBarHistory: Story = {
     numUnstructuredBlocks: 1,
     titleIcon: true,
     description: true,
-    numMetadata: 3,
+    numMetaBlocks: 3,
     numBadges: 8,
     footer: true,
   },
@@ -831,7 +831,7 @@ export const Playground: Story = {
     titleIcon: { table: { disable: true } },
     description: { table: { disable: true } },
     numPages: { table: { disable: true } },
-    numMetadata: { table: { disable: true } },
+    numMetaBlocks: { table: { disable: true } },
     numBadges: { table: { disable: true } },
     numInfoBlocks: { table: { disable: true } },
     numTabs: { table: { disable: true } },

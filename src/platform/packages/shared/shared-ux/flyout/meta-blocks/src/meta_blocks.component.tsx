@@ -11,7 +11,7 @@ import React, { type FunctionComponent } from 'react';
 import { css } from '@emotion/react';
 import { EuiText, useEuiMemoizedStyles } from '@elastic/eui';
 import type { UseEuiTheme } from '@elastic/eui';
-import type { MetadataPairsProps } from './types';
+import type { MetaBlocksProps } from './types';
 
 const styles = ({ euiTheme }: UseEuiTheme) => {
   return {
@@ -51,11 +51,8 @@ const styles = ({ euiTheme }: UseEuiTheme) => {
   };
 };
 
-/**
- * A compact, responsive row of key-value pairs.
- * TODO: Warn in dev mode if the number of items exceeds 3, per UX guideline.
- */
-export const MetadataPairs: FunctionComponent<MetadataPairsProps> = ({ items, ...rest }) => {
+/** A compact, responsive row of key-value pairs. */
+export const MetaBlocks: FunctionComponent<MetaBlocksProps> = ({ items, ...rest }) => {
   const memoized = useEuiMemoizedStyles(styles);
 
   if (items.length === 0) {
@@ -63,7 +60,7 @@ export const MetadataPairs: FunctionComponent<MetadataPairsProps> = ({ items, ..
   }
 
   return (
-    <div css={memoized.list} data-test-subj={rest['data-test-subj'] ?? 'metadataPairs'}>
+    <div css={memoized.list} data-test-subj={rest['data-test-subj'] ?? 'metablocks-container'}>
       {items.map((item, index) => (
         <EuiText key={index} size="s" css={memoized.item} data-test-subj={item['data-test-subj']}>
           <span css={memoized.key}>{item.title}</span>

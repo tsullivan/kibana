@@ -20,7 +20,7 @@ dependsOn:
   - '@kbn/content-list-assembly'
   - '@kbn/i18n'
   - '@kbn/shared-ux-flyout-info-blocks'
-  - '@kbn/shared-ux-flyout-metadata'
+  - '@kbn/shared-ux-flyout-meta-blocks'
   - '@kbn/ui-callout'
 tags:
   - shared-browser

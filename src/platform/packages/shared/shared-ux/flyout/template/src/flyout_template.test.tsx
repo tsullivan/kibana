@@ -1006,10 +1006,10 @@ describe('FlyoutTemplate header metadata', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Metadata title="Last updated">
+          <FlyoutTemplate.Header.MetaBlock title="Last updated">
             Dec 3, 2025
-          </FlyoutTemplate.Header.Metadata>
-          <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
+          </FlyoutTemplate.Header.MetaBlock>
+          <FlyoutTemplate.Header.MetaBlock title="Owner">Platform</FlyoutTemplate.Header.MetaBlock>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
@@ -1025,9 +1025,9 @@ describe('FlyoutTemplate header metadata', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Metadata title="Last updated by">
+          <FlyoutTemplate.Header.MetaBlock title="Last updated by">
             <EuiLink href="/profile">name@elastic.co</EuiLink>
-          </FlyoutTemplate.Header.Metadata>
+          </FlyoutTemplate.Header.MetaBlock>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
@@ -1045,10 +1045,10 @@ describe('FlyoutTemplate header metadata', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Metadata title="One">1</FlyoutTemplate.Header.Metadata>
-          <FlyoutTemplate.Header.Metadata title="Two">2</FlyoutTemplate.Header.Metadata>
-          <FlyoutTemplate.Header.Metadata title="Three">3</FlyoutTemplate.Header.Metadata>
-          <FlyoutTemplate.Header.Metadata title="Four">4</FlyoutTemplate.Header.Metadata>
+          <FlyoutTemplate.Header.MetaBlock title="One">1</FlyoutTemplate.Header.MetaBlock>
+          <FlyoutTemplate.Header.MetaBlock title="Two">2</FlyoutTemplate.Header.MetaBlock>
+          <FlyoutTemplate.Header.MetaBlock title="Three">3</FlyoutTemplate.Header.MetaBlock>
+          <FlyoutTemplate.Header.MetaBlock title="Four">4</FlyoutTemplate.Header.MetaBlock>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
@@ -1077,7 +1077,7 @@ describe('FlyoutTemplate header metadata', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
+          <FlyoutTemplate.Header.MetaBlock title="Owner">Platform</FlyoutTemplate.Header.MetaBlock>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
@@ -1285,9 +1285,9 @@ describe('FlyoutTemplate header title icon, description, and badges', () => {
         <FlyoutTemplate.Header title="Alert details">
           <FlyoutTemplate.Header.InfoBlock title="Owner">Platform</FlyoutTemplate.Header.InfoBlock>
           <FlyoutTemplate.Header.Badge>Urgency</FlyoutTemplate.Header.Badge>
-          <FlyoutTemplate.Header.Metadata title="Last updated">
+          <FlyoutTemplate.Header.MetaBlock title="Last updated">
             Dec 3, 2025
-          </FlyoutTemplate.Header.Metadata>
+          </FlyoutTemplate.Header.MetaBlock>
         </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
@@ -1368,7 +1368,7 @@ describe('FlyoutTemplate unstructured header content', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert details">
-          <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
+          <FlyoutTemplate.Header.MetaBlock title="Owner">Platform</FlyoutTemplate.Header.MetaBlock>
           <FlyoutTemplate.Header.Badge>Urgency</FlyoutTemplate.Header.Badge>
           <FlyoutTemplate.Header.InfoBlock title="Risk">High</FlyoutTemplate.Header.InfoBlock>
         </FlyoutTemplate.Header>

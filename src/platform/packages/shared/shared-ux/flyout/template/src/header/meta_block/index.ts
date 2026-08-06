@@ -7,5 +7,5 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { MetadataPairs } from './src/metadata_pairs.component';
-export type { MetadataItem, MetadataPairsProps } from './src/types';
+export { MetaBlock } from './meta_block';
+export { metablocksPart, METABLOCKS_PART_NAME } from './part';

@@ -7,8 +7,15 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-module.exports = {
-  preset: '@kbn/test',
-  rootDir: '../../../../../../..',
-  roots: ['<rootDir>/src/platform/packages/shared/shared-ux/flyout/metadata'],
-};
+import type { ReactNode } from 'react';
+
+export interface MetaBlock {
+  title: ReactNode;
+  value: ReactNode;
+  'data-test-subj'?: string;
+}
+
+export interface MetaBlocksProps {
+  items: readonly MetaBlock[];
+  'data-test-subj'?: string;
+}

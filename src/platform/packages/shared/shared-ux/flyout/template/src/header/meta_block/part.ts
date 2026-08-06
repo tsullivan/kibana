@@ -7,18 +7,13 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { ReactNode } from 'react';
+import type { MetaBlock } from '@kbn/shared-ux-flyout-meta-blocks';
+import { headerAssembly } from '../../assembly';
 
-/** A single key-value pair rendered by `MetadataPairs`. */
-export interface MetadataItem {
-  /** The pair's key. */
-  title: ReactNode;
-  /** The pair's value. */
-  value: ReactNode;
-  'data-test-subj'?: string;
-}
+/** Part name used for identifying `Header.MetaBlocks` children. */
+export const METABLOCKS_PART_NAME = 'metablocks';
 
-export interface MetadataPairsProps {
-  items: readonly MetadataItem[];
-  'data-test-subj'?: string;
-}
+/** Part factory for `FlyoutTemplate.Header.MetaBlocks`. Resolves to a `MetaBlock`. */
+export const metablocksPart = headerAssembly.definePart<Record<string, never>, MetaBlock, void>({
+  name: METABLOCKS_PART_NAME,
+});

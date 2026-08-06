@@ -1,13 +1,13 @@
-# @kbn/shared-ux-flyout-metadata
+# @kbn/shared-ux-flyout-meta-blocks
 
-`MetadataPairs` renders a compact, responsive row of key-value pairs — the metadata line used beneath a flyout title.
+`MetaBlocks` renders a compact, responsive row of key-value pairs — the metadata line used beneath a flyout title.
 
 ## Usage
 
 ```tsx
-import { MetadataPairs } from '@kbn/shared-ux-flyout-metadata';
+import { MetaBlocks } from '@kbn/shared-ux-flyout-meta-blocks';
 
-<MetadataPairs
+<MetaBlocks
   items={[
     { title: 'Last updated', value: 'Dec 3, 2025' },
     { title: 'Owner', value: 'Platform' },

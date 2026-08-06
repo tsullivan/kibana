@@ -9092,7 +9092,7 @@
   version "0.0.0"
   uid ""
 
-"@kbn/shared-ux-flyout-metadata@link:src/platform/packages/shared/shared-ux/flyout/metadata":
+"@kbn/shared-ux-flyout-meta-blocks@link:src/platform/packages/shared/shared-ux/flyout/meta-blocks":
   version "0.0.0"
   uid ""
 

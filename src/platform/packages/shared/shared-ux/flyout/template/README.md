@@ -41,7 +41,7 @@ block content.
 Everything else in the header is a child part. Declare them in any order; the
 header positions each kind for you.
 
-- `**Header.Metadata**` — a key/value pair rendered on a single wrapping line
+- `**Header.MetaBlock**` — a key/value pair rendered on a single wrapping line
 below the description. Takes `title` (the key) and `children` (the value, which
 may be rich content such as a link). The design calls for at most three pairs;
 this is a guideline, not a limit, and extra pairs still render.
@@ -55,7 +55,7 @@ as-is; past that the first four are shown and the remainder collapse into a
 
 ```tsx
 <FlyoutTemplate.Header title="Alert details" titleIcon="warning">
-  <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
+  <FlyoutTemplate.Header.MetaBlock title="Owner">Platform</FlyoutTemplate.Header.MetaBlock>
 
   <FlyoutTemplate.Header.Badge color="warning" iconType="warning">
     Urgent

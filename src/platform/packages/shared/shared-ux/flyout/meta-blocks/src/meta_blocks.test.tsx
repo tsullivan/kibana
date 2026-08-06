@@ -9,12 +9,12 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MetadataPairs } from './metadata_pairs.component';
+import { MetaBlocks } from '..';
 
-describe('MetadataPairs', () => {
+describe('MetaBlocks', () => {
   it('renders each pair title and node value', () => {
     render(
-      <MetadataPairs
+      <MetaBlocks
         items={[
           { title: 'Last updated', value: 'Dec 3, 2025' },
           { title: 'Owner', value: <span>Platform</span> },
@@ -29,20 +29,18 @@ describe('MetadataPairs', () => {
   });
 
   it('renders nothing when there are no items', () => {
-    render(<MetadataPairs items={[]} />);
-    expect(screen.queryByTestId('metadataPairs')).not.toBeInTheDocument();
+    render(<MetaBlocks items={[]} />);
+    expect(screen.queryByTestId('metablocks-container')).not.toBeInTheDocument();
   });
 
   it('honors a custom data-test-subj on the container', () => {
-    render(<MetadataPairs data-test-subj="myPairs" items={[{ title: 'A', value: '1' }]} />);
+    render(<MetaBlocks data-test-subj="myPairs" items={[{ title: 'A', value: '1' }]} />);
     expect(screen.getByTestId('myPairs')).toBeInTheDocument();
   });
 
   it('honors a custom data-test-subj on an item', () => {
     render(
-      <MetadataPairs
-        items={[{ title: 'Owner', value: 'Platform', 'data-test-subj': 'ownerPair' }]}
-      />
+      <MetaBlocks items={[{ title: 'Owner', value: 'Platform', 'data-test-subj': 'ownerPair' }]} />
     );
 
     expect(screen.getByTestId('ownerPair')).toBeInTheDocument();

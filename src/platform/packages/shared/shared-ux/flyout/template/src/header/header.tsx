@@ -27,14 +27,18 @@ import type { EuiFlyoutProps, UseEuiTheme } from '@elastic/eui';
 import type { ParsedItem } from '@kbn/content-list-assembly';
 import { i18n } from '@kbn/i18n';
 import { InfoBlocks, type InfoBlockItem } from '@kbn/shared-ux-flyout-info-blocks';
-import { MetadataPairs, type MetadataItem } from '@kbn/shared-ux-flyout-metadata';
+import { MetaBlocks, type MetaBlock } from '@kbn/shared-ux-flyout-meta-blocks';
 import type { FlyoutHeaderProps } from '../types';
 import { flyoutAssembly, partsOf } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import { renderTitleIcon, renderTitleWithIcon } from '../title_adornments';
 import { Badge, badgePart, BADGE_PART_NAME, type HeaderBadgeDescriptor } from './badge';
 import { InfoBlock, infoBlockPart, INFO_BLOCK_PART_NAME } from './info_block';
-import { Metadata, metadataPart, METADATA_PART_NAME } from './metadata';
+import {
+  MetaBlock as MetaBlockComponent,
+  metablocksPart,
+  METABLOCKS_PART_NAME,
+} from './meta_block';
 import { Tab } from './tab';
 
 /** Part name used for identifying the `Header` zone. */
@@ -46,7 +50,12 @@ const headerPart = flyoutAssembly.definePart({ name: HEADER_PART_NAME });
 const BaseHeader = headerPart.createComponent<FlyoutHeaderProps>();
 BaseHeader.displayName = 'FlyoutTemplate.Header';
 
-export const Header = Object.assign(BaseHeader, { Badge, InfoBlock, Metadata, Tab });
+export const Header = Object.assign(BaseHeader, {
+  Badge,
+  InfoBlock,
+  MetaBlock: MetaBlockComponent,
+  Tab,
+});
 
 /** Maps `paddingSize` to the header's horizontal padding; `undefined` follows EuiFlyout's `'l'` default. */
 const resolveHorizontalPadding = (
@@ -130,6 +139,10 @@ const BadgeOverflow = ({ badges }: { badges: ReactNode[] }) => {
           {label}
         </EuiBadge>
       }
+      aria-label={i18n.translate('sharedUXPackages.flyoutTemplate.header.badgeOverflowAriaLabel', {
+        defaultMessage: 'Show {count} more badges',
+        values: { count: badges.length },
+      })}
     >
       <EuiBadgeGroup gutterSize="s" css={{ maxInlineSize: 240 }}>
         {badges}
@@ -171,7 +184,7 @@ const warnOnUnstructuredChildren = (items: ParsedItem[]): void => {
     // eslint-disable-next-line no-console
     console.warn(
       `[FlyoutTemplate] ${describeChild(item.node)} is not a Header part and is not ` +
-        'rendered. The header renders Header.Metadata, Header.Badge, Header.InfoBlock, ' +
+        'rendered. The header renders Header.MetaBlock, Header.Badge, Header.InfoBlock, ' +
         'and Header.Tab; put free-form content in the Body.'
     );
   }
@@ -223,11 +236,11 @@ export const HeaderZone = ({
       .filter((item): item is InfoBlockItem => item !== undefined);
   }, [items]);
 
-  // `MetadataPairs` owns the count guideline and its dev warning.
-  const metadataItems = useMemo(() => {
-    return partsOf(items, METADATA_PART_NAME)
-      .map((item) => metadataPart.resolve(item, undefined))
-      .filter((item): item is MetadataItem => item !== undefined);
+  // `MetaBlocks` owns the count guideline and its dev warning.
+  const metaBlockItems = useMemo(() => {
+    return partsOf(items, METABLOCKS_PART_NAME)
+      .map((item) => metablocksPart.resolve(item, undefined))
+      .filter((item): item is MetaBlock => item !== undefined);
   }, [items]);
 
   const badgeList = useMemo(() => {
@@ -238,7 +251,7 @@ export const HeaderZone = ({
   }, [items]);
 
   const hasDescription = Boolean(description);
-  const hasMetadata = metadataItems.length > 0;
+  const hasMetaBlocks = metaBlockItems.length > 0;
   const hasBadges = badgeList.length > 0;
   const hasInfoBlocks = infoBlockItems.length > 0;
   const hasTabs = tabs.length > 0;
@@ -268,10 +281,10 @@ export const HeaderZone = ({
           </EuiText>
         </>
       )}
-      {hasMetadata && (
+      {hasMetaBlocks && (
         <>
           <EuiSpacer size="xs" />
-          <MetadataPairs items={metadataItems} />
+          <MetaBlocks items={metaBlockItems} />
         </>
       )}
       {hasBadges && (

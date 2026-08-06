@@ -22,50 +22,38 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { MetadataPairs } from './metadata_pairs.component';
-import type { MetadataItem, MetadataPairsProps } from './types';
+import { MetaBlocks } from '..';
+import type { MetaBlock, MetaBlocksProps } from './types';
 
 // Plain text pairs
-const TEXT_ITEMS: MetadataItem[] = [
-  {
-    title: 'Resource',
-    value: 'etcd-cspm-control-plane-8fO2b-1a2b3c4d5e6f7g8h9i0j-kube-system',
-  },
+const TEXT_ITEMS: MetaBlock[] = [
+  { title: 'Resource', value: 'etcd-cspm-control-plane-8fO2b-1a2b3c4d5e6f7g8h9i0j-kube-system' },
   { title: 'Last updated', value: 'Dec 3, 2025' },
   { title: 'Owner', value: 'Platform' },
   { title: 'Environment', value: 'production' },
   { title: 'Version', value: 'v8.19.0' },
   { title: 'Region', value: 'us-east-1' },
   { title: 'Namespace', value: 'kube-system' },
-];
+]; // prettier-ignore
 
 // Rich values
-const RICH_ITEMS: MetadataItem[] = [
+const RICH_ITEMS: MetaBlock[] = [
   {
     title: 'Rule',
-    value: (
-      <EuiLink href="#" onClick={action('Rule link clicked')}>
-        Unusual process spawned
-      </EuiLink>
-    ),
+    value: <EuiLink href="#" onClick={action('Rule link clicked')}> Unusual process spawned </EuiLink>,
   },
   { title: 'Severity', value: <EuiBadge color="danger">Critical</EuiBadge> },
   {
     title: 'Case',
-    value: (
-      <EuiLink href="#" onClick={action('Case link clicked')}>
-        SOC-4821
-      </EuiLink>
-    ),
+    value: <EuiLink href="#" onClick={action('Case link clicked')}> SOC-4821 </EuiLink>,
   },
   { title: 'Status', value: <EuiBadge color="hollow">Open</EuiBadge> },
   { title: 'Tags', value: <EuiBadge color="accent">exfiltration</EuiBadge> },
   { title: 'Assignee', value: 'Alex Braun' },
-];
+]; // prettier-ignore
 
-const ALL_ITEMS: MetadataItem[] = [...TEXT_ITEMS, ...RICH_ITEMS];
+const ALL_ITEMS: MetaBlock[] = [...TEXT_ITEMS, ...RICH_ITEMS];
 
-// Copy before sorting: sort() mutates in place.
 const getRandomItems = (count: number) =>
   [...ALL_ITEMS].sort(() => 0.5 - Math.random()).slice(0, count);
 
@@ -73,9 +61,9 @@ interface StoryArgs {
   numberOfItems: number;
 }
 
-const meta: Meta<MetadataPairsProps & StoryArgs> = {
-  title: 'Flyout Template/Metadata',
-  component: MetadataPairs,
+const meta: Meta<MetaBlocksProps & StoryArgs> = {
+  title: 'Flyout Template/Meta Blocks',
+  component: MetaBlocks,
   argTypes: {
     items: { table: { disable: true } },
     'data-test-subj': { table: { disable: true } },
@@ -90,8 +78,8 @@ const meta: Meta<MetadataPairsProps & StoryArgs> = {
 };
 export default meta;
 
-const MetadataDemo: React.FC<StoryArgs> = ({ numberOfItems }) => {
-  const [items, setItems] = useState<MetadataItem[]>(() => getRandomItems(numberOfItems));
+const MetaBlocksDemo: React.FC<StoryArgs> = ({ numberOfItems }) => {
+  const [items, setItems] = useState<MetaBlock[]>(() => getRandomItems(numberOfItems));
 
   const setRandomItems = () => {
     setItems(getRandomItems(numberOfItems));
@@ -112,15 +100,15 @@ const MetadataDemo: React.FC<StoryArgs> = ({ numberOfItems }) => {
     >
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
-          <h2 id="flyoutTitle">Metadata Pairs</h2>
+          <h2 id="flyoutTitle">MetaBlocks</h2>
         </EuiTitle>
         <EuiSpacer size="s" />
-        <MetadataPairs items={items} />
+        <MetaBlocks items={items} />
       </EuiFlyoutHeader>
 
       <EuiFlyoutBody>
         <EuiText>
-          <p>Metadata component is in the flyout header with {numberOfItems} key-value pairs.</p>
+          <p>Component is in the flyout header with {numberOfItems} key-value pairs.</p>
         </EuiText>
       </EuiFlyoutBody>
       <EuiFlyoutFooter>
@@ -130,6 +118,7 @@ const MetadataDemo: React.FC<StoryArgs> = ({ numberOfItems }) => {
   );
 };
 
-export const Metadata: StoryObj<typeof meta> = {
-  render: ({ numberOfItems }) => <MetadataDemo numberOfItems={numberOfItems} />,
+export const Default: StoryObj<StoryArgs> = {
+  name: 'MetaBlocks',
+  render: ({ numberOfItems }) => <MetaBlocksDemo numberOfItems={numberOfItems} />,
 };
