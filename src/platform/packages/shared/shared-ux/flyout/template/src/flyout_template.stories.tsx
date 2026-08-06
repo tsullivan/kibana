@@ -7,12 +7,29 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { EuiButton, EuiHealth, EuiLink, EuiPanel, EuiSpacer, EuiText } from '@elastic/eui';
+import {
+  EuiButton,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiHealth,
+  EuiIcon,
+  EuiLink,
+  EuiNotificationBadge,
+  EuiPanel,
+  EuiSpacer,
+  EuiText,
+} from '@elastic/eui';
 import type { FlyoutTemplateProps } from '@kbn/shared-ux-flyout-common';
+import {
+  KbnDangerCallout,
+  KbnInfoCallout,
+  KbnSuccessCallout,
+  KbnWarningCallout,
+} from '@kbn/ui-callout';
 import { FlyoutTemplate } from './flyout_template';
 
 const LEADING_ACTIONS: NonNullable<FlyoutTemplateProps['flyoutMenuProps']>['leadingActions'] = [
@@ -338,6 +355,96 @@ const TABS: Array<{ id: string; label: string }> = [
   { id: 'alerts', label: 'Alerts' },
 ];
 
+/** One callout component per color, matching `@kbn/ui-callout`'s fixed-color variants. */
+const CALLOUT_BY_COLOR = {
+  primary: KbnInfoCallout,
+  success: KbnSuccessCallout,
+  warning: KbnWarningCallout,
+  danger: KbnDangerCallout,
+} as const;
+
+/** Distinct look-and-feel per tab, so switching tabs is obvious even at a glance. */
+const TAB_PANEL_DETAILS: Record<
+  string,
+  { icon: string; color: keyof typeof CALLOUT_BY_COLOR; detail: string }
+> = {
+  overview: {
+    icon: 'inspect',
+    color: 'primary',
+    detail: 'A high-level summary of the alert lifecycle and current state.',
+  },
+  metadata: {
+    icon: 'tag',
+    color: 'success',
+    detail: 'Structured key/value pairs captured when the alert was created.',
+  },
+  timeline: {
+    icon: 'clock',
+    color: 'primary',
+    detail: 'A chronological list of state changes and annotations.',
+  },
+  logs: {
+    icon: 'document',
+    color: 'primary',
+    detail: 'Raw log lines correlated to this alert by trace id.',
+  },
+  traces: {
+    icon: 'apps',
+    color: 'warning',
+    detail: 'Distributed traces for the requests that triggered this alert.',
+  },
+  errors: {
+    icon: 'alert',
+    color: 'danger',
+    detail: 'Stack traces and error messages captured during the incident.',
+  },
+  dependencies: {
+    icon: 'link',
+    color: 'primary',
+    detail: 'Upstream and downstream services affected by this alert.',
+  },
+  metrics: {
+    icon: 'stats',
+    color: 'success',
+    detail: 'Key metrics sampled around the time of the alert.',
+  },
+  events: {
+    icon: 'calendar',
+    color: 'primary',
+    detail: 'Related events emitted by other systems.',
+  },
+  alerts: {
+    icon: 'bell',
+    color: 'danger',
+    detail: 'Other alerts correlated with this one.',
+  },
+};
+
+/** Tab id that demonstrates the `disabled` prop; still a valid `Header.Tab`/`Body.TabPanel` pair. */
+const DISABLED_TAB_ID = 'traces';
+/** Tab id that demonstrates `prepend`. */
+const PREPEND_TAB_ID = 'metadata';
+/** Tab id that demonstrates `append`. */
+const APPEND_TAB_ID = 'errors';
+
+/** Body content for the Tabs story: unique per tab, so a switch is easy to verify. */
+const renderTabPanelContent = (id: string, label: string) => {
+  const details = TAB_PANEL_DETAILS[id];
+  const Callout = CALLOUT_BY_COLOR[details?.color ?? 'primary'];
+  return (
+    <FlyoutTemplate.Body.Section title={`${label} panel`} icon={details?.icon}>
+      <EuiText size="s">
+        <p>{details?.detail}</p>
+      </EuiText>
+      <EuiSpacer size="s" />
+      <Callout
+        title={`This is the "${label}" tab`}
+        text={<p>Its content is unique to this tab, so switching tabs is easy to verify.</p>}
+      />
+    </FlyoutTemplate.Body.Section>
+  );
+};
+
 const SECTIONS: Array<{ id: string; title: string; content: string }> = [
   { id: 'summary', title: 'Regular Section: Summary', content: 'Summary regular section content.' },
   { id: 'details', title: 'Regular Section: Details', content: 'Details regular section content.' },
@@ -510,6 +617,110 @@ export const AccordionSections: Story = {
     numSections: { name: 'Body accordions', control: { type: 'range', min: 0, max: 4, step: 1 } },
   },
   render: AccordionsRender,
+};
+
+const TabsRender = (args: Args): React.JSX.Element => {
+  const visibleTabs = TABS.slice(0, args.numTabs);
+  const [selectedTabId, setSelectedTabId] = useState<string | undefined>(visibleTabs[0]?.id);
+
+  // The tab count is itself a control; keep the selection valid as it changes.
+  useEffect(() => {
+    if (!visibleTabs.some((tab) => tab.id === selectedTabId)) {
+      setSelectedTabId(visibleTabs[0]?.id);
+    }
+  }, [visibleTabs, selectedTabId]);
+
+  return (
+    <>
+      <EuiText size="s">
+        <p>
+          These buttons live outside the flyout and drive the same <code>selectedTabId</code> state
+          as the tab bar below, to prove that tab selection is controlled end-to-end.
+        </p>
+      </EuiText>
+      <EuiSpacer size="s" />
+      <EuiFlexGroup gutterSize="s" wrap responsive={false}>
+        {visibleTabs.map(({ id, label }) => (
+          <EuiFlexItem grow={false} key={id}>
+            <EuiButton
+              size="s"
+              fill={selectedTabId === id}
+              isDisabled={id === DISABLED_TAB_ID}
+              onClick={() => setSelectedTabId(id)}
+            >
+              {label}
+            </EuiButton>
+          </EuiFlexItem>
+        ))}
+      </EuiFlexGroup>
+      <EuiSpacer size="m" />
+
+      <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args)}>
+        <FlyoutTemplate.Header
+          title="Tabs demo"
+          {...buildTitleIconProps(args)}
+          description={args.description ? HEADER_DESCRIPTION : undefined}
+          selectedTabId={selectedTabId}
+          onTabChange={setSelectedTabId}
+        >
+          {visibleTabs.map(({ id, label }) => (
+            <FlyoutTemplate.Header.Tab
+              key={id}
+              id={id}
+              label={label}
+              disabled={id === DISABLED_TAB_ID}
+              prepend={
+                id === PREPEND_TAB_ID ? <EuiIcon type="tag" size="s" aria-hidden /> : undefined
+              }
+              append={
+                id === APPEND_TAB_ID ? <EuiNotificationBadge>3</EuiNotificationBadge> : undefined
+              }
+            />
+          ))}
+        </FlyoutTemplate.Header>
+
+        <FlyoutTemplate.Body>
+          {visibleTabs.map(({ id, label }) => (
+            <FlyoutTemplate.Body.TabPanel key={id} tabId={id}>
+              {renderTabPanelContent(id, label)}
+            </FlyoutTemplate.Body.TabPanel>
+          ))}
+        </FlyoutTemplate.Body>
+
+        {footerZone(args)}
+      </FlyoutTemplate>
+    </>
+  );
+};
+
+export const Tabs: Story = {
+  argTypes: {
+    numLeadingActions: { table: { disable: true } },
+    numTrailingActions: { table: { disable: true } },
+    numPages: { table: { disable: true } },
+    paginationJump: { table: { disable: true } },
+    numMetadata: { table: { disable: true } },
+    numBadges: { table: { disable: true } },
+    numInfoBlocks: { table: { disable: true } },
+    numSections: { table: { disable: true } },
+    sectionIcon: { table: { disable: true } },
+    sectionAction: { table: { disable: true } },
+    sectionHasBorder: { table: { disable: true } },
+    numSubsections: { table: { disable: true } },
+    numUnstructuredBlocks: { table: { disable: true } },
+    numTabs: {
+      name: 'Tabs',
+      control: { type: 'range', min: 2, max: 10, step: 1 },
+      table: { category: 'Header' },
+    },
+  },
+  args: {
+    numTabs: 6,
+    titleIcon: false,
+    description: false,
+    footer: true,
+  },
+  render: TabsRender,
 };
 
 const WithHistoryRender = (args: Args): React.JSX.Element => {
