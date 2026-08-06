@@ -7,11 +7,19 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { EuiBadge, EuiHealth, EuiLink, EuiPanel, EuiText } from '@elastic/eui';
+import {
+  EuiBadge,
+  EuiButton,
+  EuiHealth,
+  EuiLink,
+  EuiPanel,
+  EuiSpacer,
+  EuiText,
+} from '@elastic/eui';
 import type { FlyoutTemplateProps } from '@kbn/shared-ux-flyout-common';
 import { FlyoutTemplate } from './flyout_template';
 
@@ -536,4 +544,121 @@ export const PlainSections: Story = {
     numSections: { name: 'Body sections', control: { type: 'range', min: 0, max: 4, step: 1 } },
   },
   render: PlainSectionsRender,
+};
+
+const WithHistoryRender = (args: Args): React.JSX.Element => {
+  // EUI groups session history by Symbol identity, so all three flyouts must receive
+  // the same reference. Held in a ref because a new Symbol per render would put every
+  // flyout in its own group, leaving each history empty.
+  const historyKey = useRef(Symbol('flyoutTemplateHistory')).current;
+
+  const [isFlyoutAOpen, setIsFlyoutAOpen] = useState(true);
+  const [isFlyoutBOpen, setIsFlyoutBOpen] = useState(false);
+  const [isFlyoutCOpen, setIsFlyoutCOpen] = useState(false);
+
+  const openFlyoutA = () => {
+    setIsFlyoutAOpen(true);
+  };
+  const openFlyoutB = () => {
+    setIsFlyoutBOpen(true);
+  };
+  const openFlyoutC = () => {
+    setIsFlyoutCOpen(true);
+  };
+
+  return (
+    <>
+      <EuiButton onClick={openFlyoutA} disabled={isFlyoutAOpen}>
+        Open flyout A
+      </EuiButton>
+      <EuiSpacer size="s" />
+      <EuiButton onClick={openFlyoutB} disabled={isFlyoutBOpen}>
+        Open flyout B
+      </EuiButton>
+      <EuiSpacer size="s" />
+      <EuiButton onClick={openFlyoutC} disabled={isFlyoutCOpen}>
+        Open flyout C
+      </EuiButton>
+
+      {isFlyoutAOpen && (
+        <FlyoutTemplate
+          onClose={() => setIsFlyoutAOpen(false)}
+          size="m"
+          historyKey={historyKey}
+          {...buildFlyoutProps(args)}
+        >
+          {headerZone(args, 'Flyout A')}
+          {bodyZone(args, () => (
+            <EuiText size="s">
+              <p>This is the content of Flyout A.</p>
+            </EuiText>
+          ))}
+          {footerZone(args)}
+        </FlyoutTemplate>
+      )}
+      {isFlyoutBOpen && (
+        <FlyoutTemplate
+          onClose={() => setIsFlyoutBOpen(false)}
+          size="m"
+          historyKey={historyKey}
+          {...buildFlyoutProps(args)}
+        >
+          {headerZone(args, 'Flyout B')}
+          {bodyZone(args, () => (
+            <EuiText size="s">
+              <p>This is the content of Flyout B.</p>
+            </EuiText>
+          ))}
+          {footerZone(args)}
+        </FlyoutTemplate>
+      )}
+      {isFlyoutCOpen && (
+        <FlyoutTemplate
+          onClose={() => setIsFlyoutCOpen(false)}
+          size="m"
+          historyKey={historyKey}
+          {...buildFlyoutProps(args)}
+        >
+          {headerZone(args, 'Flyout C')}
+          {bodyZone(args, () => (
+            <EuiText size="s">
+              <p>This is the content of Flyout C.</p>
+            </EuiText>
+          ))}
+          {footerZone(args)}
+        </FlyoutTemplate>
+      )}
+    </>
+  );
+};
+
+export const WithHistory: Story = {
+  argTypes: {
+    titleIcon: { table: { disable: true } },
+    description: { table: { disable: true } },
+    numMetadata: { table: { disable: true } },
+    numBadges: { table: { disable: true } },
+    numSubsections: { table: { disable: true } },
+    numPlainSections: { table: { disable: true } },
+    numPages: { table: { disable: true } },
+    numInfoBlocks: { table: { disable: true } },
+    numTabs: { table: { disable: true } },
+    numSections: { table: { disable: true } },
+    sectionIcon: { table: { disable: true } },
+    sectionAction: { table: { disable: true } },
+    sectionHasBorder: { table: { disable: true } },
+    footer: { table: { disable: true } },
+  },
+  args: {
+    numPages: 0,
+    numInfoBlocks: 6,
+    numTabs: 1,
+    numSections: 2,
+    titleIcon: true,
+    description: true,
+    numMetadata: 3,
+    numBadges: 8,
+    footer: true,
+  },
+  render: WithHistoryRender,
 };
