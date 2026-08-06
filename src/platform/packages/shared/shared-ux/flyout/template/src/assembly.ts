@@ -8,8 +8,13 @@
  */
 
 import { defineAssembly } from '@kbn/content-list-assembly';
+import type { ParsedItem, ParsedPart } from '@kbn/content-list-assembly';
 
 export { defineAssembly };
+
+/** Narrows parsed items to the parts of one kind, in source order. */
+export const partsOf = (items: ParsedItem[], partName: string): ParsedPart[] =>
+  items.filter((item): item is ParsedPart => item.type === 'part' && item.part === partName);
 
 /** Parses top-level `FlyoutTemplate` zones. */
 export const flyoutAssembly = defineAssembly({ name: 'FlyoutTemplate' });

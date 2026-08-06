@@ -39,7 +39,7 @@ interface Args {
   type: NonNullable<FlyoutTemplateProps['type']>;
   ownFocus: boolean;
   numSections: number;
-  numPlainSections: number;
+  numUnstructuredBlocks: number;
   numSubsections: number;
   numTabs: number;
   titleIcon: boolean;
@@ -58,7 +58,7 @@ const meta: Meta<Args> = {
     numInfoBlocks: 5,
     numTabs: 3,
     numSections: 2,
-    numPlainSections: 2,
+    numUnstructuredBlocks: 0,
     sectionIcon: true,
     sectionAction: true,
     sectionHasBorder: false,
@@ -127,7 +127,8 @@ const meta: Meta<Args> = {
     },
     numSections: {
       name: 'Sections',
-      control: { type: 'range', min: 1, max: 4, step: 1 },
+      // Zero is allowed so a body of only unstructured content is reachable.
+      control: { type: 'range', min: 0, max: 4, step: 1 },
       table: { category: 'Body' },
     },
     sectionIcon: {
@@ -150,9 +151,9 @@ const meta: Meta<Args> = {
       control: { type: 'range', min: 0, max: 4, step: 1 },
       table: { category: 'Body' },
     },
-    numPlainSections: {
-      name: 'Plain sections',
-      control: { type: 'range', min: 1, max: 2, step: 1 },
+    numUnstructuredBlocks: {
+      name: 'Unstructured blocks',
+      control: { type: 'range', min: 0, max: 2, step: 1 },
       table: { category: 'Body' },
     },
     footer: { name: 'Footer', control: { type: 'boolean' }, table: { category: 'Footer' } },
@@ -359,10 +360,25 @@ const ACCORDIONS: Array<{ id: string; title: string; content: string }> = [
 ];
 
 /** Stand-ins for self-contained widgets that bring their own chrome. */
-const PLAIN_SECTIONS: Array<{ id: string; label: string; height: number }> = [
-  { id: 'filterBar', label: 'Plain Section: Filter Bar', height: 48 },
-  { id: 'dataGrid', label: 'Plain Section: Data Grid', height: 320 },
+const UNSTRUCTURED_BLOCKS: Array<{ id: string; label: string; height: number }> = [
+  { id: 'filterBar', label: 'Unstructured content: Filter Bar', height: 48 },
+  { id: 'dataGrid', label: 'Unstructured content: Data Grid', height: 320 },
 ];
+
+/** Content the template does not own, so each block brings its own bottom spacing. */
+const unstructuredBlocks = (count: number) =>
+  UNSTRUCTURED_BLOCKS.slice(0, count).map(({ id, label, height }) => (
+    <React.Fragment key={id}>
+      <EuiPanel color="primary" hasShadow={false} css={{ minHeight: height }}>
+        <EuiText size="s" textAlign="center">
+          <p>
+            <em>{label}</em>
+          </p>
+        </EuiText>
+      </EuiPanel>
+      <EuiSpacer size="m" />
+    </React.Fragment>
+  ));
 
 const bodyText = (content: string) => (
   <EuiText size="s">
@@ -436,16 +452,18 @@ const RegularSectionsRender = (args: Args): React.JSX.Element => {
   return (
     <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
       {headerZone(args, 'Service details')}
-      {bodyZone(args, () => bodyItems)}
+      {bodyZone(args, () => (
+        <>
+          {unstructuredBlocks(args.numUnstructuredBlocks)}
+          {bodyItems}
+        </>
+      ))}
       {footerZone(args)}
     </FlyoutTemplate>
   );
 };
 
 export const RegularSections: Story = {
-  argTypes: {
-    numPlainSections: { table: { disable: true } },
-  },
   render: RegularSectionsRender,
 };
 
@@ -474,7 +492,12 @@ const AccordionsRender = (args: Args): React.JSX.Element => {
   return (
     <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
       {headerZone(args, 'Alert details')}
-      {bodyZone(args, () => bodyItems)}
+      {bodyZone(args, () => (
+        <>
+          {unstructuredBlocks(args.numUnstructuredBlocks)}
+          {bodyItems}
+        </>
+      ))}
       {footerZone(args)}
     </FlyoutTemplate>
   );
@@ -484,64 +507,9 @@ export const AccordionSections: Story = {
   argTypes: {
     // Accordion content is always outlined, so the border toggle does not apply here.
     sectionHasBorder: { table: { disable: true } },
-    numSections: { name: 'Body accordions', control: { type: 'range', min: 1, max: 4, step: 1 } },
-    numPlainSections: { table: { disable: true } },
+    numSections: { name: 'Body accordions', control: { type: 'range', min: 0, max: 4, step: 1 } },
   },
   render: AccordionsRender,
-};
-
-const PlainSectionsRender = (args: Args): React.JSX.Element => {
-  const pagination = usePaginationProps(args);
-  const plainSections = PLAIN_SECTIONS.slice(0, args.numPlainSections);
-  const sections = SECTIONS.slice(0, args.numSections);
-
-  // `PlainSection` ids must stay unique per tab panel, so prefix them when tabbed.
-  const bodyItems = (tabId?: string) => (
-    <>
-      {plainSections.map(({ id, label, height }) => (
-        <>
-          <EuiPanel
-            color="primary"
-            hasShadow={false}
-            css={{ minHeight: height }}
-            key={id}
-            id={tabId ? `${tabId}-${id}` : id}
-          >
-            <EuiText size="s" textAlign="center">
-              <p>
-                <em>{label}</em>
-              </p>
-            </EuiText>
-          </EuiPanel>
-          <EuiSpacer size="m" />
-        </>
-      ))}
-      {sections.map(({ id, title, content }) => (
-        <FlyoutTemplate.Body.Section key={id} title={title} hasBorder={args.sectionHasBorder}>
-          {bodyText(content)}
-        </FlyoutTemplate.Body.Section>
-      ))}
-    </>
-  );
-
-  return (
-    <FlyoutTemplate onClose={action('onClose')} size="m" {...buildFlyoutProps(args, pagination)}>
-      {headerZone(args, 'Document')}
-      {bodyZone(args, bodyItems)}
-      {footerZone(args)}
-    </FlyoutTemplate>
-  );
-};
-
-export const PlainSections: Story = {
-  argTypes: {
-    sectionIcon: { table: { disable: true } },
-    sectionAction: { table: { disable: true } },
-    numSubsections: { table: { disable: true } },
-    // Plain sections can stand alone, so allow a body with no titled sections.
-    numSections: { name: 'Body sections', control: { type: 'range', min: 0, max: 4, step: 1 } },
-  },
-  render: PlainSectionsRender,
 };
 
 const WithHistoryRender = (args: Args): React.JSX.Element => {
@@ -550,6 +518,15 @@ const WithHistoryRender = (args: Args): React.JSX.Element => {
   const [isFlyoutAOpen, setIsFlyoutAOpen] = useState(true);
   const [isFlyoutBOpen, setIsFlyoutBOpen] = useState(false);
   const [isFlyoutCOpen, setIsFlyoutCOpen] = useState(false);
+
+  const bodyContent = (label: string) => (
+    <>
+      {unstructuredBlocks(args.numUnstructuredBlocks)}
+      <EuiText size="s">
+        <p>This is the content of {label}.</p>
+      </EuiText>
+    </>
+  );
 
   const openFlyoutA = () => {
     setIsFlyoutAOpen(true);
@@ -583,11 +560,7 @@ const WithHistoryRender = (args: Args): React.JSX.Element => {
           {...buildFlyoutProps(args)}
         >
           {headerZone(args, 'Flyout A')}
-          {bodyZone(args, () => (
-            <EuiText size="s">
-              <p>This is the content of Flyout A.</p>
-            </EuiText>
-          ))}
+          {bodyZone(args, () => bodyContent('Flyout A'))}
           {footerZone(args)}
         </FlyoutTemplate>
       )}
@@ -599,11 +572,7 @@ const WithHistoryRender = (args: Args): React.JSX.Element => {
           {...buildFlyoutProps(args)}
         >
           {headerZone(args, 'Flyout B')}
-          {bodyZone(args, () => (
-            <EuiText size="s">
-              <p>This is the content of Flyout B.</p>
-            </EuiText>
-          ))}
+          {bodyZone(args, () => bodyContent('Flyout B'))}
           {footerZone(args)}
         </FlyoutTemplate>
       )}
@@ -615,11 +584,7 @@ const WithHistoryRender = (args: Args): React.JSX.Element => {
           {...buildFlyoutProps(args)}
         >
           {headerZone(args, 'Flyout C')}
-          {bodyZone(args, () => (
-            <EuiText size="s">
-              <p>This is the content of Flyout C.</p>
-            </EuiText>
-          ))}
+          {bodyZone(args, () => bodyContent('Flyout C'))}
           {footerZone(args)}
         </FlyoutTemplate>
       )}
@@ -634,7 +599,6 @@ export const MenuBarHistory: Story = {
     numMetadata: { table: { disable: true } },
     numBadges: { table: { disable: true } },
     numSubsections: { table: { disable: true } },
-    numPlainSections: { table: { disable: true } },
     numPages: { table: { disable: true } },
     numInfoBlocks: { table: { disable: true } },
     numTabs: { table: { disable: true } },
@@ -649,6 +613,7 @@ export const MenuBarHistory: Story = {
     numInfoBlocks: 6,
     numTabs: 1,
     numSections: 2,
+    numUnstructuredBlocks: 1,
     titleIcon: true,
     description: true,
     numMetadata: 3,
@@ -658,11 +623,40 @@ export const MenuBarHistory: Story = {
   render: WithHistoryRender,
 };
 
-const PlaygroundRender = (): React.JSX.Element => {
+const PlaygroundRender = (args: Args): React.JSX.Element => {
   const historyKey = useRef(Symbol('playgroundHistory')).current;
 
   const [isSettingsFlyoutOpen, setIsSettingsFlyoutOpen] = useState(true);
   const [isToolsFlyoutOpen, setIsToolsFlyoutOpen] = useState(true);
+
+  const singleFlyout = ({
+    title,
+    content,
+    onClose,
+    flyoutMenuProps,
+  }: {
+    title: string;
+    content: string;
+    onClose: () => void;
+    flyoutMenuProps?: FlyoutTemplateProps['flyoutMenuProps'];
+  }) => (
+    <FlyoutTemplate
+      onClose={onClose}
+      size="m"
+      historyKey={historyKey}
+      type={args.type}
+      ownFocus={args.ownFocus}
+      resizable={args.resizable}
+      flyoutMenuProps={flyoutMenuProps}
+    >
+      <FlyoutTemplate.Header title={title} />
+      <FlyoutTemplate.Body>
+        <EuiText size="s">
+          <p>{content}</p>
+        </EuiText>
+      </FlyoutTemplate.Body>
+    </FlyoutTemplate>
+  );
 
   return (
     <>
@@ -674,79 +668,62 @@ const PlaygroundRender = (): React.JSX.Element => {
         Open settings flyout
       </EuiButton>
 
-      {isSettingsFlyoutOpen && (
-        <FlyoutTemplate
-          onClose={() => setIsSettingsFlyoutOpen(false)}
-          size="m"
-          historyKey={historyKey}
-          type="overlay"
-          ownFocus={false}
-          flyoutMenuProps={{
+      {isSettingsFlyoutOpen &&
+        singleFlyout({
+          title: 'Settings',
+          content: 'This is the content of the settings flyout.',
+          flyoutMenuProps: {
             leadingActions: [
               {
                 iconType: 'gear',
+                toolTipContent: 'Settings action',
                 onClick: action('click settings action'),
                 'aria-label': 'Settings action',
               },
             ],
-          }}
-        >
-          <FlyoutTemplate.Body>
-            <EuiText size="s">
-              <p>
-                <strong>Settings flyout</strong>
-              </p>
-            </EuiText>
-            <EuiSpacer size="m" />
-            <EuiPanel color="primary" hasShadow={false} css={{ minHeight: 320 }}>
-              <EuiText size="s" textAlign="center">
-                <p>
-                  <em>Settings area</em>
-                </p>
-              </EuiText>
-            </EuiPanel>
-          </FlyoutTemplate.Body>
-        </FlyoutTemplate>
-      )}
+          },
+          onClose: () => setIsSettingsFlyoutOpen(false),
+        })}
 
-      {isToolsFlyoutOpen && (
-        <FlyoutTemplate
-          onClose={() => setIsToolsFlyoutOpen(false)}
-          size="m"
-          historyKey={historyKey}
-          type="overlay"
-          ownFocus={false}
-          flyoutMenuProps={{
-            leadingActions: [
+      {isToolsFlyoutOpen &&
+        singleFlyout({
+          title: 'Tools',
+          content: 'This is the content of the tools flyout.',
+          flyoutMenuProps: {
+            trailingActions: [
               {
                 iconType: 'wrench',
-                onClick: action('click tool action'),
-                'aria-label': 'Tool action',
+                toolTipContent: 'Tools action',
+                onClick: action('click tools action'),
+                'aria-label': 'Tools action',
               },
             ],
-          }}
-        >
-          <FlyoutTemplate.Body>
-            <EuiText size="s">
-              <p>
-                <strong>Tools flyout</strong>
-              </p>
-            </EuiText>
-            <EuiSpacer size="m" />
-            <EuiPanel color="primary" hasShadow={false} css={{ minHeight: 320 }}>
-              <EuiText size="s" textAlign="center">
-                <p>
-                  <em>Tools area</em>
-                </p>
-              </EuiText>
-            </EuiPanel>
-          </FlyoutTemplate.Body>
-        </FlyoutTemplate>
-      )}
+          },
+          onClose: () => setIsToolsFlyoutOpen(false),
+        })}
     </>
   );
 };
 
 export const Playground: Story = {
+  // do not allow any header args
+  argTypes: {
+    titleIcon: { table: { disable: true } },
+    description: { table: { disable: true } },
+    numPages: { table: { disable: true } },
+    numMetadata: { table: { disable: true } },
+    numBadges: { table: { disable: true } },
+    numInfoBlocks: { table: { disable: true } },
+    numTabs: { table: { disable: true } },
+    // do not allow any body args
+    numSections: { table: { disable: true } },
+    sectionIcon: { table: { disable: true } },
+    sectionAction: { table: { disable: true } },
+    sectionHasBorder: { table: { disable: true } },
+    numSubsections: { table: { disable: true } },
+    numUnstructuredBlocks: { table: { disable: true } },
+    // do not allow any footer args
+    footer: { table: { disable: true } },
+  },
   render: PlaygroundRender,
 };

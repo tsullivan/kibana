@@ -23,7 +23,6 @@ export type {
   FlyoutBodyTabPanelProps,
   FlyoutBodySectionProps,
   FlyoutBodySectionAction,
-  FlyoutBodyPlainSectionProps,
   FlyoutBodySubsectionProps,
   FlyoutBodyAccordionProps,
   FlyoutFooterProps,

@@ -10,17 +10,16 @@
 import React, { Fragment, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { EuiFlyoutBody } from '@elastic/eui';
-import type { ParsedItem, ParsedPart } from '@kbn/content-list-assembly';
+import type { ParsedItem } from '@kbn/content-list-assembly';
 import type { FlyoutBodyProps } from '@kbn/shared-ux-flyout-common';
-import { bodyAssembly, flyoutAssembly } from '../assembly';
+import { bodyAssembly, flyoutAssembly, partsOf } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import { Section, sectionPart, SECTION_PART_NAME } from './section';
 import { Accordion, accordionPart, ACCORDION_PART_NAME } from './accordion';
-import { PlainSection, plainSectionPart, PLAIN_SECTION_PART_NAME } from './plain_section';
 import { Subsection } from './subsection';
 import { TabPanel, TAB_PANEL_PART_NAME } from './tab_panel';
 
-/** Renders `PlainSection`, `Section`, `Accordion`, and passthrough children in source order. */
+/** Renders `Section`, `Accordion`, and unstructured children in source order. */
 const renderBodyItems = (children: ReactNode) => {
   const items = bodyAssembly.parseChildren(children, { supportsOtherChildren: true });
 
@@ -30,22 +29,6 @@ const renderBodyItems = (children: ReactNode) => {
     if (hasSection && hasAccordion) {
       // eslint-disable-next-line no-console
       console.warn('[FlyoutTemplate] A body uses either Body.Section or Body.Accordion, not both.');
-    }
-
-    // Plain sections lead the body; a titled section above one reads as a nesting mistake.
-    const firstTitledIndex = items.findIndex(
-      (i) => i.type === 'part' && (i.part === SECTION_PART_NAME || i.part === ACCORDION_PART_NAME)
-    );
-    const lastPlainIndex = items.reduce(
-      (last, i, index) => (i.type === 'part' && i.part === PLAIN_SECTION_PART_NAME ? index : last),
-      -1
-    );
-    if (firstTitledIndex !== -1 && lastPlainIndex > firstTitledIndex) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        '[FlyoutTemplate] Body.PlainSection must come before any Body.Section or ' +
-          'Body.Accordion; it is not meant to be interleaved with titled sections.'
-      );
     }
   }
 
@@ -81,15 +64,6 @@ const renderBodyItems = (children: ReactNode) => {
         </Fragment>
       );
     }
-    if (item.part === PLAIN_SECTION_PART_NAME) {
-      // Plain sections carry no divider; they only need breathing room before what follows.
-      const showBottomSpacer = index < items.length - 1;
-      return (
-        <Fragment key={item.instanceId}>
-          {plainSectionPart.resolve(item, { showBottomSpacer }) ?? null}
-        </Fragment>
-      );
-    }
     return null;
   });
 };
@@ -106,7 +80,6 @@ BaseBody.displayName = 'FlyoutTemplate.Body';
 export const Body = Object.assign(BaseBody, {
   Section: Object.assign(Section, { Subsection }),
   Accordion: Object.assign(Accordion, { Subsection }),
-  PlainSection,
   TabPanel,
 });
 
@@ -120,13 +93,7 @@ export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBod
     [children]
   );
 
-  const tabPanelItems = useMemo(
-    () =>
-      items.filter(
-        (item): item is ParsedPart => item.type === 'part' && item.part === TAB_PANEL_PART_NAME
-      ),
-    [items]
-  );
+  const tabPanelItems = useMemo(() => partsOf(items, TAB_PANEL_PART_NAME), [items]);
 
   const isTabbedMode = tabPanelItems.length > 0;
 

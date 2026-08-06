@@ -170,16 +170,12 @@ describe('FlyoutTemplate', () => {
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
   });
 
-  it('renders plain section content with no title, outline, or divider', () => {
+  it('renders unstructured body content with no title, outline, or divider', () => {
     const { container } = renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Body>
-          <FlyoutTemplate.Body.PlainSection data-test-subj="filterBar">
-            <span>filter bar</span>
-          </FlyoutTemplate.Body.PlainSection>
-          <FlyoutTemplate.Body.PlainSection data-test-subj="dataGrid">
-            <span>data grid</span>
-          </FlyoutTemplate.Body.PlainSection>
+          <div data-test-subj="filterBar">filter bar</div>
+          <div data-test-subj="dataGrid">data grid</div>
         </FlyoutTemplate.Body>
       </FlyoutTemplate>
     );
@@ -191,14 +187,13 @@ describe('FlyoutTemplate', () => {
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
   });
 
-  it('does not warn when plain sections lead the body', () => {
+  it('does not warn about unstructured body content', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Body>
-          <FlyoutTemplate.Body.PlainSection>
-            <span>filter bar</span>
-          </FlyoutTemplate.Body.PlainSection>
+          {/* A component, not an intrinsic element: the body opts into these deliberately. */}
+          <KbnInfoCallout title="Data is delayed" />
           <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
         </FlyoutTemplate.Body>
       </FlyoutTemplate>
@@ -208,60 +203,18 @@ describe('FlyoutTemplate', () => {
     warn.mockRestore();
   });
 
-  it('warns in development when a plain section follows a titled section', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
-    renderTemplate(
-      <FlyoutTemplate onClose={noop} session="never">
-        <FlyoutTemplate.Body>
-          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
-          <FlyoutTemplate.Body.PlainSection>
-            <span>data grid</span>
-          </FlyoutTemplate.Body.PlainSection>
-        </FlyoutTemplate.Body>
-      </FlyoutTemplate>
-    );
-
-    expect(warn).toHaveBeenCalledWith(
-      '[FlyoutTemplate] Body.PlainSection must come before any Body.Section or ' +
-        'Body.Accordion; it is not meant to be interleaved with titled sections.'
-    );
-    warn.mockRestore();
-  });
-
-  it('warns in development when a plain section follows an accordion', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
-    renderTemplate(
-      <FlyoutTemplate onClose={noop} session="never">
-        <FlyoutTemplate.Body>
-          <FlyoutTemplate.Body.Accordion title="Overview">content</FlyoutTemplate.Body.Accordion>
-          <FlyoutTemplate.Body.PlainSection>
-            <span>data grid</span>
-          </FlyoutTemplate.Body.PlainSection>
-        </FlyoutTemplate.Body>
-      </FlyoutTemplate>
-    );
-
-    expect(warn).toHaveBeenCalledWith(
-      '[FlyoutTemplate] Body.PlainSection must come before any Body.Section or ' +
-        'Body.Accordion; it is not meant to be interleaved with titled sections.'
-    );
-    warn.mockRestore();
-  });
-
-  it('does not count plain sections toward section dividers', () => {
+  it('does not count unstructured body content toward section dividers', () => {
     const { container } = renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Body>
-          <FlyoutTemplate.Body.PlainSection>
-            <span>filter bar</span>
-          </FlyoutTemplate.Body.PlainSection>
+          <div>filter bar</div>
           <FlyoutTemplate.Body.Section title="One">one</FlyoutTemplate.Body.Section>
           <FlyoutTemplate.Body.Section title="Two">two</FlyoutTemplate.Body.Section>
         </FlyoutTemplate.Body>
       </FlyoutTemplate>
     );
 
-    // Two sections -> one divider; the plain section adds none.
+    // Two sections -> one divider; the unstructured content adds none.
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(1);
   });
 
@@ -1344,5 +1297,86 @@ describe('FlyoutTemplate header title icon, description, and badges', () => {
     expect(screen.getByTestId('myFlyoutHeader').textContent).toBe(
       'Alert detailsLast updatedDec 3, 2025UrgencyOwnerPlatform'
     );
+  });
+});
+
+describe('FlyoutTemplate unstructured header content', () => {
+  const body = (
+    <FlyoutTemplate.Body>
+      <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
+    </FlyoutTemplate.Body>
+  );
+
+  const unsupportedMessage =
+    '[FlyoutTemplate] <KbnInfoCallout> is not a Header part and is not rendered. The ' +
+    'header renders Header.Metadata, Header.Badge, Header.InfoBlock, and Header.Tab; ' +
+    'put free-form content in the Body.';
+
+  it('does not render a component that is not a header part, and warns once', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details">
+          <KbnInfoCallout title="Data is delayed" />
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert details');
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith(unsupportedMessage);
+    warn.mockRestore();
+  });
+
+  it('warns for markup and bare text too, since neither is rendered', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details">
+          <div>raw markup</div>
+          bare text
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert details');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('<div> is not a Header part'));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"bare text" is not a Header part'));
+    warn.mockRestore();
+  });
+
+  it('still renders the header parts declared alongside it', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details">
+          <KbnInfoCallout title="Data is delayed" />
+          <FlyoutTemplate.Header.Badge>Urgency</FlyoutTemplate.Header.Badge>
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert detailsUrgency');
+    warn.mockRestore();
+  });
+
+  it('does not warn when the header holds only its own parts', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
+          <FlyoutTemplate.Header.Badge>Urgency</FlyoutTemplate.Header.Badge>
+          <FlyoutTemplate.Header.InfoBlock title="Risk">High</FlyoutTemplate.Header.InfoBlock>
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 });

@@ -17,20 +17,18 @@ import type {
   FlyoutHeaderProps,
   FlyoutTemplateProps,
 } from '@kbn/shared-ux-flyout-common';
-import { flyoutAssembly } from './assembly';
+import { flyoutAssembly, headerAssembly, partsOf } from './assembly';
 import { FlyoutTabsProvider, FlyoutTemplateConfigProvider } from './context';
 import type { FlyoutTabsState } from './context';
 import { Body, BodyZone, BODY_PART_NAME } from './body/body';
 import { Header, HeaderZone, HEADER_PART_NAME } from './header/header';
 import { Footer, FooterZone, FOOTER_PART_NAME } from './footer/footer';
-import { tabPart } from './header/tab';
+import { tabPart, TAB_PART_NAME } from './header/tab';
 import type { HeaderTabDescriptor } from './header/tab/types';
 
 /** Selects a singleton zone; duplicate zones warn in dev and the first wins. */
 const pickZone = (items: ParsedItem[], partName: string): ParsedPart | undefined => {
-  const matches = items.filter(
-    (item): item is ParsedPart => item.type === 'part' && item.part === partName
-  );
+  const matches = partsOf(items, partName);
   if (process.env.NODE_ENV !== 'production' && matches.length > 1) {
     // eslint-disable-next-line no-console
     console.warn(
@@ -98,9 +96,18 @@ const FlyoutTemplateRoot = ({
   };
   const hasMenuProps = Object.keys(mergedMenuProps).length > 0;
 
+  // Parsed here rather than in `HeaderZone` because tab state lives at this level;
+  // `HeaderZone` renders the same items, so the children are only walked once.
+  const headerItems = useMemo(
+    () =>
+      headerAttrs?.children
+        ? headerAssembly.parseChildren(headerAttrs.children, { supportsOtherChildren: true })
+        : [],
+    [headerAttrs?.children]
+  );
+
   const tabs = useMemo<HeaderTabDescriptor[]>(() => {
-    if (!headerAttrs?.children) return [];
-    const tabParts = tabPart.parseChildren(headerAttrs.children);
+    const tabParts = partsOf(headerItems, TAB_PART_NAME);
 
     const seen = new Set<string>();
     const descriptors: HeaderTabDescriptor[] = [];
@@ -122,7 +129,7 @@ const FlyoutTemplateRoot = ({
       });
     }
     return descriptors;
-  }, [headerAttrs?.children, tabIdPrefix]);
+  }, [headerItems, tabIdPrefix]);
 
   const isControlled = headerAttrs?.selectedTabId !== undefined;
   const defaultId = headerAttrs?.defaultSelectedTabId;
@@ -211,7 +218,11 @@ const FlyoutTemplateRoot = ({
       <FlyoutTemplateConfigProvider value={{ dataTestSubj, paddingSize }}>
         <FlyoutTabsProvider value={tabsContextValue}>
           {headerItem && (
-            <HeaderZone {...(headerAttrs as FlyoutHeaderProps)} flyoutTitleId={flyoutTitleId} />
+            <HeaderZone
+              {...(headerAttrs as FlyoutHeaderProps)}
+              items={headerItems}
+              flyoutTitleId={flyoutTitleId}
+            />
           )}
           {bodyItem && <BodyZone {...(bodyItem.attributes as FlyoutBodyProps)} />}
           {footerItem && <FooterZone {...(footerItem.attributes as FlyoutFooterProps)} />}

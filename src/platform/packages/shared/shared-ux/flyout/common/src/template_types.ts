@@ -122,17 +122,6 @@ export interface FlyoutBodySectionProps {
   children?: ReactNode;
 }
 
-/**
- * Props for the declarative `FlyoutTemplate.Body.PlainSection` part: an untitled,
- * unadorned container for content that owns its own layout (filter bars, data grids).
- */
-export interface FlyoutBodyPlainSectionProps {
-  /** Optional explicit instance id; auto-generated when omitted. */
-  id?: string;
-  'data-test-subj'?: string;
-  children?: ReactNode;
-}
-
 /** Props for the declarative body subsection part. */
 export interface FlyoutBodySubsectionProps {
   /** Optional explicit instance id; auto-generated when omitted. */
@@ -164,7 +153,10 @@ export interface FlyoutBodyAccordionProps {
 /** Props for the declarative `FlyoutTemplate.Body` zone. */
 export interface FlyoutBodyProps {
   'data-test-subj'?: string;
-  /** `Body.Section` parts and/or passthrough content (callouts, search, etc.). */
+  /**
+   * `Body.Section`, `Body.Accordion`, or `Body.TabPanel` parts, and/or arbitrary
+   * content (callouts, search bars, data grids) rendered as-is in source order.
+   */
   children?: ReactNode;
 }
 

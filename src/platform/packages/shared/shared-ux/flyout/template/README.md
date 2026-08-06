@@ -72,6 +72,10 @@ A part wrapped in a condition that resolves falsy
 (`{isUrgent && <FlyoutTemplate.Header.Badge>…</FlyoutTemplate.Header.Badge>}`) is
 skipped, so it never leaves an empty row behind.
 
+These parts are the whole of what the header renders. Free-form content — your own
+markup, a component, bare text — is dropped and logs a development warning naming
+what was skipped; put that content in the body instead.
+
 ## Body
 
 Choose either `Section` or `Accordion` for a given flyout, not both. Dividers
@@ -90,14 +94,23 @@ between siblings are added for you.
   and for `Section` when you set `hasBorder` — each subsection gets its own box
   and the parent's single outer box is dropped. Otherwise subsections are
   separated by horizontal rules.
-- **`Body.PlainSection`** — an untitled container with no icon, outline, or
-  action, for content that owns its own layout such as a filter bar or a data
-  grid. Plain sections are meant to lead the body; putting one after a titled
-  section logs a development warning.
+### Unstructured body content
 
-Anything else you put in the body — callouts, an announcement, a search box —
-renders in place, in JSX order relative to the sections around it. Sections and
-accordions accept the same kind of passthrough content alongside subsections.
+The body also takes plain content — a callout, a search bar, a filter row, a data
+grid — with no wrapper part. It renders as-is, in JSX order relative to the
+sections around it, and gets no title, box, or divider:
+
+```tsx
+<FlyoutTemplate.Body>
+  <DocumentFilterBar />
+  <EuiSpacer size="m" />
+  <DocumentGrid />
+</FlyoutTemplate.Body>
+```
+
+Note that this applies to the body only. The header renders its declared parts
+and nothing else, so anything else you put there is dropped, with a development
+warning naming what was skipped.
 
 ## Tabs
 
@@ -129,7 +142,7 @@ set `selectedTabId` and `onTabChange` on the header — `onTabChange` fires on
 every tab click either way.
 
 Once the body contains a `TabPanel`, everything must live inside a panel:
-top-level sections and passthrough children in the body are not rendered.
+top-level sections and unstructured content in the body are not rendered.
 
 ## Footer
 

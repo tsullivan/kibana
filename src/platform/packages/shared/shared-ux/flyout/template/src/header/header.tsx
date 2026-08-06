@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { isValidElement, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { css } from '@emotion/react';
 import {
@@ -24,16 +24,17 @@ import {
   useEuiTheme,
 } from '@elastic/eui';
 import type { EuiFlyoutProps, UseEuiTheme } from '@elastic/eui';
+import type { ParsedItem } from '@kbn/content-list-assembly';
 import { i18n } from '@kbn/i18n';
 import type { FlyoutHeaderProps, InfoBlockItem } from '@kbn/shared-ux-flyout-common';
 import { InfoBlocks } from '@kbn/shared-ux-flyout-info-blocks';
 import { MetadataPairs, type MetadataItem } from '@kbn/shared-ux-flyout-metadata';
-import { flyoutAssembly } from '../assembly';
+import { flyoutAssembly, partsOf } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import { renderTitleIcon, renderTitleWithIcon } from '../title_adornments';
-import { Badge, badgePart, type HeaderBadgeDescriptor } from './badge';
-import { InfoBlock, infoBlockPart } from './info_block';
-import { Metadata, metadataPart } from './metadata';
+import { Badge, badgePart, BADGE_PART_NAME, type HeaderBadgeDescriptor } from './badge';
+import { InfoBlock, infoBlockPart, INFO_BLOCK_PART_NAME } from './info_block';
+import { Metadata, metadataPart, METADATA_PART_NAME } from './metadata';
 import { Tab } from './tab';
 
 /** Part name used for identifying the `Header` zone. */
@@ -137,6 +138,45 @@ const BadgeOverflow = ({ badges }: { badges: ReactNode[] }) => {
   );
 };
 
+/** Best-effort label for a dropped child, for warning messages. */
+const describeChild = (node: ReactNode): string => {
+  if (!isValidElement(node)) {
+    return JSON.stringify(node);
+  }
+  const { type } = node;
+  if (typeof type === 'string') {
+    return `<${type}>`;
+  }
+  const { displayName, name } = type as { displayName?: string; name?: string };
+  return `<${displayName ?? name ?? 'Unknown'}>`;
+};
+
+/**
+ * Dev-mode helper: reports header children that are not header parts.
+ *
+ * Unlike the body, the header renders only its declared parts, so anything else is
+ * dropped. Without this the content simply vanishes, which is the hardest kind of
+ * mistake to spot.
+ */
+const warnOnUnstructuredChildren = (items: ParsedItem[]): void => {
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+
+  for (const item of items) {
+    if (item.type !== 'child') {
+      continue;
+    }
+
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[FlyoutTemplate] ${describeChild(item.node)} is not a Header part and is not ` +
+        'rendered. The header renders Header.Metadata, Header.Badge, Header.InfoBlock, ' +
+        'and Header.Tab; put free-form content in the Body.'
+    );
+  }
+};
+
 /** Renders a resolved `Header.Badge` descriptor. */
 const renderBadge = (badge: HeaderBadgeDescriptor, key: number): ReactNode => (
   <EuiBadge
@@ -151,6 +191,12 @@ const renderBadge = (badge: HeaderBadgeDescriptor, key: number): ReactNode => (
 );
 
 type HeaderZoneProps = FlyoutHeaderProps & {
+  /**
+   * `children` already parsed by the root, which needs the tab parts for its own state.
+   * Reusing that parse keeps an unexpected child reported once, rather than once per
+   * part kind that would otherwise go looking for its own children.
+   */
+  items: ParsedItem[];
   flyoutTitleId?: string;
 };
 
@@ -160,7 +206,7 @@ export const HeaderZone = ({
   titleIcon,
   titleTooltip,
   description,
-  children,
+  items,
   flyoutTitleId,
   'data-test-subj': dataTestSubj,
 }: HeaderZoneProps) => {
@@ -169,28 +215,27 @@ export const HeaderZone = ({
   const { dataTestSubj: rootTestSubj, paddingSize } = useFlyoutTemplateConfig();
   const { tabs, selectedTabId, selectTab } = useFlyoutTabs();
 
+  warnOnUnstructuredChildren(items);
+
   const infoBlockItems = useMemo(() => {
-    return infoBlockPart
-      .parseChildren(children)
+    return partsOf(items, INFO_BLOCK_PART_NAME)
       .map((item) => infoBlockPart.resolve(item, undefined))
       .filter((item): item is InfoBlockItem => item !== undefined);
-  }, [children]);
+  }, [items]);
 
   // `MetadataPairs` owns the count guideline and its dev warning.
   const metadataItems = useMemo(() => {
-    return metadataPart
-      .parseChildren(children)
+    return partsOf(items, METADATA_PART_NAME)
       .map((item) => metadataPart.resolve(item, undefined))
       .filter((item): item is MetadataItem => item !== undefined);
-  }, [children]);
+  }, [items]);
 
   const badgeList = useMemo(() => {
-    return badgePart
-      .parseChildren(children)
+    return partsOf(items, BADGE_PART_NAME)
       .map((item) => badgePart.resolve(item, undefined))
       .filter((badge): badge is HeaderBadgeDescriptor => badge !== undefined)
       .map((badge, index) => renderBadge(badge, index));
-  }, [children]);
+  }, [items]);
 
   const hasDescription = Boolean(description);
   const hasMetadata = metadataItems.length > 0;
