@@ -37,21 +37,18 @@ the heading level.
 - `titleTooltip` — turns the title icon into a focusable tooltip anchor.
 - `description` — subdued text below the title, such as a timestamp. Accepts
   block content.
-- `badges` — an array of `EuiBadge` elements below the description.
 
-Five badges render as-is. Past that, the first four are shown and the remainder
-collapse into a `+N more` badge that reveals them in a popover. Conditional
-entries that resolve falsy
-(`showBadge && <EuiBadge />`) are dropped before counting, so they never produce
-an empty badge row.
-
-Two parts go inside the header as children:
+Everything else in the header is a child part. Declare them in any order; the
+header positions each kind for you.
 
 - **`Header.Metadata`** — a key/value pair rendered on a single wrapping line
-  between the description and the badges. Takes `title` (the key) and `children`
-  (the value, which may be rich content such as a link). The design calls for at
-  most three pairs; this is a guideline, not a limit, and extra pairs still
-  render.
+  below the description. Takes `title` (the key) and `children` (the value, which
+  may be rich content such as a link). The design calls for at most three pairs;
+  this is a guideline, not a limit, and extra pairs still render.
+- **`Header.Badge`** — a badge below the metadata line. Takes `children` (the
+  label) plus optional `color`, `iconType`, and `iconSide`. Five badges render
+  as-is; past that the first four are shown and the remainder collapse into a
+  `+N more` badge that reveals them in a popover.
 - **`Header.InfoBlock`** — a labelled value block, laid out by
   `@kbn/shared-ux-flyout-info-blocks` below a full-width divider. Takes `title`,
   `children`, and optional `size` and `color`.
@@ -60,12 +57,20 @@ Two parts go inside the header as children:
 <FlyoutTemplate.Header title="Alert details" titleIcon="warning">
   <FlyoutTemplate.Header.Metadata title="Owner">Platform</FlyoutTemplate.Header.Metadata>
 
+  <FlyoutTemplate.Header.Badge color="warning" iconType="warning">
+    Urgent
+  </FlyoutTemplate.Header.Badge>
+
   <FlyoutTemplate.Header.InfoBlock title="Risk score">{riskScore}</FlyoutTemplate.Header.InfoBlock>
   <FlyoutTemplate.Header.InfoBlock title="Status">
     <EuiHealth color="success">Healthy</EuiHealth>
   </FlyoutTemplate.Header.InfoBlock>
 </FlyoutTemplate.Header>
 ```
+
+A part wrapped in a condition that resolves falsy
+(`{isUrgent && <FlyoutTemplate.Header.Badge>…</FlyoutTemplate.Header.Badge>}`) is
+skipped, so it never leaves an empty row behind.
 
 ## Body
 

@@ -8,7 +8,7 @@
  */
 
 import type { MouseEventHandler, ReactNode } from 'react';
-import type { EuiButtonProps, EuiFlyoutProps, EuiIconProps } from '@elastic/eui';
+import type { EuiBadgeProps, EuiButtonProps, EuiFlyoutProps, EuiIconProps } from '@elastic/eui';
 import type { InfoBlockItem } from './info_block_types';
 
 /** Props for the declarative `FlyoutTemplate.Header.Tab` part. */
@@ -36,7 +36,7 @@ export interface FlyoutHeaderProps {
   /** Title rendered by the header. Rendered as an H3 (heading level is owned by the template). */
   title: ReactNode;
   'data-test-subj'?: string;
-  /** `Header.Metadata`, `Header.InfoBlock`, and `Header.Tab` parts. */
+  /** `Header.Metadata`, `Header.Badge`, `Header.InfoBlock`, and `Header.Tab` parts. */
   children?: ReactNode;
   /** Icon beside the title; defaults to `info` when `titleTooltip` is set. */
   titleIcon?: EuiIconProps['type'];
@@ -44,8 +44,6 @@ export interface FlyoutHeaderProps {
   titleTooltip?: ReactNode;
   /** Subdued text below the title (e.g. a timestamp or short context string). */
   description?: ReactNode;
-  /** Badges below the description; each item should be an `EuiBadge`. Capped at 5 visible; extras collapse into a "+N more" badge. */
-  badges?: ReactNode[];
   /** Initial selected tab id (uncontrolled); ignored when `selectedTabId` is provided. */
   defaultSelectedTabId?: string;
   /** Currently selected tab id (controlled); `onTabChange` fires on every click. */
@@ -62,6 +60,26 @@ export interface FlyoutHeaderMetadataProps {
   title: ReactNode;
   /** The pair's value; accepts rich content such as links. */
   children: ReactNode;
+  'data-test-subj'?: string;
+}
+
+/**
+ * Props for the declarative `FlyoutTemplate.Header.Badge` part.
+ *
+ * The template composes the `EuiBadge` itself, so only presentational options are
+ * exposed. Badges in a flyout header label the subject; they are not controls.
+ */
+export interface FlyoutHeaderBadgeProps {
+  /** Optional explicit instance id; auto-generated when omitted. */
+  id?: string;
+  /** Badge label. */
+  children: ReactNode;
+  /** Palette color name or hex value. */
+  color?: EuiBadgeProps['color'];
+  /** Icon shown inside the badge. */
+  iconType?: EuiBadgeProps['iconType'];
+  /** Which side of the label the icon sits on. */
+  iconSide?: EuiBadgeProps['iconSide'];
   'data-test-subj'?: string;
 }
 

@@ -11,15 +11,7 @@ import React, { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import {
-  EuiBadge,
-  EuiButton,
-  EuiHealth,
-  EuiLink,
-  EuiPanel,
-  EuiSpacer,
-  EuiText,
-} from '@elastic/eui';
+import { EuiButton, EuiHealth, EuiLink, EuiPanel, EuiSpacer, EuiText } from '@elastic/eui';
 import type { FlyoutTemplateProps } from '@kbn/shared-ux-flyout-common';
 import { FlyoutTemplate } from './flyout_template';
 
@@ -160,7 +152,7 @@ const meta: Meta<Args> = {
     },
     numPlainSections: {
       name: 'Plain sections',
-      control: { type: 'range', min: 1, max: 3, step: 1 },
+      control: { type: 'range', min: 1, max: 2, step: 1 },
       table: { category: 'Body' },
     },
     footer: { name: 'Footer', control: { type: 'boolean' }, table: { category: 'Footer' } },
@@ -268,30 +260,30 @@ const METADATA_POOL = [
 const metadataItems = (count: number) => METADATA_POOL.slice(0, count);
 
 const BADGE_POOL = [
-  <EuiBadge key="type" iconType="warning" color="default">
+  <FlyoutTemplate.Header.Badge key="type" iconType="warning" color="default">
     Type
-  </EuiBadge>,
-  <EuiBadge key="urgency" color="warning">
+  </FlyoutTemplate.Header.Badge>,
+  <FlyoutTemplate.Header.Badge key="urgency" color="warning">
     Urgency
-  </EuiBadge>,
-  <EuiBadge key="meta1" color="hollow">
+  </FlyoutTemplate.Header.Badge>,
+  <FlyoutTemplate.Header.Badge key="meta1" color="hollow">
     Metadata 1 very very very very very very long label
-  </EuiBadge>,
-  <EuiBadge key="meta2" color="hollow">
+  </FlyoutTemplate.Header.Badge>,
+  <FlyoutTemplate.Header.Badge key="meta2" color="hollow">
     Metadata 2
-  </EuiBadge>,
-  <EuiBadge key="meta3" color="hollow">
+  </FlyoutTemplate.Header.Badge>,
+  <FlyoutTemplate.Header.Badge key="meta3" color="hollow">
     Metadata 2 very very very very long label
-  </EuiBadge>,
-  <EuiBadge key="meta4" color="hollow">
+  </FlyoutTemplate.Header.Badge>,
+  <FlyoutTemplate.Header.Badge key="meta4" color="hollow">
     Metadata 4
-  </EuiBadge>,
-  <EuiBadge key="meta5" color="hollow">
+  </FlyoutTemplate.Header.Badge>,
+  <FlyoutTemplate.Header.Badge key="meta5" color="hollow">
     Metadata 5
-  </EuiBadge>,
-  <EuiBadge key="meta6" color="hollow">
+  </FlyoutTemplate.Header.Badge>,
+  <FlyoutTemplate.Header.Badge key="meta6" color="hollow">
     Metadata 6
-  </EuiBadge>,
+  </FlyoutTemplate.Header.Badge>,
 ];
 
 const badgeItems = (count: number) => BADGE_POOL.slice(0, count);
@@ -346,31 +338,30 @@ const TABS: Array<{ id: string; label: string }> = [
 ];
 
 const SECTIONS: Array<{ id: string; title: string; content: string }> = [
-  { id: 'summary', title: 'Summary', content: 'Summary section content.' },
-  { id: 'details', title: 'Details', content: 'Details section content.' },
-  { id: 'context', title: 'Context', content: 'Context section content.' },
-  { id: 'history', title: 'History', content: 'History section content.' },
+  { id: 'summary', title: 'Regular Section: Summary', content: 'Summary regular section content.' },
+  { id: 'details', title: 'Regular Section: Details', content: 'Details regular section content.' },
+  { id: 'context', title: 'Regular Section: Context', content: 'Context regular section content.' },
+  { id: 'history', title: 'Regular Section: History', content: 'History regular section content.' },
 ];
 
 const SUBSECTIONS: Array<{ id: string; title: string; content: string }> = [
-  { id: 'host', title: 'Host', content: 'Host subsection content.' },
-  { id: 'process', title: 'Process', content: 'Process subsection content.' },
-  { id: 'network', title: 'Network', content: 'Network subsection content.' },
-  { id: 'user', title: 'User', content: 'User subsection content.' },
+  { id: 'host', title: 'Subsection: Host', content: 'Host subsection content.' },
+  { id: 'process', title: 'Subsection: Process', content: 'Process subsection content.' },
+  { id: 'network', title: 'Subsection: Network', content: 'Network subsection content.' },
+  { id: 'user', title: 'Subsection: User', content: 'User subsection content.' },
 ];
 
 const ACCORDIONS: Array<{ id: string; title: string; content: string }> = [
-  { id: 'overview', title: 'Overview', content: 'Overview accordion content.' },
-  { id: 'metadata', title: 'Metadata', content: 'Metadata accordion content.' },
-  { id: 'timeline', title: 'Timeline', content: 'Timeline accordion content.' },
-  { id: 'related', title: 'Related', content: 'Related accordion content.' },
+  { id: 'overview', title: 'Accordion: Overview', content: 'Overview accordion section content.' },
+  { id: 'metadata', title: 'Accordion: Metadata', content: 'Metadata accordion section content.' },
+  { id: 'timeline', title: 'Accordion: Timeline', content: 'Timeline accordion section content.' },
+  { id: 'related', title: 'Accordion: Related', content: 'Related accordion section content.' },
 ];
 
 /** Stand-ins for self-contained widgets that bring their own chrome. */
 const PLAIN_SECTIONS: Array<{ id: string; label: string; height: number }> = [
-  { id: 'filterBar', label: 'Filter Bar', height: 48 },
-  { id: 'dataGrid', label: 'Data Grid', height: 320 },
-  { id: 'pagination', label: 'Pagination', height: 48 },
+  { id: 'filterBar', label: 'Plain Section: Filter Bar', height: 48 },
+  { id: 'dataGrid', label: 'Plain Section: Data Grid', height: 320 },
 ];
 
 const bodyText = (content: string) => (
@@ -388,9 +379,9 @@ const headerZone = (args: Args, title: string) => (
     title={title}
     {...buildTitleIconProps(args)}
     description={args.description ? HEADER_DESCRIPTION : undefined}
-    badges={badgeItems(args.numBadges)}
   >
     {metadataItems(args.numMetadata)}
+    {badgeItems(args.numBadges)}
     {infoBlockItems(args.numInfoBlocks)}
     {TABS.slice(0, args.numTabs).map(({ id, label }) => (
       <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
@@ -489,7 +480,7 @@ const AccordionsRender = (args: Args): React.JSX.Element => {
   );
 };
 
-export const Accordions: Story = {
+export const AccordionSections: Story = {
   argTypes: {
     // Accordion content is always outlined, so the border toggle does not apply here.
     sectionHasBorder: { table: { disable: true } },
@@ -508,15 +499,22 @@ const PlainSectionsRender = (args: Args): React.JSX.Element => {
   const bodyItems = (tabId?: string) => (
     <>
       {plainSections.map(({ id, label, height }) => (
-        <FlyoutTemplate.Body.PlainSection key={id} id={tabId ? `${tabId}-${id}` : id}>
-          <EuiPanel color="primary" hasShadow={false} css={{ minHeight: height }}>
+        <>
+          <EuiPanel
+            color="primary"
+            hasShadow={false}
+            css={{ minHeight: height }}
+            key={id}
+            id={tabId ? `${tabId}-${id}` : id}
+          >
             <EuiText size="s" textAlign="center">
               <p>
                 <em>{label}</em>
               </p>
             </EuiText>
           </EuiPanel>
-        </FlyoutTemplate.Body.PlainSection>
+          <EuiSpacer size="m" />
+        </>
       ))}
       {sections.map(({ id, title, content }) => (
         <FlyoutTemplate.Body.Section key={id} title={title} hasBorder={args.sectionHasBorder}>
@@ -547,9 +545,6 @@ export const PlainSections: Story = {
 };
 
 const WithHistoryRender = (args: Args): React.JSX.Element => {
-  // EUI groups session history by Symbol identity, so all three flyouts must receive
-  // the same reference. Held in a ref because a new Symbol per render would put every
-  // flyout in its own group, leaving each history empty.
   const historyKey = useRef(Symbol('flyoutTemplateHistory')).current;
 
   const [isFlyoutAOpen, setIsFlyoutAOpen] = useState(true);
@@ -632,7 +627,7 @@ const WithHistoryRender = (args: Args): React.JSX.Element => {
   );
 };
 
-export const WithHistory: Story = {
+export const MenuBarHistory: Story = {
   argTypes: {
     titleIcon: { table: { disable: true } },
     description: { table: { disable: true } },

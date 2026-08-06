@@ -17,6 +17,7 @@ export type { InfoBlockItem, InfoBlocksProps } from './src/info_block_types';
 export type {
   FlyoutTemplateProps,
   FlyoutHeaderProps,
+  FlyoutHeaderBadgeProps,
   FlyoutHeaderInfoBlockProps,
   FlyoutHeaderMetadataProps,
   FlyoutHeaderTabProps,

@@ -31,6 +31,7 @@ import { MetadataPairs, type MetadataItem } from '@kbn/shared-ux-flyout-metadata
 import { flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import { renderTitleIcon, renderTitleWithIcon } from '../title_adornments';
+import { Badge, badgePart, type HeaderBadgeDescriptor } from './badge';
 import { InfoBlock, infoBlockPart } from './info_block';
 import { Metadata, metadataPart } from './metadata';
 import { Tab } from './tab';
@@ -44,7 +45,7 @@ const headerPart = flyoutAssembly.definePart({ name: HEADER_PART_NAME });
 const BaseHeader = headerPart.createComponent<FlyoutHeaderProps>();
 BaseHeader.displayName = 'FlyoutTemplate.Header';
 
-export const Header = Object.assign(BaseHeader, { InfoBlock, Metadata, Tab });
+export const Header = Object.assign(BaseHeader, { Badge, InfoBlock, Metadata, Tab });
 
 /** Maps `paddingSize` to the header's horizontal padding; `undefined` follows EuiFlyout's `'l'` default. */
 const resolveHorizontalPadding = (
@@ -136,6 +137,19 @@ const BadgeOverflow = ({ badges }: { badges: ReactNode[] }) => {
   );
 };
 
+/** Renders a resolved `Header.Badge` descriptor. */
+const renderBadge = (badge: HeaderBadgeDescriptor, key: number): ReactNode => (
+  <EuiBadge
+    key={key}
+    color={badge.color}
+    iconType={badge.iconType}
+    iconSide={badge.iconSide}
+    data-test-subj={badge['data-test-subj']}
+  >
+    {badge.label}
+  </EuiBadge>
+);
+
 type HeaderZoneProps = FlyoutHeaderProps & {
   flyoutTitleId?: string;
 };
@@ -146,7 +160,6 @@ export const HeaderZone = ({
   titleIcon,
   titleTooltip,
   description,
-  badges,
   children,
   flyoutTitleId,
   'data-test-subj': dataTestSubj,
@@ -171,8 +184,13 @@ export const HeaderZone = ({
       .filter((item): item is MetadataItem => item !== undefined);
   }, [children]);
 
-  // Conditional badges (`cond && <EuiBadge />`) arrive as `false`; drop them before counting.
-  const badgeList = useMemo(() => React.Children.toArray(badges).filter(Boolean), [badges]);
+  const badgeList = useMemo(() => {
+    return badgePart
+      .parseChildren(children)
+      .map((item) => badgePart.resolve(item, undefined))
+      .filter((badge): badge is HeaderBadgeDescriptor => badge !== undefined)
+      .map((badge, index) => renderBadge(badge, index));
+  }, [children]);
 
   const hasDescription = Boolean(description);
   const hasMetadata = metadataItems.length > 0;

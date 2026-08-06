@@ -10,7 +10,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { EuiBadge, EuiLink } from '@elastic/eui';
+import { EuiLink } from '@elastic/eui';
 import { KbnInfoCallout } from '@kbn/ui-callout';
 import { FlyoutTemplate } from './flyout_template';
 
@@ -1228,15 +1228,17 @@ describe('FlyoutTemplate header title icon, description, and badges', () => {
     expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert details');
   });
 
+  const badgeParts = (ids: string[]) =>
+    ids.map((id) => (
+      <FlyoutTemplate.Header.Badge key={id}>{`badge ${id}`}</FlyoutTemplate.Header.Badge>
+    ));
+
   it('renders every badge when at or below the visible maximum', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
-        <FlyoutTemplate.Header
-          title="Alert details"
-          badges={['a', 'b', 'c', 'd', 'e'].map((id) => (
-            <EuiBadge key={id}>{`badge ${id}`}</EuiBadge>
-          ))}
-        />
+        <FlyoutTemplate.Header title="Alert details">
+          {badgeParts(['a', 'b', 'c', 'd', 'e'])}
+        </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
     );
@@ -1248,12 +1250,9 @@ describe('FlyoutTemplate header title icon, description, and badges', () => {
   it('collapses past the visible maximum into an overflow badge', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
-        <FlyoutTemplate.Header
-          title="Alert details"
-          badges={['a', 'b', 'c', 'd', 'e', 'f'].map((id) => (
-            <EuiBadge key={id}>{`badge ${id}`}</EuiBadge>
-          ))}
-        />
+        <FlyoutTemplate.Header title="Alert details">
+          {badgeParts(['a', 'b', 'c', 'd', 'e', 'f'])}
+        </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
     );
@@ -1266,12 +1265,9 @@ describe('FlyoutTemplate header title icon, description, and badges', () => {
   it('reveals the collapsed badges from the overflow popover', async () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
-        <FlyoutTemplate.Header
-          title="Alert details"
-          badges={['a', 'b', 'c', 'd', 'e', 'f'].map((id) => (
-            <EuiBadge key={id}>{`badge ${id}`}</EuiBadge>
-          ))}
-        />
+        <FlyoutTemplate.Header title="Alert details">
+          {badgeParts(['a', 'b', 'c', 'd', 'e', 'f'])}
+        </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
     );
@@ -1282,18 +1278,32 @@ describe('FlyoutTemplate header title icon, description, and badges', () => {
     expect(screen.getByText('badge f')).toBeInTheDocument();
   });
 
-  it('ignores falsy badge entries when counting and rendering', () => {
+  it('forwards color, icon, and test subject to the badge', () => {
+    const { container } = renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never">
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.Badge color="warning" iconType="warning" data-test-subj="urgency">
+            Urgency
+          </FlyoutTemplate.Header.Badge>
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    const badge = screen.getByTestId('urgency');
+    expect(badge).toHaveTextContent('Urgency');
+    expect(container.querySelector('[data-euiicon-type="warning"]')).toBeInTheDocument();
+  });
+
+  it('ignores conditional badges that resolve falsy', () => {
     const showBadge = false;
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
-        <FlyoutTemplate.Header
-          title="Alert details"
-          badges={[
-            <EuiBadge key="real">visible badge</EuiBadge>,
-            showBadge && <EuiBadge key="hidden">hidden badge</EuiBadge>,
-            showBadge && <EuiBadge key="hidden2">hidden badge 2</EuiBadge>,
-          ]}
-        />
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.Badge>visible badge</FlyoutTemplate.Header.Badge>
+          {showBadge && <FlyoutTemplate.Header.Badge>hidden badge</FlyoutTemplate.Header.Badge>}
+          {showBadge && <FlyoutTemplate.Header.Badge>hidden badge 2</FlyoutTemplate.Header.Badge>}
+        </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
     );
@@ -1302,18 +1312,37 @@ describe('FlyoutTemplate header title icon, description, and badges', () => {
     expect(screen.queryByText(/more$/)).toBeNull();
   });
 
-  it('renders no badge group when every entry is falsy', () => {
+  it('renders no badge group when every badge resolves falsy', () => {
     const showBadge = false;
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
-        <FlyoutTemplate.Header
-          title="Alert details"
-          badges={[showBadge && <EuiBadge key="hidden">hidden badge</EuiBadge>]}
-        />
+        <FlyoutTemplate.Header title="Alert details">
+          {showBadge && <FlyoutTemplate.Header.Badge>hidden badge</FlyoutTemplate.Header.Badge>}
+        </FlyoutTemplate.Header>
         {body}
       </FlyoutTemplate>
     );
 
     expect(screen.getByTestId('myFlyoutHeader').textContent).toBe('Alert details');
+  });
+
+  it('renders badges between the metadata row and the info blocks', () => {
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Alert details">
+          <FlyoutTemplate.Header.InfoBlock title="Owner">Platform</FlyoutTemplate.Header.InfoBlock>
+          <FlyoutTemplate.Header.Badge>Urgency</FlyoutTemplate.Header.Badge>
+          <FlyoutTemplate.Header.Metadata title="Last updated">
+            Dec 3, 2025
+          </FlyoutTemplate.Header.Metadata>
+        </FlyoutTemplate.Header>
+        {body}
+      </FlyoutTemplate>
+    );
+
+    // Declaration order is irrelevant; the header owns the layout.
+    expect(screen.getByTestId('myFlyoutHeader').textContent).toBe(
+      'Alert detailsLast updatedDec 3, 2025UrgencyOwnerPlatform'
+    );
   });
 });

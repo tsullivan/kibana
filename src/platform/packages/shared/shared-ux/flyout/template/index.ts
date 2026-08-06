@@ -15,6 +15,7 @@ export { FlyoutTemplate } from './src/flyout_template';
 export type {
   FlyoutTemplateProps,
   FlyoutHeaderProps,
+  FlyoutHeaderBadgeProps,
   FlyoutHeaderInfoBlockProps,
   FlyoutHeaderMetadataProps,
   FlyoutHeaderTabProps,
