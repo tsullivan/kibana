@@ -70,6 +70,7 @@ interface Args {
   description: boolean;
   numMetadata: number;
   numBadges: number;
+  secondaryActionIcon: boolean;
 }
 
 const meta: Meta<Args> = {
@@ -92,6 +93,7 @@ const meta: Meta<Args> = {
     numMetadata: 3,
     numBadges: 8,
     footer: true,
+    secondaryActionIcon: true,
     resizable: true,
     type: 'overlay',
     ownFocus: false,
@@ -181,6 +183,12 @@ const meta: Meta<Args> = {
       table: { category: 'Body' },
     },
     footer: { name: 'Footer', control: { type: 'boolean' }, table: { category: 'Footer' } },
+    secondaryActionIcon: {
+      name: 'Secondary action icon',
+      control: { type: 'boolean' },
+      if: { arg: 'footer', truthy: true },
+      table: { category: 'Footer' },
+    },
     resizable: { name: 'Resizable', control: { type: 'boolean' }, table: { category: 'Flyout' } },
     type: {
       name: 'Type',
@@ -445,7 +453,11 @@ const bodyZone = (args: Args, content: (tabId?: string) => ReactNode) => {
 const footerZone = (args: Args) =>
   args.footer ? (
     <FlyoutTemplate.Footer>
-      <FlyoutTemplate.Footer.SecondaryAction label="Discard" onClick={action('discard')} />
+      <FlyoutTemplate.Footer.SecondaryAction
+        label="Discard"
+        onClick={action('discard')}
+        {...(args.secondaryActionIcon ? { iconType: 'trash' } : {})}
+      />
       <FlyoutTemplate.Footer.PrimaryAction label="Save" onClick={action('save')} />
     </FlyoutTemplate.Footer>
   ) : null;
@@ -832,6 +844,7 @@ export const Playground: Story = {
     numUnstructuredBlocks: { table: { disable: true } },
     // do not allow any footer args
     footer: { table: { disable: true } },
+    secondaryActionIcon: { table: { disable: true } },
   },
   render: PlaygroundRender,
 };

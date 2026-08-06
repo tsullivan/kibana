@@ -33,25 +33,25 @@ import { FlyoutTemplate } from '@kbn/shared-ux-flyout-template';
 the heading level.
 
 - `titleIcon` — an icon beside the title. Defaults to `info` when `titleTooltip`
-  is set.
+is set.
 - `titleTooltip` — turns the title icon into a focusable tooltip anchor.
 - `description` — subdued text below the title, such as a timestamp. Accepts
-  block content.
+block content.
 
 Everything else in the header is a child part. Declare them in any order; the
 header positions each kind for you.
 
-- **`Header.Metadata`** — a key/value pair rendered on a single wrapping line
-  below the description. Takes `title` (the key) and `children` (the value, which
-  may be rich content such as a link). The design calls for at most three pairs;
-  this is a guideline, not a limit, and extra pairs still render.
-- **`Header.Badge`** — a badge below the metadata line. Takes `children` (the
-  label) plus optional `color`, `iconType`, and `iconSide`. Five badges render
-  as-is; past that the first four are shown and the remainder collapse into a
-  `+N more` badge that reveals them in a popover.
-- **`Header.InfoBlock`** — a labelled value block, laid out by
-  `@kbn/shared-ux-flyout-info-blocks` below a full-width divider. Takes `title`,
-  `children`, and optional `size` and `color`.
+- `**Header.Metadata**` — a key/value pair rendered on a single wrapping line
+below the description. Takes `title` (the key) and `children` (the value, which
+may be rich content such as a link). The design calls for at most three pairs;
+this is a guideline, not a limit, and extra pairs still render.
+- `**Header.Badge**` — a badge below the metadata line. Takes `children` (the
+label) plus optional `color`, `iconType`, and `iconSide`. Five badges render
+as-is; past that the first four are shown and the remainder collapse into a
+`+N more` badge that reveals them in a popover.
+- `**Header.InfoBlock**` — a labelled value block, laid out by
+`@kbn/shared-ux-flyout-info-blocks` below a full-width divider. Takes `title`,
+`children`, and optional `size` and `color`.
 
 ```tsx
 <FlyoutTemplate.Header title="Alert details" titleIcon="warning">
@@ -81,19 +81,20 @@ what was skipped; put that content in the body instead.
 Choose either `Section` or `Accordion` for a given flyout, not both. Dividers
 between siblings are added for you.
 
-- **`Body.Section`** — `title` (an H4) plus content. Options: `icon` (with an
-  optional `tooltip`) shown right of the title, `action` for a right-aligned link
-  on the title row, and `hasBorder` to wrap the content — but not the title — in
-  an outlined box.
-- **`Body.Accordion`** — a collapsible section with the same title row as
-  `Section` (`title`, `icon`/`tooltip`, `action`) plus `initialIsOpen`. Its
-  content is always in an outlined box.
-- **`Body.Section.Subsection`** (also `Body.Accordion.Subsection`) — one level
-  deeper, with a `title` rendered as an H5. Subsections are the deepest level the
-  template allows. When the parent boxes its content — always for `Accordion`,
-  and for `Section` when you set `hasBorder` — each subsection gets its own box
-  and the parent's single outer box is dropped. Otherwise subsections are
-  separated by horizontal rules.
+- `**Body.Section**` — `title` (an H4) plus content. Options: `icon` (with an
+optional `tooltip`) shown right of the title, `action` for a right-aligned link
+on the title row, and `hasBorder` to wrap the content — but not the title — in
+an outlined box.
+- `**Body.Accordion**` — a collapsible section with the same title row as
+`Section` (`title`, `icon`/`tooltip`, `action`) plus `initialIsOpen`. Its
+content is always in an outlined box.
+- `**Body.Section.Subsection**` (also `Body.Accordion.Subsection`) — one level
+deeper, with a `title` rendered as an H5. Subsections are the deepest level the
+template allows. When the parent boxes its content — always for `Accordion`,
+and for `Section` when you set `hasBorder` — each subsection gets its own box
+and the parent's single outer box is dropped. Otherwise subsections are
+separated by horizontal rules.
+
 ### Unstructured body content
 
 The body also takes plain content — a callout, a search bar, a filter row, a data
@@ -107,6 +108,10 @@ sections around it, and gets no title, box, or divider:
   <DocumentGrid />
 </FlyoutTemplate.Body>
 ```
+
+Content the template does not own also owns its own spacing, so add an
+`EuiSpacer` (or equivalent) between blocks and before the first titled section.
+Sections and accordions accept the same kind of content alongside subsections.
 
 Note that this applies to the body only. The header renders its declared parts
 and nothing else, so anything else you put there is dropped, with a development
@@ -164,24 +169,9 @@ close affordance stays consistent across flyouts.
 
 ### Sessions and the flyout menu
 
-The template defaults to `session="start"`, which registers the flyout with
-EUI's flyout manager as the start of a new session. Use `session="inherit"` for
-a flyout opened from within another one, and `session="never"` for a standard,
-unmanaged flyout.
+The template defaults to `session="start"`, which registers the flyout with EUI's flyout manager as the start of a new session. Use `session="inherit"` for a flyout opened from within another one, and `session="never"` for a standard, unmanaged flyout. Use `historyKey` and to configure a session history group and ability to navigate through history using the history menu.
 
-Managed mode requires an `EuiFlyoutManager`, which `EuiProvider` supplies —
-Kibana apps get this through the rendering context.
-
-Being managed does not automatically show the menu bar at the top of the
-flyout. Under the default `flyoutMenuDisplayMode="auto"`, EUI renders the menu
-only when it has something to show: a back button, session history, leading or
-trailing actions, pagination, or a title you have explicitly unhidden with
-`flyoutMenuProps={{ hideTitle: false }}`. A lone flyout typically shows EUI's
-standard close button instead. Pass
-`flyoutMenuDisplayMode="always"` to force the menu, and use `historyKey`,
-`onActive`, and `flyoutMenuProps` to configure session history and menu
-contents. Your header title is passed through to the menu automatically so
-history entries are labelled.
+Being managed does not automatically show the menu bar at the top of the flyout. A lone flyout typically shows EUI's standard close button instead. See `flyoutMenuDisplayMode` to force the menu.
 
 ### Accessibility
 
