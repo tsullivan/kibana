@@ -1,10 +1,8 @@
 # @kbn/shared-ux-flyout-template
 
-`FlyoutTemplate` is a declarative, PRD-compliant flyout built with the
-**declarative component assembly** pattern (`Assembly -> Part`) on top of
-`@kbn/content-list-assembly`. Consumers compose a flyout with JSX children that
-mirror the UI, while the template owns rendering, layout, PRD constraints, and
-EUI composition.
+`FlyoutTemplate` is a declarative flyout that adheres to Elastic UX Guidelines.
+Consumers compose a flyout with JSX children that mirror the UI, while the
+template owns rendering, layout, PRD constraints, and EUI composition.
 
 ```tsx
 import { FlyoutTemplate } from '@kbn/shared-ux-flyout-template';
@@ -14,10 +12,9 @@ import { FlyoutTemplate } from '@kbn/shared-ux-flyout-template';
 
   <FlyoutTemplate.Body>
     <FlyoutTemplate.Body.Section title="Summary">
+      {/* consumer content */}
       <ServiceSummary service={service} />
     </FlyoutTemplate.Body.Section>
-    {/* passthrough content is allowed inside Body */}
-    <EuiCallOut title="Data is delayed" color="warning" />
   </FlyoutTemplate.Body>
 
   <FlyoutTemplate.Footer>
