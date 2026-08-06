@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { EuiButton } from '@elastic/eui';
-import type { FlyoutFooterPrimaryActionProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutFooterPrimaryActionProps } from '../../types';
 import { primaryActionPart } from './part';
 
 /** Declarative `FlyoutTemplate.Footer.PrimaryAction`. */

@@ -16,7 +16,7 @@ import type {
   FlyoutFooterProps,
   FlyoutHeaderProps,
   FlyoutTemplateProps,
-} from '@kbn/shared-ux-flyout-common';
+} from './types';
 import { flyoutAssembly, headerAssembly, partsOf } from './assembly';
 import { FlyoutTabsProvider, FlyoutTemplateConfigProvider } from './context';
 import type { FlyoutTabsState } from './context';

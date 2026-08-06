@@ -11,7 +11,7 @@ import React, { Fragment, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { EuiFlyoutBody } from '@elastic/eui';
 import type { ParsedItem } from '@kbn/content-list-assembly';
-import type { FlyoutBodyProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutBodyProps } from '../types';
 import { bodyAssembly, flyoutAssembly, partsOf } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTabs, useFlyoutTemplateConfig } from '../context';
 import { Section, sectionPart, SECTION_PART_NAME } from './section';

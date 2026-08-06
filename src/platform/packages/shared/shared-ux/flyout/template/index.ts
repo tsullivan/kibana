@@ -9,9 +9,6 @@
 
 export { FlyoutTemplate } from './src/flyout_template';
 
-// The prop types live in `@kbn/shared-ux-flyout-common`, shared with the standalone
-// `MetadataPairs` and `InfoBlocks` packages. Re-exported here so consumers of the template
-// need only one import.
 export type {
   FlyoutTemplateProps,
   FlyoutHeaderProps,
@@ -28,4 +25,4 @@ export type {
   FlyoutFooterProps,
   FlyoutFooterPrimaryActionProps,
   FlyoutFooterSecondaryActionProps,
-} from '@kbn/shared-ux-flyout-common';
+} from './src/types';

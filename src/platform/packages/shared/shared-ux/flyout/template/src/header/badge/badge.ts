@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { FlyoutHeaderBadgeProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutHeaderBadgeProps } from '../../types';
 import { badgePart } from './part';
 
 /** Declarative `FlyoutTemplate.Header.Badge`. */

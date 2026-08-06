@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiFlyoutFooter } from '@elastic/eui';
-import type { FlyoutFooterProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutFooterProps } from '../types';
 import { flyoutAssembly } from '../assembly';
 import { resolveZoneTestSubj, useFlyoutTemplateConfig } from '../context';
 import { PrimaryAction, SecondaryAction, primaryActionPart, secondaryActionPart } from './action';

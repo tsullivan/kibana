@@ -21,7 +21,7 @@ import {
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
-import type { FlyoutTemplateProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutTemplateProps } from './types';
 import { FlyoutTemplate } from './flyout_template';
 
 const LEADING_ACTIONS: NonNullable<FlyoutTemplateProps['flyoutMenuProps']>['leadingActions'] = [

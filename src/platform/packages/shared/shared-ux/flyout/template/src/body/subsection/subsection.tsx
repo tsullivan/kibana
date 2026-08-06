@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { EuiHorizontalRule, EuiPanel, EuiSpacer, EuiTitle } from '@elastic/eui';
-import type { FlyoutBodySubsectionProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutBodySubsectionProps } from '../../types';
 import { subsectionPart } from './part';
 
 /** Declarative body subsection, exposed through Section and Accordion. */

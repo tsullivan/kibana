@@ -13,7 +13,6 @@
   "kbn_references": [
     "@kbn/content-list-assembly",
     "@kbn/i18n",
-    "@kbn/shared-ux-flyout-common",
     "@kbn/shared-ux-flyout-info-blocks",
     "@kbn/shared-ux-flyout-metadata",
     "@kbn/ui-callout"

@@ -15,7 +15,7 @@ import {
   EuiTitle,
   useGeneratedHtmlId,
 } from '@elastic/eui';
-import type { FlyoutBodyAccordionProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutBodyAccordionProps } from '../../types';
 import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../title_adornments';
 import { SectionContent } from '../section_content';
 import { accordionPart } from './part';

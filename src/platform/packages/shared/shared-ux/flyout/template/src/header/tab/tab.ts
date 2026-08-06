@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import type { FlyoutHeaderTabProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutHeaderTabProps } from '../../types';
 import { tabPart } from './part';
 
 /** Declarative `FlyoutTemplate.Header.Tab`. */

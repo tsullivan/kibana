@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiSpacer, EuiTitle } from '@elastic/eui';
-import type { FlyoutBodySectionProps } from '@kbn/shared-ux-flyout-common';
+import type { FlyoutBodySectionProps } from '../../types';
 import { renderTitleAction, renderTitleIcon, renderTitleWithIcon } from '../../title_adornments';
 import { SectionContent } from '../section_content';
 import { sectionPart } from './part';
