@@ -16,20 +16,12 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHealth,
-  EuiIcon,
   EuiLink,
-  EuiNotificationBadge,
   EuiPanel,
   EuiSpacer,
   EuiText,
 } from '@elastic/eui';
 import type { FlyoutTemplateProps } from '@kbn/shared-ux-flyout-common';
-import {
-  KbnDangerCallout,
-  KbnInfoCallout,
-  KbnSuccessCallout,
-  KbnWarningCallout,
-} from '@kbn/ui-callout';
 import { FlyoutTemplate } from './flyout_template';
 
 const LEADING_ACTIONS: NonNullable<FlyoutTemplateProps['flyoutMenuProps']>['leadingActions'] = [
@@ -41,6 +33,21 @@ const TRAILING_ACTIONS: NonNullable<FlyoutTemplateProps['flyoutMenuProps']>['tra
   { iconType: 'share', onClick: action('share'), 'aria-label': 'Share', toolTipContent: 'Share' },
   { iconType: 'gear', onClick: action('settings'), 'aria-label': 'Settings', toolTipContent: 'Settings' },
 ]; // prettier-ignore
+
+const TABS: Array<{ id: string; label: string }> = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'metadata', label: 'Metadata' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'logs', label: 'Logs' },
+];
+
+/** Distinct look-and-feel per tab, so switching tabs is obvious even at a glance. */
+const TAB_PANEL_DETAILS: Record<string, { icon: string; detail: string }> = {
+  overview: { icon: 'inspect', detail: 'A high-level summary of the alert lifecycle and current state.' },
+  metadata: { icon: 'tag', detail: 'Structured key/value pairs captured when the alert was created.' },
+  timeline: { icon: 'clock', detail: 'A chronological list of state changes and annotations.' },
+  logs: { icon: 'document', detail: 'Raw log lines correlated to this alert by trace id.' },
+}; // prettier-ignore
 
 interface Args {
   numInfoBlocks: number;
@@ -139,7 +146,7 @@ const meta: Meta<Args> = {
     },
     numTabs: {
       name: 'Tabs',
-      control: { type: 'range', min: 0, max: 10, step: 1 },
+      control: { type: 'range', min: 0, max: TABS.length, step: 1 },
       table: { category: 'Header' },
     },
     numSections: {
@@ -341,106 +348,13 @@ const INFO_BLOCK_POOL = [
 
 const infoBlockItems = (count: number) => INFO_BLOCK_POOL.slice(0, count);
 
-/** Tab panels render the body sections, so tabs only need an id and a label. */
-const TABS: Array<{ id: string; label: string }> = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'metadata', label: 'Metadata' },
-  { id: 'timeline', label: 'Timeline' },
-  { id: 'logs', label: 'Logs' },
-  { id: 'traces', label: 'Traces' },
-  { id: 'errors', label: 'Errors' },
-  { id: 'dependencies', label: 'Dependencies' },
-  { id: 'metrics', label: 'Metrics' },
-  { id: 'events', label: 'Events' },
-  { id: 'alerts', label: 'Alerts' },
-];
-
-/** One callout component per color, matching `@kbn/ui-callout`'s fixed-color variants. */
-const CALLOUT_BY_COLOR = {
-  primary: KbnInfoCallout,
-  success: KbnSuccessCallout,
-  warning: KbnWarningCallout,
-  danger: KbnDangerCallout,
-} as const;
-
-/** Distinct look-and-feel per tab, so switching tabs is obvious even at a glance. */
-const TAB_PANEL_DETAILS: Record<
-  string,
-  { icon: string; color: keyof typeof CALLOUT_BY_COLOR; detail: string }
-> = {
-  overview: {
-    icon: 'inspect',
-    color: 'primary',
-    detail: 'A high-level summary of the alert lifecycle and current state.',
-  },
-  metadata: {
-    icon: 'tag',
-    color: 'success',
-    detail: 'Structured key/value pairs captured when the alert was created.',
-  },
-  timeline: {
-    icon: 'clock',
-    color: 'primary',
-    detail: 'A chronological list of state changes and annotations.',
-  },
-  logs: {
-    icon: 'document',
-    color: 'primary',
-    detail: 'Raw log lines correlated to this alert by trace id.',
-  },
-  traces: {
-    icon: 'apps',
-    color: 'warning',
-    detail: 'Distributed traces for the requests that triggered this alert.',
-  },
-  errors: {
-    icon: 'alert',
-    color: 'danger',
-    detail: 'Stack traces and error messages captured during the incident.',
-  },
-  dependencies: {
-    icon: 'link',
-    color: 'primary',
-    detail: 'Upstream and downstream services affected by this alert.',
-  },
-  metrics: {
-    icon: 'stats',
-    color: 'success',
-    detail: 'Key metrics sampled around the time of the alert.',
-  },
-  events: {
-    icon: 'calendar',
-    color: 'primary',
-    detail: 'Related events emitted by other systems.',
-  },
-  alerts: {
-    icon: 'bell',
-    color: 'danger',
-    detail: 'Other alerts correlated with this one.',
-  },
-};
-
-/** Tab id that demonstrates the `disabled` prop; still a valid `Header.Tab`/`Body.TabPanel` pair. */
-const DISABLED_TAB_ID = 'traces';
-/** Tab id that demonstrates `prepend`. */
-const PREPEND_TAB_ID = 'metadata';
-/** Tab id that demonstrates `append`. */
-const APPEND_TAB_ID = 'errors';
-
-/** Body content for the Tabs story: unique per tab, so a switch is easy to verify. */
 const renderTabPanelContent = (id: string, label: string) => {
   const details = TAB_PANEL_DETAILS[id];
-  const Callout = CALLOUT_BY_COLOR[details?.color ?? 'primary'];
   return (
     <FlyoutTemplate.Body.Section title={`${label} panel`} icon={details?.icon}>
       <EuiText size="s">
         <p>{details?.detail}</p>
       </EuiText>
-      <EuiSpacer size="s" />
-      <Callout
-        title={`This is the "${label}" tab`}
-        text={<p>Its content is unique to this tab, so switching tabs is easy to verify.</p>}
-      />
     </FlyoutTemplate.Body.Section>
   );
 };
@@ -623,7 +537,6 @@ const TabsRender = (args: Args): React.JSX.Element => {
   const visibleTabs = TABS.slice(0, args.numTabs);
   const [selectedTabId, setSelectedTabId] = useState<string | undefined>(visibleTabs[0]?.id);
 
-  // The tab count is itself a control; keep the selection valid as it changes.
   useEffect(() => {
     if (!visibleTabs.some((tab) => tab.id === selectedTabId)) {
       setSelectedTabId(visibleTabs[0]?.id);
@@ -642,12 +555,7 @@ const TabsRender = (args: Args): React.JSX.Element => {
       <EuiFlexGroup gutterSize="s" wrap responsive={false}>
         {visibleTabs.map(({ id, label }) => (
           <EuiFlexItem grow={false} key={id}>
-            <EuiButton
-              size="s"
-              fill={selectedTabId === id}
-              isDisabled={id === DISABLED_TAB_ID}
-              onClick={() => setSelectedTabId(id)}
-            >
+            <EuiButton size="s" fill={selectedTabId === id} onClick={() => setSelectedTabId(id)}>
               {label}
             </EuiButton>
           </EuiFlexItem>
@@ -664,18 +572,7 @@ const TabsRender = (args: Args): React.JSX.Element => {
           onTabChange={setSelectedTabId}
         >
           {visibleTabs.map(({ id, label }) => (
-            <FlyoutTemplate.Header.Tab
-              key={id}
-              id={id}
-              label={label}
-              disabled={id === DISABLED_TAB_ID}
-              prepend={
-                id === PREPEND_TAB_ID ? <EuiIcon type="tag" size="s" aria-hidden /> : undefined
-              }
-              append={
-                id === APPEND_TAB_ID ? <EuiNotificationBadge>3</EuiNotificationBadge> : undefined
-              }
-            />
+            <FlyoutTemplate.Header.Tab key={id} id={id} label={label} />
           ))}
         </FlyoutTemplate.Header>
 
@@ -710,7 +607,7 @@ export const Tabs: Story = {
     numUnstructuredBlocks: { table: { disable: true } },
     numTabs: {
       name: 'Tabs',
-      control: { type: 'range', min: 2, max: 10, step: 1 },
+      control: { type: 'range', min: 1, max: TABS.length, step: 1 },
       table: { category: 'Header' },
     },
   },
