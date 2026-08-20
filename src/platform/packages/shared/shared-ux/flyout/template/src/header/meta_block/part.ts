@@ -7,12 +7,13 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export {
-  FlyoutTemplateConfigProvider,
-  useFlyoutTemplateConfig,
-  resolveZoneTestSubj,
-} from './config_context';
-export type { FlyoutTemplateConfig } from './config_context';
-export { FlyoutTabsProvider, useFlyoutTabs } from './tabs_context';
-export type { FlyoutTabsState } from './tabs_context';
-export { FlyoutHeaderCollapseProvider, useFlyoutHeaderCollapse } from './collapse_context';
+import type { MetaBlock } from '@kbn/flyout-meta-blocks';
+import { headerAssembly } from '../../assembly';
+
+/** Part name used for identifying `Header.MetaBlocks` children. */
+export const METABLOCKS_PART_NAME = 'metablocks';
+
+/** Part factory for `FlyoutTemplate.Header.MetaBlocks`. Resolves to a `MetaBlock`. */
+export const metablocksPart = headerAssembly.definePart<Record<string, never>, MetaBlock, void>({
+  name: METABLOCKS_PART_NAME,
+});

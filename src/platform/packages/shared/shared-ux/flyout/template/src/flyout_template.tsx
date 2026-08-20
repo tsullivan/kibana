@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import React, { useId, useMemo } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { EuiFlyout, useGeneratedHtmlId } from '@elastic/eui';
 import type { ParsedItem, ParsedPart } from '@kbn/ui-react-assembly';
 import type {
@@ -16,34 +16,47 @@ import type {
   FlyoutHeaderProps,
   FlyoutTemplateProps,
 } from './types';
-import { flyoutAssembly, partsOf } from './assembly';
-import { FlyoutTemplateConfigProvider } from './context';
+import { flyoutAssembly, headerAssembly, partsOf } from './assembly';
+import {
+  FlyoutHeaderCollapseProvider,
+  FlyoutTabsProvider,
+  FlyoutTemplateConfigProvider,
+} from './context';
+import type { FlyoutTabsState } from './context';
+import { useHeaderCollapse } from './use_header_collapse';
 import { Body, BodyZone, BODY_PART_NAME } from './body/body';
 import { Header, HeaderZone, HEADER_PART_NAME } from './header/header';
 import { Footer, FooterZone, FOOTER_PART_NAME } from './footer/footer';
-
-const ZONE_DISPLAY_NAMES: Record<string, string> = {
-  [HEADER_PART_NAME]: 'Header',
-  [BODY_PART_NAME]: 'Body',
-  [FOOTER_PART_NAME]: 'Footer',
-};
+import { tabPart, TAB_PART_NAME } from './header/tab';
+import type { HeaderTabDescriptor } from './header/tab/types';
 
 /** Selects a singleton zone; duplicate zones warn in dev and the first wins. */
 const pickZone = (items: ParsedItem[], partName: string): ParsedPart | undefined => {
   const matches = partsOf(items, partName);
   if (process.env.NODE_ENV !== 'production' && matches.length > 1) {
-    const displayName = ZONE_DISPLAY_NAMES[partName] ?? partName;
     // eslint-disable-next-line no-console
     console.warn(
-      `[FlyoutTemplate] Multiple <FlyoutTemplate.${displayName}> zones provided; rendering only the first.`
+      `[FlyoutTemplate] Multiple <FlyoutTemplate.${partName}> zones provided; rendering only the first.`
     );
   }
   return matches[0];
 };
 
+const resolveDefaultSelectedTabId = (
+  tabs: HeaderTabDescriptor[],
+  defaultId: string | undefined
+) => {
+  if (defaultId !== undefined && tabs.some((tab) => tab.id === defaultId)) {
+    return defaultId;
+  }
+  return tabs[0]?.id;
+};
+
 /** Root component that renders Header, Body, Footer zones in template order. */
 const FlyoutTemplateRoot = ({
   children,
+  id,
+  hasChildBackground,
   onClose,
   size = 'm',
   minWidth,
@@ -53,6 +66,9 @@ const FlyoutTemplateRoot = ({
   ownFocus,
   resizable,
   onResize,
+  outsideClickCloses,
+  focusTrapProps,
+  closeButtonProps,
   session = 'start',
   historyKey,
   onActive,
@@ -63,6 +79,7 @@ const FlyoutTemplateRoot = ({
 }: FlyoutTemplateProps) => {
   const htmlIdSuffix = useId().replace(/[^A-Za-z0-9_-]/g, '');
   const flyoutTitleId = useGeneratedHtmlId({ prefix: `flyoutTemplateTitle${htmlIdSuffix}` });
+  const tabIdPrefix = useGeneratedHtmlId({ prefix: `flyoutTemplateTab${htmlIdSuffix}` });
   const items = useMemo(() => flyoutAssembly.parseChildren(children), [children]);
 
   const headerItem = pickZone(items, HEADER_PART_NAME);
@@ -81,14 +98,118 @@ const FlyoutTemplateRoot = ({
     ariaLabelledBy ?? (!ariaLabel && headerItem ? flyoutTitleId : undefined);
   const flyoutAriaLabel = flyoutAriaLabelledBy ? undefined : ariaLabel ?? menuTitleString;
 
+  // Feed string titles to EUI's flyout menu for history/navigation.
   const mergedMenuProps = {
     ...(menuTitleString !== undefined ? { title: menuTitleString } : {}),
     ...flyoutMenuProps,
   };
   const hasMenuProps = Object.keys(mergedMenuProps).length > 0;
 
+  // Parsed here rather than in `HeaderZone` because tab state lives at this level;
+  // `HeaderZone` renders the same items, so the children are only walked once.
+  const headerItems = useMemo(
+    () =>
+      headerAttrs?.children
+        ? headerAssembly.parseChildren(headerAttrs.children, { supportsOtherChildren: true })
+        : [],
+    [headerAttrs?.children]
+  );
+
+  const tabs = useMemo<HeaderTabDescriptor[]>(() => {
+    const tabParts = partsOf(headerItems, TAB_PART_NAME);
+
+    const seen = new Set<string>();
+    const descriptors: HeaderTabDescriptor[] = [];
+    for (const [index, part] of tabParts.entries()) {
+      const descriptor = tabPart.resolve(part, undefined);
+      if (!descriptor) continue;
+      if (process.env.NODE_ENV !== 'production' && seen.has(descriptor.id)) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[FlyoutTemplate] Duplicate Header.Tab id "${descriptor.id}"; first tab wins.`
+        );
+        continue;
+      }
+      seen.add(descriptor.id);
+      descriptors.push({
+        ...descriptor,
+        tabDomId: `${tabIdPrefix}-${index}`,
+        panelDomId: `${tabIdPrefix}-${index}-panel`,
+      });
+    }
+    return descriptors;
+  }, [headerItems, tabIdPrefix]);
+
+  const isControlled = headerAttrs?.selectedTabId !== undefined;
+  const defaultId = headerAttrs?.defaultSelectedTabId;
+
+  const [uncontrolledTabId, setUncontrolledTabId] = useState<string | undefined>(() => {
+    return resolveDefaultSelectedTabId(tabs, defaultId);
+  });
+
+  useEffect(() => {
+    if (isControlled) return;
+    const hasSelectedTab = tabs.some((tab) => tab.id === uncontrolledTabId);
+    const nextTabId = hasSelectedTab
+      ? uncontrolledTabId
+      : resolveDefaultSelectedTabId(tabs, defaultId);
+
+    if (nextTabId !== uncontrolledTabId) {
+      setUncontrolledTabId(nextTabId);
+    }
+  }, [defaultId, isControlled, tabs, uncontrolledTabId]);
+
+  const requestedSelectedTabId = isControlled ? headerAttrs?.selectedTabId : uncontrolledTabId;
+  const selectedTabId = tabs.some((tab) => tab.id === requestedSelectedTabId)
+    ? requestedSelectedTabId
+    : resolveDefaultSelectedTabId(tabs, defaultId);
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (
+      !isControlled &&
+      defaultId !== undefined &&
+      tabs.length > 0 &&
+      !tabs.some((tab) => tab.id === defaultId)
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[FlyoutTemplate] defaultSelectedTabId "${defaultId}" does not match any Header.Tab id; first tab wins.`
+      );
+    }
+    const controlledId = headerAttrs?.selectedTabId;
+    if (
+      controlledId !== undefined &&
+      tabs.length > 0 &&
+      !tabs.some((tab) => tab.id === controlledId)
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[FlyoutTemplate] selectedTabId "${controlledId}" does not match any Header.Tab id; first tab wins.`
+      );
+    }
+  }
+
+  const selectTab = useCallback(
+    (tabId: string) => {
+      if (!isControlled) {
+        setUncontrolledTabId(tabId);
+      }
+      headerAttrs?.onTabChange?.(tabId);
+    },
+    [isControlled, headerAttrs]
+  );
+
+  const tabsContextValue = useMemo<FlyoutTabsState>(
+    () => ({ tabs, selectedTabId, selectTab }),
+    [tabs, selectedTabId, selectTab]
+  );
+
+  const collapseState = useHeaderCollapse({ enabled: !headerAttrs?.collapsed });
+
   return (
     <EuiFlyout
+      id={id}
+      hasChildBackground={hasChildBackground}
       onClose={onClose}
       size={size}
       minWidth={minWidth}
@@ -98,6 +219,9 @@ const FlyoutTemplateRoot = ({
       ownFocus={ownFocus}
       resizable={resizable}
       onResize={onResize}
+      outsideClickCloses={outsideClickCloses}
+      focusTrapProps={focusTrapProps}
+      closeButtonProps={closeButtonProps}
       session={session}
       historyKey={historyKey}
       onActive={onActive}
@@ -108,11 +232,19 @@ const FlyoutTemplateRoot = ({
       data-test-subj={dataTestSubj}
     >
       <FlyoutTemplateConfigProvider value={{ dataTestSubj, paddingSize }}>
-        {headerItem && (
-          <HeaderZone {...(headerAttrs as FlyoutHeaderProps)} flyoutTitleId={flyoutTitleId} />
-        )}
-        {bodyItem && <BodyZone {...(bodyItem.attributes as FlyoutBodyProps)} />}
-        {footerItem && <FooterZone {...(footerItem.attributes as FlyoutFooterProps)} />}
+        <FlyoutTabsProvider value={tabsContextValue}>
+          <FlyoutHeaderCollapseProvider value={collapseState}>
+            {headerItem && (
+              <HeaderZone
+                {...(headerAttrs as FlyoutHeaderProps)}
+                items={headerItems}
+                flyoutTitleId={flyoutTitleId}
+              />
+            )}
+            {bodyItem && <BodyZone {...(bodyItem.attributes as FlyoutBodyProps)} />}
+            {footerItem && <FooterZone {...(footerItem.attributes as FlyoutFooterProps)} />}
+          </FlyoutHeaderCollapseProvider>
+        </FlyoutTabsProvider>
       </FlyoutTemplateConfigProvider>
     </EuiFlyout>
   );
