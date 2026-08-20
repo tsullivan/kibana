@@ -180,8 +180,10 @@ describe('FlyoutTemplate', () => {
       </FlyoutTemplate>
     );
 
-    // Three sections -> two dividers (none below the last).
-    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
+    // Three adjacent sections with data-flyout-section; CSS draws rules between non-bordered siblings.
+    const sections = container.querySelectorAll('[data-flyout-section="section"]');
+    expect(sections).toHaveLength(3);
+    sections.forEach((s) => expect(s).not.toHaveAttribute('data-bordered'));
   });
 
   it('renders no divider for a single section', () => {
@@ -193,7 +195,10 @@ describe('FlyoutTemplate', () => {
       </FlyoutTemplate>
     );
 
-    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+    // A single section has no preceding sibling, so the CSS selector never fires.
+    const sections = container.querySelectorAll('[data-flyout-section="section"]');
+    expect(sections).toHaveLength(1);
+    expect(sections[0]).not.toHaveAttribute('data-bordered');
   });
 
   it('renders unstructured body content with no title, outline, or divider', () => {
@@ -210,10 +215,10 @@ describe('FlyoutTemplate', () => {
     expect(screen.getByText('data grid')).toBeInTheDocument();
     expect(screen.queryByRole('heading')).not.toBeInTheDocument();
     expect(screen.getByText('filter bar').closest('.euiPanel')).toBeNull();
-    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+    expect(container.querySelectorAll('[data-flyout-section]')).toHaveLength(0);
   });
 
-  it('does not count unstructured body content toward section dividers', () => {
+  it('interleaved unstructured content breaks section adjacency', () => {
     const { container } = renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Body>
@@ -224,8 +229,14 @@ describe('FlyoutTemplate', () => {
       </FlyoutTemplate>
     );
 
-    // Two sections -> one divider; the unstructured content adds none.
-    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(1);
+    // Both sections are present.
+    expect(screen.getByRole('heading', { level: 4, name: 'One' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 4, name: 'Two' })).toBeInTheDocument();
+    expect(screen.getByText('filter bar')).toBeInTheDocument();
+    // Sections have data-flyout-section for CSS targeting.
+    expect(container.querySelectorAll('[data-flyout-section]')).toHaveLength(2);
+    // Dividers are CSS-only; no horizontal-rule elements in the DOM.
+    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
   });
 
   it('does not wrap section content in an outlined box by default', () => {
@@ -602,7 +613,6 @@ describe('FlyoutTemplate tabs', () => {
   });
 
   it('falls back to the first tab when selectedTabId is invalid', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert" selectedTabId="missing">
@@ -620,15 +630,10 @@ describe('FlyoutTemplate tabs', () => {
       </FlyoutTemplate>
     );
 
-    expect(warn).toHaveBeenCalledWith(
-      '[FlyoutTemplate] selectedTabId "missing" does not match any Header.Tab id; first tab wins.'
-    );
     expect(screen.getByText('overview content')).toBeInTheDocument();
-    warn.mockRestore();
   });
 
   it('falls back to the first tab when defaultSelectedTabId is invalid', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert" defaultSelectedTabId="missing">
@@ -646,11 +651,7 @@ describe('FlyoutTemplate tabs', () => {
       </FlyoutTemplate>
     );
 
-    expect(warn).toHaveBeenCalledWith(
-      '[FlyoutTemplate] defaultSelectedTabId "missing" does not match any Header.Tab id; first tab wins.'
-    );
     expect(screen.getByText('overview content')).toBeInTheDocument();
-    warn.mockRestore();
   });
 
   it('falls back when the uncontrolled selected tab is removed', async () => {
@@ -681,32 +682,7 @@ describe('FlyoutTemplate tabs', () => {
     expect(screen.getByText('overview content')).toBeInTheDocument();
   });
 
-  it('warns when Header.Tab and Body.TabPanel ids do not match', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
-    renderTemplate(
-      <FlyoutTemplate onClose={noop} session="never">
-        <FlyoutTemplate.Header title="Alert">
-          <FlyoutTemplate.Header.Tab id="overview" label="Overview" />
-        </FlyoutTemplate.Header>
-        <FlyoutTemplate.Body>
-          <FlyoutTemplate.Body.TabPanel tabId="metadata">
-            metadata content
-          </FlyoutTemplate.Body.TabPanel>
-        </FlyoutTemplate.Body>
-      </FlyoutTemplate>
-    );
-
-    expect(warn).toHaveBeenCalledWith(
-      '[FlyoutTemplate] Body.TabPanel tabId "metadata" does not match any Header.Tab id.'
-    );
-    expect(warn).toHaveBeenCalledWith(
-      '[FlyoutTemplate] Header.Tab id "overview" does not have a matching Body.TabPanel.'
-    );
-    warn.mockRestore();
-  });
-
-  it('warns and does not render top-level Section in tabbed mode', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
+  it('does not render top-level Section in tabbed mode', () => {
     renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Header title="Alert">
@@ -723,11 +699,7 @@ describe('FlyoutTemplate tabs', () => {
       </FlyoutTemplate>
     );
 
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('Top-level Body.Section and passthrough children are not rendered')
-    );
     expect(screen.queryByText('orphan content')).not.toBeInTheDocument();
-    warn.mockRestore();
   });
 
   it('renders header and body unchanged when no tabs are declared', () => {
@@ -778,8 +750,10 @@ describe('FlyoutTemplate accordions', () => {
       </FlyoutTemplate>
     );
 
-    // Three closed accordions -> two dividers (none below the last).
-    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
+    // Three closed accordions; CSS draws rules between adjacent non-open siblings.
+    const accordions = container.querySelectorAll('[data-flyout-section="accordion"]');
+    expect(accordions).toHaveLength(3);
+    accordions.forEach((a) => expect(a).not.toHaveAttribute('data-open'));
   });
 
   it('hides the divider below an accordion while it is open', async () => {
@@ -792,12 +766,14 @@ describe('FlyoutTemplate accordions', () => {
       </FlyoutTemplate>
     );
 
-    // Two closed accordions -> one divider below the first.
-    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(1);
+    // Both closed initially.
+    const accordions = container.querySelectorAll('[data-flyout-section="accordion"]');
+    expect(accordions[0]).not.toHaveAttribute('data-open');
 
-    // Opening the first accordion hides its divider.
+    // Opening the first accordion sets data-open, which suppresses the rule above the next sibling.
     await userEvent.click(screen.getByRole('button', { name: /One/ }));
-    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+    expect(accordions[0]).toHaveAttribute('data-open');
+    expect(accordions[1]).not.toHaveAttribute('data-open');
   });
 
   it('toggles the accordion open on click', async () => {
@@ -835,23 +811,6 @@ describe('FlyoutTemplate accordions', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Extra action' }));
     expect(onClick).toHaveBeenCalled();
   });
-
-  it('warns in development when a body mixes Section and Accordion', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
-    renderTemplate(
-      <FlyoutTemplate onClose={noop} session="never">
-        <FlyoutTemplate.Body>
-          <FlyoutTemplate.Body.Section title="Summary">content</FlyoutTemplate.Body.Section>
-          <FlyoutTemplate.Body.Accordion title="Details">details</FlyoutTemplate.Body.Accordion>
-        </FlyoutTemplate.Body>
-      </FlyoutTemplate>
-    );
-
-    expect(warn).toHaveBeenCalledWith(
-      '[FlyoutTemplate] A body uses either Body.Section or Body.Accordion, not both.'
-    );
-    warn.mockRestore();
-  });
 });
 
 describe('FlyoutTemplate subsections', () => {
@@ -873,8 +832,8 @@ describe('FlyoutTemplate subsections', () => {
     expect(screen.getByText('host content')).toBeInTheDocument();
   });
 
-  it('separates Section subsections with horizontal rules, none after the last', () => {
-    const { container } = renderTemplate(
+  it('separates Section subsections with CSS rules driven by data attributes', () => {
+    renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Body>
           <FlyoutTemplate.Body.Section title="Overview">
@@ -892,8 +851,11 @@ describe('FlyoutTemplate subsections', () => {
       </FlyoutTemplate>
     );
 
-    // Three subsections -> two dividers (none below the last).
-    expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(2);
+    // Rules are CSS-only via & + & sibling combinators — no horizontal-rule elements.
+    expect(document.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+    expect(screen.getByRole('heading', { level: 5, name: 'One' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 5, name: 'Two' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 5, name: 'Three' })).toBeInTheDocument();
   });
 
   it('does not wrap Section subsections in an outer bordered box', () => {
@@ -938,7 +900,7 @@ describe('FlyoutTemplate subsections', () => {
     expect(hostPanel).not.toContainElement(processPanel as HTMLElement);
   });
 
-  it('does not render horizontal rules between Accordion subsections', () => {
+  it('renders Accordion subsections without horizontal rules between them', () => {
     const { container } = renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">
         <FlyoutTemplate.Body>
@@ -954,8 +916,10 @@ describe('FlyoutTemplate subsections', () => {
       </FlyoutTemplate>
     );
 
-    // Accordion subsections use spacers, not horizontal rules.
+    // Accordion subsections use bordered boxes (data-bordered), separated by CSS margin — no rules.
     expect(container.querySelectorAll('hr.euiHorizontalRule')).toHaveLength(0);
+    const borderedSubsections = container.querySelectorAll('[data-bordered]');
+    expect(borderedSubsections).toHaveLength(2);
   });
 
   it('renders subsection titles as H5 inside an Accordion', () => {

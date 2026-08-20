@@ -117,6 +117,8 @@ Content the template does not own also owns its own spacing, so add an
 `EuiSpacer` (or equivalent) between blocks and before the first titled section.
 Sections and accordions accept the same kind of content alongside subsections.
 
+**Adjacency constraint:** Dividers between sections and accordions are CSS-drawn: a rule appears above any section or accordion whose immediate preceding DOM sibling is also a section or accordion. Interleaving free-form content between two sections breaks that adjacency — the dividers on either side of the inserted content disappear. Keep free-form content together at the top or bottom of the body to preserve dividers across all the sections.
+
 Note that this applies to the body only. The header renders its declared parts
 and nothing else, so anything else you put there is dropped, with a development
 warning naming what was skipped.

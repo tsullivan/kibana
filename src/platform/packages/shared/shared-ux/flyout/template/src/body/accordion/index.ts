@@ -7,5 +7,5 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { Accordion } from './accordion';
+export { Accordion } from './part';
 export { accordionPart, ACCORDION_PART_NAME } from './part';

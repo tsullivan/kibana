@@ -10,6 +10,12 @@
 import type { MouseEventHandler, ReactNode } from 'react';
 import type { EuiBadgeProps, EuiButtonProps, EuiFlyoutProps, EuiIconProps } from '@elastic/eui';
 import type { InfoBlockItem } from '@kbn/flyout-info-blocks';
+import type {
+  FlyoutSectionProps,
+  FlyoutSubsectionProps,
+  FlyoutAccordionProps,
+  FlyoutSectionAction,
+} from '@kbn/flyout-sections';
 
 /** Props for the declarative `FlyoutTemplate.Header.Tab` part. */
 export interface FlyoutHeaderTabProps {
@@ -102,58 +108,16 @@ export interface FlyoutHeaderInfoBlockProps {
 }
 
 /** Action link rendered right-aligned on a section or accordion title row. */
-export interface FlyoutBodySectionAction {
-  /** Link text. */
-  label: ReactNode;
-  onClick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
-  href?: string;
-  'data-test-subj'?: string;
-}
+export type FlyoutBodySectionAction = FlyoutSectionAction;
 
-export interface FlyoutBodySectionProps {
-  /** Optional explicit instance id; auto-generated when omitted. */
-  id?: string;
-  /** Section title rendered as an H4. */
-  title: ReactNode;
-  /** Icon beside the title; defaults to `info` when `tooltip` is set. */
-  icon?: EuiIconProps['type'];
-  /** Tooltip shown from an icon to the right of the title. */
-  tooltip?: ReactNode;
-  /** Action link aligned to the right on the title row. */
-  action?: FlyoutBodySectionAction;
-  /** Wrap the section content (not the title) in an outlined box. Defaults to `false`. */
-  hasBorder?: boolean;
-  'data-test-subj'?: string;
-  children?: ReactNode;
-}
+/** Props for the declarative `FlyoutTemplate.Body.Section` part. */
+export type FlyoutBodySectionProps = FlyoutSectionProps & { id?: string };
 
-/** Props for the declarative body subsection part. */
-export interface FlyoutBodySubsectionProps {
-  /** Optional explicit instance id; auto-generated when omitted. */
-  id?: string;
-  /** Subsection title rendered as an H5. */
-  title: ReactNode;
-  'data-test-subj'?: string;
-  children?: ReactNode;
-}
+/** Props for the declarative body subsection part. hasBorder is inherited from the parent, not authored. */
+export type FlyoutBodySubsectionProps = Omit<FlyoutSubsectionProps, 'hasBorder'> & { id?: string };
 
 /** Props for the declarative `FlyoutTemplate.Body.Accordion` part. */
-export interface FlyoutBodyAccordionProps {
-  /** Optional explicit instance id; auto-generated when omitted. */
-  id?: string;
-  /** Accordion title, styled to match a section title. */
-  title: ReactNode;
-  /** Icon beside the title; defaults to `info` when `tooltip` is set. */
-  icon?: EuiIconProps['type'];
-  /** Tooltip shown from an icon to the right of the title. */
-  tooltip?: ReactNode;
-  /** Action link aligned to the right on the title row (the accordion's extra action). */
-  action?: FlyoutBodySectionAction;
-  /** Whether the accordion is expanded on first render. Defaults to `false`. */
-  initialIsOpen?: boolean;
-  'data-test-subj'?: string;
-  children?: ReactNode;
-}
+export type FlyoutBodyAccordionProps = Omit<FlyoutAccordionProps, 'hasBorder'>;
 
 /** Props for the declarative `FlyoutTemplate.Body` zone. */
 export interface FlyoutBodyProps {

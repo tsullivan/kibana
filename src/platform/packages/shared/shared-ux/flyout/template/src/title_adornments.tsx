@@ -9,9 +9,8 @@
 
 import React from 'react';
 import type { ReactNode } from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiIcon, EuiIconTip, EuiLink } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiIcon, EuiIconTip } from '@elastic/eui';
 import type { EuiIconProps } from '@elastic/eui';
-import type { FlyoutBodySectionAction } from './types';
 
 /** Renders an optional title icon or accessible tooltip anchor. */
 export const renderTitleIcon = (
@@ -23,13 +22,6 @@ export const renderTitleIcon = (
   ) : icon ? (
     <EuiIcon type={icon} aria-hidden />
   ) : null;
-
-/** Right-aligned action link shown on a section/accordion title row. */
-export const renderTitleAction = (action: FlyoutBodySectionAction): ReactNode => (
-  <EuiLink href={action.href} onClick={action.onClick} data-test-subj={action['data-test-subj']}>
-    {action.label}
-  </EuiLink>
-);
 
 /** Renders a title node with an optional trailing icon. */
 export const renderTitleWithIcon = (titleNode: ReactNode, iconNode: ReactNode): ReactNode => (

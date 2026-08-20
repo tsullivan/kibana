@@ -123,13 +123,7 @@ const FlyoutTemplateRoot = ({
     for (const [index, part] of tabParts.entries()) {
       const descriptor = tabPart.resolve(part, undefined);
       if (!descriptor) continue;
-      if (process.env.NODE_ENV !== 'production' && seen.has(descriptor.id)) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `[FlyoutTemplate] Duplicate Header.Tab id "${descriptor.id}"; first tab wins.`
-        );
-        continue;
-      }
+      if (seen.has(descriptor.id)) continue;
       seen.add(descriptor.id);
       descriptors.push({
         ...descriptor,
@@ -163,31 +157,6 @@ const FlyoutTemplateRoot = ({
   const selectedTabId = tabs.some((tab) => tab.id === requestedSelectedTabId)
     ? requestedSelectedTabId
     : resolveDefaultSelectedTabId(tabs, defaultId);
-
-  if (process.env.NODE_ENV !== 'production') {
-    if (
-      !isControlled &&
-      defaultId !== undefined &&
-      tabs.length > 0 &&
-      !tabs.some((tab) => tab.id === defaultId)
-    ) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[FlyoutTemplate] defaultSelectedTabId "${defaultId}" does not match any Header.Tab id; first tab wins.`
-      );
-    }
-    const controlledId = headerAttrs?.selectedTabId;
-    if (
-      controlledId !== undefined &&
-      tabs.length > 0 &&
-      !tabs.some((tab) => tab.id === controlledId)
-    ) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[FlyoutTemplate] selectedTabId "${controlledId}" does not match any Header.Tab id; first tab wins.`
-      );
-    }
-  }
 
   const selectTab = useCallback(
     (tabId: string) => {

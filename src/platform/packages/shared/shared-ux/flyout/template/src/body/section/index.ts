@@ -7,5 +7,5 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-export { Section } from './section';
+export { Section } from './part';
 export { sectionPart, SECTION_PART_NAME } from './part';
