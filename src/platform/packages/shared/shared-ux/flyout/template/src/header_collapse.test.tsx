@@ -25,9 +25,11 @@ describe('FlyoutTemplate header collapse on scroll', () => {
     callback: ResizeObserverCallback;
     observe: jest.Mock;
   }>;
+  let originalResizeObserver: typeof ResizeObserver;
 
   beforeEach(() => {
     resizeObservers = [];
+    originalResizeObserver = global.ResizeObserver;
     jest.spyOn(global, 'requestAnimationFrame').mockImplementation((cb) => {
       cb(0);
       return 0;
@@ -40,6 +42,7 @@ describe('FlyoutTemplate header collapse on scroll', () => {
   });
 
   afterEach(() => {
+    global.ResizeObserver = originalResizeObserver;
     jest.restoreAllMocks();
   });
 
