@@ -10,18 +10,35 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { KibanaErrorBoundaryProvider } from '@kbn/shared-ux-error-boundary';
 import { FlyoutTemplate } from './flyout_template';
+
+jest.mock('@elastic/apm-rum');
 
 const noop = () => {};
 
-const WithErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <KibanaErrorBoundaryProvider>{children}</KibanaErrorBoundaryProvider>
-);
+const renderTemplate = (ui: React.ReactElement) => render(ui);
 
-const renderTemplate = (ui: React.ReactElement) => render(ui, { wrapper: WithErrorBoundary });
+const ThrowOnRender = () => {
+  throw new Error('intentional render error');
+};
 
 describe('FlyoutTemplate body', () => {
+  it('catches a throwing body child and shows the error fallback without crashing the flyout', () => {
+    jest.spyOn(console, 'error').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Service inventory" />
+        <FlyoutTemplate.Body>
+          <ThrowOnRender />
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('errorBoundaryFatalHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('myFlyoutHeader')).toBeInTheDocument();
+    jest.restoreAllMocks();
+  });
+
   it('warns in development when the body zone is missing', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(noop);
     renderTemplate(

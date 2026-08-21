@@ -8,7 +8,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { KibanaErrorBoundary } from '@kbn/shared-ux-error-boundary';
+import { KibanaErrorBoundary, KibanaErrorBoundaryProvider } from '@kbn/shared-ux-error-boundary';
 import type { ReactNode } from 'react';
 import { css } from '@emotion/react';
 import {
@@ -281,116 +281,118 @@ export const HeaderZone = ({
   const overflowBadges = isOverflowing ? badgeList.slice(MAX_BADGES_BEFORE_OVERFLOW) : [];
 
   return (
-    <EuiFlyoutHeader
-      hasBorder={false}
-      data-test-subj={resolveZoneTestSubj(dataTestSubj, rootTestSubj, 'Header')}
-    >
-      <KibanaErrorBoundary>
-        {/* Wraps the header content so the collapse hook can reach the header element for wheel forwarding. */}
-        <div ref={headerRef}>
-          {/* Always visible: title row. Switches between expanded and compact on collapse. */}
-          <div ref={!isCollapsed ? expandedTitleRef : undefined}>
-            {isCollapsed ? (
-              <EuiFlexGroup
-                gutterSize="s"
-                alignItems="center"
-                responsive={false}
-                css={collapseStyles.collapsedRow}
-              >
-                <EuiFlexItem css={{ flexGrow: 1, minInlineSize: 0 }}>
-                  <EuiTitle size="xs">
-                    <h3
-                      id={flyoutTitleId}
-                      css={collapseStyles.collapsedTitle}
-                      title={typeof title === 'string' ? title : undefined}
-                    >
-                      {title}
-                    </h3>
-                  </EuiTitle>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            ) : (
-              renderTitleWithIcon(
-                <EuiTitle size="m">
-                  <h3 id={flyoutTitleId}>{title}</h3>
-                </EuiTitle>,
-                renderTitleIcon(titleIcon, titleTooltip)
-              )
-            )}
-          </div>
-
-          {/* Collapsible region: description, meta blocks, badges, info blocks. */}
-          <div
-            css={[
-              collapseStyles.wrapper,
-              isCollapsed ? collapseStyles.wrapperCollapsed : collapseStyles.wrapperExpanded,
-            ]}
-            aria-hidden={isCollapsed || undefined}
-            data-test-subj="flyoutHeaderCollapsibleRegion"
-          >
-            <div css={collapseStyles.inner} ref={!collapsed ? collapsibleRef : undefined}>
-              {hasDescription && (
-                <>
-                  <EuiSpacer size="xs" />
-                  {/* No `<p>` wrapper: `description` accepts block content, which cannot nest in a paragraph. */}
-                  <EuiText size="s" color="subdued">
-                    {description}
-                  </EuiText>
-                </>
-              )}
-              {hasMetaBlocks && (
-                <>
-                  <EuiSpacer size="xs" />
-                  <MetaBlocks items={metaBlockItems} />
-                </>
-              )}
-              {hasBadges && (
-                <>
-                  <EuiSpacer size="s" />
-                  <EuiBadgeGroup gutterSize="s" css={badgeStyles.group}>
-                    {visibleBadges}
-                    {overflowBadges.length > 0 && <BadgeOverflow badges={overflowBadges} />}
-                  </EuiBadgeGroup>
-                </>
-              )}
-              {hasInfoBlocks && (
-                <>
-                  <EuiSpacer size="m" />
-                  <InfoBlocks items={infoBlockItems} maxColumns="auto" />
-                </>
+    <KibanaErrorBoundaryProvider>
+      <EuiFlyoutHeader
+        hasBorder={false}
+        data-test-subj={resolveZoneTestSubj(dataTestSubj, rootTestSubj, 'Header')}
+      >
+        <KibanaErrorBoundary>
+          {/* Wraps the header content so the collapse hook can reach the header element for wheel forwarding. */}
+          <div ref={headerRef}>
+            {/* Always visible: title row. Switches between expanded and compact on collapse. */}
+            <div ref={!isCollapsed ? expandedTitleRef : undefined}>
+              {isCollapsed ? (
+                <EuiFlexGroup
+                  gutterSize="s"
+                  alignItems="center"
+                  responsive={false}
+                  css={collapseStyles.collapsedRow}
+                >
+                  <EuiFlexItem css={{ flexGrow: 1, minInlineSize: 0 }}>
+                    <EuiTitle size="xs">
+                      <h3
+                        id={flyoutTitleId}
+                        css={collapseStyles.collapsedTitle}
+                        title={typeof title === 'string' ? title : undefined}
+                      >
+                        {title}
+                      </h3>
+                    </EuiTitle>
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              ) : (
+                renderTitleWithIcon(
+                  <EuiTitle size="m">
+                    <h3 id={flyoutTitleId}>{title}</h3>
+                  </EuiTitle>,
+                  renderTitleIcon(titleIcon, titleTooltip)
+                )
               )}
             </div>
+
+            {/* Collapsible region: description, meta blocks, badges, info blocks. */}
+            <div
+              css={[
+                collapseStyles.wrapper,
+                isCollapsed ? collapseStyles.wrapperCollapsed : collapseStyles.wrapperExpanded,
+              ]}
+              aria-hidden={isCollapsed || undefined}
+              data-test-subj="flyoutHeaderCollapsibleRegion"
+            >
+              <div css={collapseStyles.inner} ref={!collapsed ? collapsibleRef : undefined}>
+                {hasDescription && (
+                  <>
+                    <EuiSpacer size="xs" />
+                    {/* No `<p>` wrapper: `description` accepts block content, which cannot nest in a paragraph. */}
+                    <EuiText size="s" color="subdued">
+                      {description}
+                    </EuiText>
+                  </>
+                )}
+                {hasMetaBlocks && (
+                  <>
+                    <EuiSpacer size="xs" />
+                    <MetaBlocks items={metaBlockItems} />
+                  </>
+                )}
+                {hasBadges && (
+                  <>
+                    <EuiSpacer size="s" />
+                    <EuiBadgeGroup gutterSize="s" css={badgeStyles.group}>
+                      {visibleBadges}
+                      {overflowBadges.length > 0 && <BadgeOverflow badges={overflowBadges} />}
+                    </EuiBadgeGroup>
+                  </>
+                )}
+                {hasInfoBlocks && (
+                  <>
+                    <EuiSpacer size="m" />
+                    <InfoBlocks items={infoBlockItems} maxColumns="auto" />
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Spacing before tabs/divider adapts to collapsed state. */}
+            <div ref={!isCollapsed ? expandedSpacerRef : undefined}>
+              <EuiSpacer size={isCollapsed ? 'xs' : hasTabs ? 's' : 'm'} />
+            </div>
+
+            {/* Always visible: tab bar. */}
+            {hasTabs && (
+              <EuiTabs bottomBorder={false} size="m">
+                {tabs.map((tab) => (
+                  <EuiTab
+                    key={tab.id}
+                    id={tab.tabDomId}
+                    aria-controls={tab.panelDomId}
+                    isSelected={tab.id === selectedTabId}
+                    onClick={() => selectTab(tab.id)}
+                    disabled={tab.disabled}
+                    prepend={tab.prepend}
+                    append={tab.append}
+                    data-test-subj={tab['data-test-subj']}
+                  >
+                    {tab.label}
+                  </EuiTab>
+                ))}
+              </EuiTabs>
+            )}
+
+            <FullBleedDivider horizontalPadding={horizontalPadding} />
           </div>
-
-          {/* Spacing before tabs/divider adapts to collapsed state. */}
-          <div ref={!isCollapsed ? expandedSpacerRef : undefined}>
-            <EuiSpacer size={isCollapsed ? 'xs' : hasTabs ? 's' : 'm'} />
-          </div>
-
-          {/* Always visible: tab bar. */}
-          {hasTabs && (
-            <EuiTabs bottomBorder={false} size="m">
-              {tabs.map((tab) => (
-                <EuiTab
-                  key={tab.id}
-                  id={tab.tabDomId}
-                  aria-controls={tab.panelDomId}
-                  isSelected={tab.id === selectedTabId}
-                  onClick={() => selectTab(tab.id)}
-                  disabled={tab.disabled}
-                  prepend={tab.prepend}
-                  append={tab.append}
-                  data-test-subj={tab['data-test-subj']}
-                >
-                  {tab.label}
-                </EuiTab>
-              ))}
-            </EuiTabs>
-          )}
-
-          <FullBleedDivider horizontalPadding={horizontalPadding} />
-        </div>
-      </KibanaErrorBoundary>
-    </EuiFlyoutHeader>
+        </KibanaErrorBoundary>
+      </EuiFlyoutHeader>
+    </KibanaErrorBoundaryProvider>
   );
 };

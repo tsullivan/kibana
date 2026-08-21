@@ -11,16 +11,17 @@ import React from 'react';
 import { act, render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EuiLink } from '@elastic/eui';
-import { KibanaErrorBoundaryProvider } from '@kbn/shared-ux-error-boundary';
 import { FlyoutTemplate } from './flyout_template';
+
+jest.mock('@elastic/apm-rum');
 
 const noop = () => {};
 
-const WithErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <KibanaErrorBoundaryProvider>{children}</KibanaErrorBoundaryProvider>
-);
+const renderTemplate = (ui: React.ReactElement) => render(ui);
 
-const renderTemplate = (ui: React.ReactElement) => render(ui, { wrapper: WithErrorBoundary });
+const ThrowOnRender = () => {
+  throw new Error('intentional render error');
+};
 
 /** Minimal body used across header-focused tests. */
 const minimalBody = (
@@ -85,6 +86,22 @@ describe('FlyoutTemplate header', () => {
 });
 
 describe('FlyoutTemplate header title icon and description', () => {
+  it('catches a throwing header child and shows the error fallback without crashing the flyout', () => {
+    jest.spyOn(console, 'error').mockImplementation(noop);
+    renderTemplate(
+      <FlyoutTemplate onClose={noop} session="never" data-test-subj="myFlyout">
+        <FlyoutTemplate.Header title="Service inventory" description={<ThrowOnRender />} />
+        <FlyoutTemplate.Body>
+          <span>body content</span>
+        </FlyoutTemplate.Body>
+      </FlyoutTemplate>
+    );
+
+    expect(screen.getByTestId('errorBoundaryFatalHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('myFlyoutBody')).toBeInTheDocument();
+    jest.restoreAllMocks();
+  });
+
   it('renders a decorative title icon when no tooltip is given', () => {
     const { container } = renderTemplate(
       <FlyoutTemplate onClose={noop} session="never">

@@ -10,16 +10,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { KibanaErrorBoundaryProvider } from '@kbn/shared-ux-error-boundary';
 import { FlyoutTemplate } from './flyout_template';
 
 const noop = () => {};
 
-const WithErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <KibanaErrorBoundaryProvider>{children}</KibanaErrorBoundaryProvider>
-);
-
-const renderTemplate = (ui: React.ReactElement) => render(ui, { wrapper: WithErrorBoundary });
+const renderTemplate = (ui: React.ReactElement) => render(ui);
 
 describe('FlyoutTemplate', () => {
   it('renders header, body, and footer zones', () => {

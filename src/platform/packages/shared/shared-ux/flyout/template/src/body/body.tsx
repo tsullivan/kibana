@@ -8,7 +8,7 @@
  */
 
 import { EuiFlyoutBody } from '@elastic/eui';
-import { KibanaErrorBoundary } from '@kbn/shared-ux-error-boundary';
+import { KibanaErrorBoundary, KibanaErrorBoundaryProvider } from '@kbn/shared-ux-error-boundary';
 import type { ReactNode } from 'react';
 import React, { Fragment, useMemo } from 'react';
 import { bodyAssembly, flyoutAssembly, partsOf } from '../assembly';
@@ -101,25 +101,29 @@ export const BodyZone = ({ children, 'data-test-subj': dataTestSubj }: FlyoutBod
     const activePanelContent = renderBodyItems(activePanel.attributes.children as ReactNode);
 
     return (
-      <EuiFlyoutBody data-test-subj={bodyTestSubj} scrollContainerRef={scrollContainerRef}>
-        <KibanaErrorBoundary>
-          <div
-            role="tabpanel"
-            id={activeTab.panelDomId}
-            aria-labelledby={activeTab.tabDomId}
-            tabIndex={0}
-            data-test-subj={activePanel.attributes['data-test-subj'] as string | undefined}
-          >
-            {activePanelContent}
-          </div>
-        </KibanaErrorBoundary>
-      </EuiFlyoutBody>
+      <KibanaErrorBoundaryProvider>
+        <EuiFlyoutBody data-test-subj={bodyTestSubj} scrollContainerRef={scrollContainerRef}>
+          <KibanaErrorBoundary>
+            <div
+              role="tabpanel"
+              id={activeTab.panelDomId}
+              aria-labelledby={activeTab.tabDomId}
+              tabIndex={0}
+              data-test-subj={activePanel.attributes['data-test-subj'] as string | undefined}
+            >
+              {activePanelContent}
+            </div>
+          </KibanaErrorBoundary>
+        </EuiFlyoutBody>
+      </KibanaErrorBoundaryProvider>
     );
   }
 
   return (
-    <EuiFlyoutBody data-test-subj={bodyTestSubj} scrollContainerRef={scrollContainerRef}>
-      <KibanaErrorBoundary>{renderBodyItems(children)}</KibanaErrorBoundary>
-    </EuiFlyoutBody>
+    <KibanaErrorBoundaryProvider>
+      <EuiFlyoutBody data-test-subj={bodyTestSubj} scrollContainerRef={scrollContainerRef}>
+        <KibanaErrorBoundary>{renderBodyItems(children)}</KibanaErrorBoundary>
+      </EuiFlyoutBody>
+    </KibanaErrorBoundaryProvider>
   );
 };
