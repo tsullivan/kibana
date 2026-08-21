@@ -128,7 +128,7 @@ export const fillContent = (starter?: string): string =>
   `${starter ? starter + ' ' : ''}${FILLER_TEXT[Math.floor(Math.random() * FILLER_TEXT.length)]}`;
 
 export const bodyText = (content: string) => (
-  <EuiText size="s">
+  <EuiText>
     <p>{content}</p>
   </EuiText>
 );

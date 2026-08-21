@@ -247,13 +247,12 @@ const HeaderCollapseOnScrollRender = (args: Args): React.JSX.Element => {
       {bodyZone(
         <>
           {unstructuredBlocks(args.numUnstructuredBlocks)}
-          <EuiText>
-            {Array.from({ length: OVERFLOWING_PARAGRAPH_COUNT }, (_, index) => (
-              <React.Fragment key={index}>
-                <p>{bodyText(fillContent(`Paragraph ${index + 1}.`))}</p>
-              </React.Fragment>
-            ))}
-          </EuiText>
+          {Array.from({ length: OVERFLOWING_PARAGRAPH_COUNT }, (_, index) => (
+            <React.Fragment key={index}>
+              {bodyText(fillContent(`Paragraph ${index + 1}.`))}
+              <EuiSpacer size="s" />
+            </React.Fragment>
+          ))}
         </>
       )}
       {footerZone(args)}
