@@ -201,9 +201,8 @@ export const useHeaderCollapse = ({
   const headerRef = useCallback((node: HTMLElement | null) => {
     headerCleanupRef.current?.();
     headerCleanupRef.current = null;
-    // `EuiFlyoutHeader` is not a forwardRef component, so the caller attaches this to a wrapper
-    // it owns. Listening on the parent covers the header's padding, which the wrapper does not.
-    const header = node?.parentElement;
+    // Walk up to the flyout header element to cover its padding, which the inner wrapper does not.
+    const header = node?.closest('.euiFlyoutHeader');
     if (!header) return;
 
     const onWheel = (event: WheelEvent) => {
