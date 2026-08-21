@@ -202,12 +202,15 @@ export const useHeaderCollapse = ({
     headerCleanupRef.current?.();
     headerCleanupRef.current = null;
     // Walk up to the flyout header element to cover its padding, which the inner wrapper does not.
-    const header = node?.closest('.euiFlyoutHeader');
+    const header = node?.closest<HTMLElement>('.euiFlyoutHeader');
     if (!header) return;
 
-    const onWheel = (event: WheelEvent) => {
+    const onWheel = (event: Event) => {
       const scroller = scrollerRef.current;
-      if (!scroller) return;
+      if (!scroller || !(event instanceof WheelEvent)) return;
+      // Let modified wheel events (Ctrl/Cmd+scroll = browser zoom, Alt+scroll = h-scroll, etc.)
+      // pass through unmodified so the browser can handle them normally.
+      if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
       // The header is not scrollable, so the browser would otherwise scroll the page behind it.
       // Requires the non-passive listener below; React's onWheel is passive and cannot do this.
       event.preventDefault();

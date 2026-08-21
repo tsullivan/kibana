@@ -363,6 +363,23 @@ describe('FlyoutTemplate header collapse on scroll', () => {
 
     expect(notCancelled).toBe(false);
   });
+
+  it.each([
+    ['ctrlKey', { ctrlKey: true }],
+    ['metaKey', { metaKey: true }],
+    ['altKey', { altKey: true }],
+    ['shiftKey', { shiftKey: true }],
+  ])('does not forward or cancel wheel events when %s is held', (_, modifiers) => {
+    const { headerEl, scrollBy } = setUpWheelForwarding();
+
+    let notCancelled = true;
+    act(() => {
+      notCancelled = fireEvent.wheel(headerEl, { deltaY: 50, ...modifiers });
+    });
+
+    expect(scrollBy).not.toHaveBeenCalled();
+    expect(notCancelled).toBe(true);
+  });
 });
 
 describe('FlyoutTemplate Header collapsed prop', () => {
