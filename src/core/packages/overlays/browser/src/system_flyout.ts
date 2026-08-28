@@ -9,10 +9,13 @@
 
 import type { OverlayRef } from '@kbn/core-mount-utils-browser';
 import type { EuiFlyoutProps } from '@elastic/eui';
+import type { FlyoutTemplateDescriptor } from '@kbn/flyout-template';
 import type { OverlayFlyoutOpenOptions } from './flyout';
 
 /**
  * Options for opening a system flyout.
+ *
+ * @deprecated Use {@link OverlayFlyoutTemplateOpenOptions} with `openFlyoutTemplate` instead.
  */
 export type OverlaySystemFlyoutOpenOptions = Omit<OverlayFlyoutOpenOptions, 'session'> & {
   /**
@@ -34,6 +37,7 @@ export type OverlaySystemFlyoutOpenOptions = Omit<OverlayFlyoutOpenOptions, 'ses
 /**
  * APIs to open and manage fly-out dialogs.
  *
+ * @deprecated Use {@link OverlayFlyoutTemplateStart} via `openFlyoutTemplate` instead.
  * @public
  */
 export interface OverlaySystemFlyoutStart {
@@ -44,6 +48,47 @@ export interface OverlaySystemFlyoutStart {
    * @param content React.ReactElement - Renders the content inside a flyout panel
    * @param options {@link EuiFlyoutProps} - options for the flyout
    * @return {@link OverlayRef} A reference to the opened flyout panel.
+   *
+   * @deprecated Use `openFlyoutTemplate` instead.
    */
   open(content: React.ReactElement, options?: OverlaySystemFlyoutOpenOptions): OverlayRef;
+}
+
+/**
+ * Swaps the template's EUI `onClose` for the overlay one, distributively: a plain
+ * `Omit` over `FlyoutTemplateDescriptor` would flatten its tabbed/untabbed union,
+ * silently dropping `defaultSelectedTabId` / `onTabChange` and allowing `body` and
+ * `tabs` together. See the note in `@kbn/flyout-template`'s descriptor types.
+ */
+type WithOverlayOnClose<T> = T extends unknown
+  ? Omit<T, 'onClose'> & {
+      /** If provided the consumer is responsible for calling `flyout.close()`. */
+      onClose?: (flyout: OverlayRef) => void;
+    }
+  : never;
+
+/**
+ * Options for opening a system flyout rendered as a `FlyoutTemplate`. Describes every
+ * zone (header, body, footer) as data; see `@kbn/flyout-template` for the full
+ * descriptor reference.
+ *
+ * @public
+ */
+export type OverlayFlyoutTemplateOpenOptions = WithOverlayOnClose<FlyoutTemplateDescriptor>;
+
+/**
+ * APIs to open and manage `FlyoutTemplate`-based fly-out dialogs.
+ *
+ * @public
+ */
+export interface OverlayFlyoutTemplateStart {
+  /**
+   * Opens a flyout panel rendered as a `FlyoutTemplate` from the given descriptor. Calling
+   * `open` for multiple flyouts allows history navigation. You can use `close()` on the
+   * returned FlyoutRef to close the flyout.
+   *
+   * @param options {@link OverlayFlyoutTemplateOpenOptions} - the flyout descriptor
+   * @return {@link OverlayRef} A reference to the opened flyout panel.
+   */
+  open(options: OverlayFlyoutTemplateOpenOptions): OverlayRef;
 }

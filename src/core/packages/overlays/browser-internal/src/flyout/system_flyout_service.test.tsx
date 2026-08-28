@@ -13,10 +13,14 @@ import { analyticsServiceMock } from '@kbn/core-analytics-browser-mocks';
 import { i18nServiceMock } from '@kbn/core-i18n-browser-mocks';
 import { themeServiceMock } from '@kbn/core-theme-browser-mocks';
 import { userProfileServiceMock } from '@kbn/core-user-profile-browser-mocks';
+import { KibanaErrorBoundaryProvider } from '@kbn/shared-ux-error-boundary';
 import { SystemFlyoutService } from './system_flyout_service';
 import type { SystemFlyoutRef } from './system_flyout_ref';
 import type { OverlayRef } from '@kbn/core-mount-utils-browser';
-import type { OverlaySystemFlyoutStart } from '@kbn/core-overlays-browser';
+import type {
+  OverlayFlyoutTemplateStart,
+  OverlaySystemFlyoutStart,
+} from '@kbn/core-overlays-browser';
 import React from 'react';
 
 interface FlyoutManagerEvent {
@@ -65,7 +69,10 @@ afterEach(() => {
 });
 
 describe('SystemFlyoutService', () => {
-  let systemFlyouts: OverlaySystemFlyoutStart;
+  let systemFlyouts: {
+    open: OverlaySystemFlyoutStart['open'];
+    openTemplate: OverlayFlyoutTemplateStart['open'];
+  };
   let service: SystemFlyoutService;
   let targetDomElement: HTMLElement;
   let skipCleanup = false;
@@ -369,6 +376,134 @@ describe('SystemFlyoutService', () => {
         await ref2.close();
         expect(onClose2).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  describe('openTemplate()', () => {
+    it('reaches DescribedFlyoutTemplate intact: the header title is visible', () => {
+      systemFlyouts.openTemplate({
+        title: 'My Flyout Title',
+        session: 'never',
+        body: [{ kind: 'content', Content: () => <div>content</div> }],
+      });
+      expect(mockReactDomRender).toHaveBeenCalledTimes(1);
+
+      const { getByRole } = render(mockReactDomRender.mock.calls[0][0], {
+        wrapper: KibanaErrorBoundaryProvider,
+      });
+      expect(getByRole('heading', { level: 3, name: 'My Flyout Title' })).toBeInTheDocument();
+    });
+
+    it('invokes onClose from options before closing the ref', () => {
+      const onClose = jest.fn();
+      const ref = systemFlyouts.openTemplate({
+        title: 'Closeable',
+        session: 'never',
+        onClose,
+        body: [{ kind: 'content', Content: () => <div>content</div> }],
+      });
+
+      expect((ref as SystemFlyoutRef).isClosed).toBe(false);
+
+      const renderedElement = mockReactDomRender.mock.calls[0][0];
+      const describedTemplateElement = renderedElement.props.children;
+      describedTemplateElement.props.onClose();
+
+      expect(onClose).toHaveBeenCalledWith(ref);
+      expect((ref as SystemFlyoutRef).isClosed).toBe(true);
+    });
+
+    it('matches open()`s ref contract: close() is idempotent and removes the container', async () => {
+      const targetElement = document.createElement('div');
+      const testService = new SystemFlyoutService();
+      const flyouts = testService.start({
+        analytics: analyticsMock,
+        i18n: i18nMock,
+        theme: themeMock,
+        userProfile: userProfileMock,
+        targetDomElement: targetElement,
+      });
+
+      const ref = flyouts.openTemplate({
+        title: 'Container test',
+        session: 'never',
+        body: [{ kind: 'content', Content: () => <div>content</div> }],
+      });
+      expect(targetElement.children.length).toBe(1);
+
+      const firstClose = await ref.close();
+      const secondClose = await ref.close();
+
+      expect(firstClose).toBe(secondClose);
+      expect(targetElement.children.length).toBe(0);
+
+      testService.stop();
+    });
+
+    it('forwards flyout props such as size and outsideClickCloses', () => {
+      systemFlyouts.openTemplate({
+        title: 'Forwarded props',
+        session: 'never',
+        size: 'l',
+        outsideClickCloses: false,
+        body: [{ kind: 'content', Content: () => <div>content</div> }],
+      });
+
+      const renderedElement = mockReactDomRender.mock.calls[0][0];
+      const describedTemplateElement = renderedElement.props.children;
+      expect(describedTemplateElement.props.size).toBe('l');
+      expect(describedTemplateElement.props.outsideClickCloses).toBe(false);
+    });
+
+    it('cascade closes a child flyout (session: "inherit") when the session ends', () => {
+      const parentRef = systemFlyouts.openTemplate({
+        title: 'Parent',
+        id: 'template-parent-flyout',
+        session: 'start',
+        body: [{ kind: 'content', Content: () => <div>parent content</div> }],
+      });
+      const childRef = systemFlyouts.openTemplate({
+        title: 'Child',
+        id: 'template-child-flyout',
+        session: 'inherit',
+        body: [{ kind: 'content', Content: () => <div>child content</div> }],
+      });
+
+      emitEvent({
+        type: 'CLOSE_SESSION',
+        session: {
+          mainFlyoutId: 'template-parent-flyout',
+          childFlyoutId: 'template-child-flyout',
+        },
+      });
+
+      expect((childRef as SystemFlyoutRef).isClosed).toBe(true);
+      expect((parentRef as SystemFlyoutRef).isClosed).toBe(false);
+      expect(mockReactDomUnmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not close an unrelated second "start" session', () => {
+      const refX = systemFlyouts.openTemplate({
+        title: 'Session X',
+        id: 'template-session-x',
+        session: 'start',
+        body: [{ kind: 'content', Content: () => <div>content x</div> }],
+      });
+      const refY = systemFlyouts.openTemplate({
+        title: 'Session Y',
+        id: 'template-session-y',
+        session: 'start',
+        body: [{ kind: 'content', Content: () => <div>content y</div> }],
+      });
+
+      emitEvent({
+        type: 'CLOSE_SESSION',
+        session: { mainFlyoutId: 'template-session-x', childFlyoutId: 'template-session-y' },
+      });
+
+      expect((refX as SystemFlyoutRef).isClosed).toBe(false);
+      expect((refY as SystemFlyoutRef).isClosed).toBe(false);
+      expect(mockReactDomUnmount).not.toHaveBeenCalled();
     });
   });
 

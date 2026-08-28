@@ -72,7 +72,49 @@ const flyoutRef = overlays.openFlyout(
 flyoutRef.close();
 ```
 
-### `overlays.openSystemFlyout`
+### `overlays.openFlyoutTemplate`
+
+Opens a system flyout rendered as a `FlyoutTemplate` — the sanctioned way to build flyout content in Kibana — from a descriptor object describing every zone (header, body, footer) as data. Like `openSystemFlyout`, it integrates with the EUI Flyout Manager for session, history, and cascade-close support.
+
+For the full descriptor reference (body items, sections, subsections, tabs, header badges/meta blocks/info blocks, footer actions, and the `Content: ComponentType` idiom), see the [`@kbn/flyout-template` README](../../../../platform/packages/shared/shared-ux/flyout/template/README.md#descriptor-front-end-for-imperative-hosts). This section only shows the shape at the core boundary.
+
+```typescript
+const flyoutRef = overlays.openFlyoutTemplate({
+  title: 'My Flyout',
+  size: 'm',
+  maxWidth: 600,
+  ownFocus: false,
+  body: [
+    {
+      kind: 'section',
+      title: 'Details',
+      items: [
+        {
+          kind: 'content',
+          Content: () => <p>This is a system flyout rendered as a FlyoutTemplate.</p>,
+        },
+      ],
+    },
+  ],
+  footer: {
+    secondaryAction: { label: 'Cancel', onClick: (flyout) => flyout.close() },
+    primaryAction: { label: 'Save', onClick: () => console.log('Save') },
+  },
+  onClose: (flyout) => {
+    console.log('Flyout closed');
+    flyout.close();
+  },
+});
+
+// Close the flyout programmatically
+flyoutRef.close();
+```
+
+Core does not re-export the descriptor types (`FlyoutTemplateDescriptor`, `FlyoutTemplateBodyItem`, etc.) — a caller that needs to name one imports it from `@kbn/flyout-template` directly and adds that package to its own `kbn_references`. Most callers will not need to: object literals passed straight to `openFlyoutTemplate`, as in the example above, are inferred contextually with no import at all.
+
+### `overlays.openSystemFlyout` (deprecated)
+
+> **Deprecated.** Use [`overlays.openFlyoutTemplate`](#overlaysopenflyouttemplate) instead. The "Content should include `EuiFlyoutBody`" contract this method documents below is exactly what `openFlyoutTemplate` replaces: it renders a real `FlyoutTemplate`, so callers stop hand-composing `EuiFlyoutBody`/`EuiFlyoutFooter` chrome.
 
 Opens a system flyout that integrates with the EUI Flyout Manager. Using a mount point would break the context propogation of the EUI Flyout Manager, so this method accepts React elements directly rather than `toMountPoint`.
 
@@ -189,4 +231,5 @@ overlays.openSystemFlyout(<MyContent />, {
 ### Key Differences
 
 - **`openFlyout`**: Traditional method that requires `toMountPoint`. Opens flyouts with `session="never"`. Content should include `EuiFlyoutHeader` and `EuiFlyoutBody`. Optionally include `EuiFlyoutFooter`.
-- **`openSystemFlyout`**: Modern method that accepts React elements directly. Opens flyouts with `session="start"` for full EUI Flyout System integration, supporting features like flyout navigation and stacking. Content should not include `EuiFlyoutHeader`, as an `EuiFlyoutMenu` is created automatically from the `title` option. Content should include `EuiFlyoutBody`, and optionally `EuiFlyoutFooter`.
+- **`openFlyoutTemplate`**: The recommended method for session-based flyouts. Opens flyouts with `session="start"` for full EUI Flyout System integration, rendered as a `FlyoutTemplate` from a descriptor object — no hand-composed `EuiFlyoutHeader`/`Body`/`Footer`.
+- **`openSystemFlyout`** *(deprecated)*: Accepts React elements directly. Opens flyouts with `session="start"` for full EUI Flyout System integration, supporting features like flyout navigation and stacking. Content should not include `EuiFlyoutHeader`, as an `EuiFlyoutMenu` is created automatically from the `title` option. Content should include `EuiFlyoutBody`, and optionally `EuiFlyoutFooter`.

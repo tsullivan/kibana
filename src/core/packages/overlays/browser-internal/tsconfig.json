@@ -29,7 +29,9 @@
     "@kbn/core-analytics-browser-mocks",
     "@kbn/core-analytics-browser",
     "@kbn/core-user-profile-browser-mocks",
-    "@kbn/core-user-profile-browser"
+    "@kbn/core-user-profile-browser",
+    "@kbn/flyout-template",
+    "@kbn/shared-ux-error-boundary"
   ],
   "exclude": [
     "target/**/*"
