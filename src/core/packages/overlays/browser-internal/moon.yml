@@ -34,7 +34,6 @@ dependsOn:
   - '@kbn/core-user-profile-browser-mocks'
   - '@kbn/core-user-profile-browser'
   - '@kbn/flyout-template'
-  - '@kbn/shared-ux-error-boundary'
 tags:
   - shared-browser
   - package

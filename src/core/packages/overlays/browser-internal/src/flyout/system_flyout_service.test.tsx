@@ -13,7 +13,6 @@ import { analyticsServiceMock } from '@kbn/core-analytics-browser-mocks';
 import { i18nServiceMock } from '@kbn/core-i18n-browser-mocks';
 import { themeServiceMock } from '@kbn/core-theme-browser-mocks';
 import { userProfileServiceMock } from '@kbn/core-user-profile-browser-mocks';
-import { KibanaErrorBoundaryProvider } from '@kbn/shared-ux-error-boundary';
 import { SystemFlyoutService } from './system_flyout_service';
 import type { SystemFlyoutRef } from './system_flyout_ref';
 import type { OverlayRef } from '@kbn/core-mount-utils-browser';
@@ -388,9 +387,7 @@ describe('SystemFlyoutService', () => {
       });
       expect(mockReactDomRender).toHaveBeenCalledTimes(1);
 
-      const { getByRole } = render(mockReactDomRender.mock.calls[0][0], {
-        wrapper: KibanaErrorBoundaryProvider,
-      });
+      const { getByRole } = render(mockReactDomRender.mock.calls[0][0]);
       expect(getByRole('heading', { level: 3, name: 'My Flyout Title' })).toBeInTheDocument();
     });
 
