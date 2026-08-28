@@ -71,3 +71,29 @@ Zone subjects derive from the root `data-test-subj` prop with a zone suffix, and
 | Footer | `${root}Footer` | `FlyoutTemplate.Footer` `data-test-subj` |
 
 Footer action buttons are not derived; their `data-test-subj` passes through to the button as given.
+
+## Descriptor front end (for imperative hosts)
+
+`FlyoutTemplate` discovers its zones by parsing its *direct* JSX children, so it only works where the flyout renders in your own tree. An imperative host — code that mounts a React tree it does not otherwise control, such as a core overlay service — cannot hand it JSX and get a live parse across that boundary. For that case this package also exports `DescribedFlyoutTemplate` plus descriptor types (`FlyoutTemplateDescriptor`, `FlyoutTemplateBodyItem`, `FlyoutTemplateSectionItem`, `FlyoutTemplateTabOptions`, `FlyoutTemplateHeaderOptions`, `FlyoutTemplateBodyOptions`, `ContentSlot`) that describe the whole flyout as data. `DescribedFlyoutTemplate` builds the real part elements from the descriptor inside its own JSX, so every rule documented above — zone order, dividers, singleton parts, tab/panel pairing — still applies.
+
+```tsx
+import { DescribedFlyoutTemplate } from '@kbn/flyout-template';
+
+<DescribedFlyoutTemplate
+  title="Alert details"
+  onClose={onClose}
+  body={[
+    {
+      kind: 'section',
+      title: 'Summary',
+      items: [{ kind: 'content', Content: () => <AlertSummary alert={alert} /> }],
+    },
+  ]}
+/>;
+```
+
+- **`title` is required and a `string`.** Unlike the JSX `Header.title` (which accepts any `ReactNode`), the descriptor always renders a header and needs a string for the flyout menu's history entry. Put rich content in `header.description`, which stays `ReactNode`.
+- **Content is `Content: ComponentType`, bound with a closure**, not `ReactNode` or a bare thunk: `Content: () => <MyPanel doc={doc} />`. Rendered as `<Content />`, it is a real component boundary — the caller's hooks work, and the subtree re-renders independently of the flyout chrome.
+- **A part written inside a `Content` component does not render.** Parts are identified by parsing direct JSX children; one returned from inside a component sits behind a component boundary the parser cannot see through, so `Body.Section` (or any other part) rendered there silently renders nothing. Compose descriptors, not JSX-returning components, for anything the template needs to see.
+- **Tabs are uncontrolled only**: `defaultSelectedTabId` and an optional `onTabChange` for analytics — there is no `selectedTabId`. The descriptor is a snapshot captured at open time, and a controlled `selectedTabId` would put the template in controlled mode with no way to ever change it.
+- **Section and Accordion still must not be mixed** in the same `items` list — that rule is a template dev warning, not a type error, in both front ends.

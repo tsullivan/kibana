@@ -8,6 +8,7 @@
  */
 
 export { FlyoutTemplate } from './src/flyout_template';
+export { DescribedFlyoutTemplate } from './src/descriptor/described_flyout_template';
 
 export type {
   FlyoutTemplateProps,
@@ -26,3 +27,13 @@ export type {
   FlyoutFooterPrimaryActionProps,
   FlyoutFooterSecondaryActionProps,
 } from './src/types';
+
+export type {
+  ContentSlot,
+  FlyoutTemplateBodyItem,
+  FlyoutTemplateBodyOptions,
+  FlyoutTemplateDescriptor,
+  FlyoutTemplateHeaderOptions,
+  FlyoutTemplateSectionItem,
+  FlyoutTemplateTabOptions,
+} from './src/descriptor/types';
