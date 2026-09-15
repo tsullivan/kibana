@@ -50,6 +50,7 @@ const meta: Meta<Args> = {
     numInfoBlocks: 0,
     footer: true,
     secondaryActionIcon: true,
+    primaryActionKind: 'button',
     resizable: true,
     type: 'overlay',
     ownFocus: false,
@@ -111,6 +112,13 @@ const meta: Meta<Args> = {
     secondaryActionIcon: {
       name: 'Secondary action icon',
       control: { type: 'boolean' },
+      if: { arg: 'footer', truthy: true },
+      table: { category: 'Footer' },
+    },
+    primaryActionKind: {
+      name: 'Primary action',
+      control: { type: 'inline-radio' },
+      options: ['button', 'menu'],
       if: { arg: 'footer', truthy: true },
       table: { category: 'Footer' },
     },
@@ -305,6 +313,7 @@ export const MenuBarPagination: Story = {
     titleIcon: { table: { disable: true } },
     description: { table: { disable: true } },
     footer: { table: { disable: true } },
+    primaryActionKind: { table: { disable: true } },
     numTabs: { table: { disable: true } },
   },
   args: {
@@ -393,6 +402,7 @@ export const MenuBarHistory: Story = {
     description: { table: { disable: true } },
     numPages: { table: { disable: true } },
     footer: { table: { disable: true } },
+    primaryActionKind: { table: { disable: true } },
     numTabs: { table: { disable: true } },
   },
   args: {
